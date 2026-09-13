@@ -14254,6 +14254,13 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         int dc = getDc();
                         boolean isUserSelf = userId == UserConfig.getInstance(currentAccount).getClientUserId();
                         detailCell.setTextAndValue(id + "", dc != 0 ? String.format(Locale.US, "DC%d %s, %s", dc, getDCName(dc), getDCLocation(dc)) : "DC " + getString(R.string.NumberUnknown), isUserSelf);
+                        // FIX: Add calendar icon for account creation date
+                        if (userId != 0) {
+                            Drawable calendarDrawable = ContextCompat.getDrawable(detailCell.getContext(), R.drawable.input_schedule);
+                            calendarDrawable.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_windowBackgroundWhiteBlueText), PorterDuff.Mode.MULTIPLY));
+                            detailCell.setImage(calendarDrawable, LocaleController.getString(R.string.AccDescrSchedule));
+                            detailCell.setImageClickListener(v -> showAccountCreationDate(v));
+                        }
                     } else if (position == restrictionReasonRow) {
                         ArrayList<TLRPC.RestrictionReason> reasons = new ArrayList<>();
                         if (userId != 0) {
@@ -17832,6 +17839,18 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             }
         }
         return dc;
+    }
+
+    private void showAccountCreationDate(View anchor) {
+        if (userId == 0) return;
+        long id = getId(true);
+        String dateStr = tw.nekomimi.nekogram.helpers.ProfileDateHelper.getUserTime(id);
+        // Show a tooltip-like popup with the creation date
+        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity(), resourcesProvider);
+        builder.setTitle(LocaleController.getString(R.string.AccDescrSchedule));
+        builder.setMessage(dateStr);
+        builder.setPositiveButton(LocaleController.getString(R.string.OK), null);
+        builder.show();
     }
 
     private void showIdDcBottomSheet() {
