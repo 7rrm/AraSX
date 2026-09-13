@@ -14279,7 +14279,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     } else if (position == idDcRow && userId != 0) {
                         // FIX: Add calendar icon for account creation date
                         Drawable calendarDrawable = ContextCompat.getDrawable(detailCell.getContext(), R.drawable.input_schedule);
-                        calendarDrawable.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_windowBackgroundWhiteBlueText), PorterDuff.Mode.MULTIPLY));
+                        calendarDrawable.setColorFilter(new PorterDuffColorFilter(dontApplyPeerColor(getThemedColor(Theme.key_actionBarDefaultIcon), false), PorterDuff.Mode.MULTIPLY));
                         detailCell.setImage(calendarDrawable, LocaleController.getString(R.string.AccDescrSchedule));
                         detailCell.setImageClickListener(v -> showAccountCreationDate(v));
                     } else {
@@ -17808,10 +17808,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         // Build the message
         StringBuilder message = new StringBuilder();
         if (!timePart.isEmpty()) {
-            message.append("تاريخ إنشاء الحساب: ").append(datePart).append("\n");
-            message.append("الساعة: ").append(timePart);
+            message.append(getString(R.string.AccountCreationDate)).append(": ").append(datePart).append("\n");
+            message.append(getString(R.string.AccountCreationTime)).append(": ").append(timePart);
         } else {
-            message.append("تاريخ إنشاء الحساب: ").append(dateStr);
+            message.append(getString(R.string.AccountCreationDate)).append(": ").append(dateStr);
         }
         
         // Show as a simple bulletin (toast-like message at bottom)
