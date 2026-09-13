@@ -11250,5 +11250,7 @@
     <string name="MeeroStyleCode">Code</string>
     <!-- MeeroX v231: fast-motion switch (Motion settings) -->
     <string name="MeeroFastAnimTitle">Fast animations (0.75×)</string>
-    <string name="AccDescrSchedule">Construction</string>
+    <string name="AccDescrSchedule">Schedule</string>
+    <string name="AccountCreationDate">Account creation date</string>
+    <string name="AccountCreationTime">Time</string>
 </resources>
