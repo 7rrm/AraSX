@@ -17844,13 +17844,44 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private void showAccountCreationDate(View anchor) {
         if (userId == 0) return;
         long id = getId(true);
+        // Get the raw date string from ProfileDateHelper
+        // Format: "~ 21.09.18 at 10:10 PM"
         String dateStr = tw.nekomimi.nekogram.helpers.ProfileDateHelper.getUserTime(id);
-        // Show a tooltip-like popup with the creation date
-        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity(), resourcesProvider);
-        builder.setTitle(LocaleController.getString(R.string.AccDescrSchedule));
-        builder.setMessage(dateStr);
-        builder.setPositiveButton(LocaleController.getString(R.string.OK), null);
-        builder.show();
+        
+        // Parse the date string to extract date and time separately
+        // ProfileDateHelper returns: "~ date at time"
+        // We want: "تاريخ إنشاء الحساب ‹date›\nالساعة ‹time›"
+        String datePart = dateStr;
+        String timePart = "";
+        
+        // Try to split date and time (format: "prefix date at time")
+        // The "at" separator is localized - check for common separators
+        String[] separators = {" at ", " в ", " الساعة ", " "};
+        for (String sep : separators) {
+            int idx = dateStr.indexOf(sep);
+            if (idx > 0) {
+                // Find the LAST occurrence of the separator (time is at the end)
+                idx = dateStr.lastIndexOf(sep);
+                datePart = dateStr.substring(0, idx).trim();
+                timePart = dateStr.substring(idx + sep.length()).trim();
+                break;
+            }
+        }
+        
+        // Build the message
+        StringBuilder message = new StringBuilder();
+        if (!timePart.isEmpty()) {
+            message.append("تاريخ إنشاء الحساب: ").append(datePart).append("\n");
+            message.append("الساعة: ").append(timePart);
+        } else {
+            message.append("تاريخ إنشاء الحساب: ").append(dateStr);
+        }
+        
+        // Show as a simple bulletin (toast-like message at bottom)
+        BulletinFactory.of(this).createSimpleBulletin(
+            R.drawable.msg_calendar,
+            message.toString()
+        ).show();
     }
 
     private void showIdDcBottomSheet() {
