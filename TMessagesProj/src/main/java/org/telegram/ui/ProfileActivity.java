@@ -2556,16 +2556,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             actionBar.backButtonImageView.setContentDescription(getString(R.string.QrCode));
             actionBar.backButtonImageView.setImageResource(R.drawable.outline_header_qr_24);
             actionBar.backButtonImageView.setColorFilter(getThemedColor(Theme.key_actionBarDefaultIcon), PorterDuff.Mode.SRC_IN);
-            // FIX: apply glass to QR code icon button
-            if (iBlur3FactoryLiquidGlass != null) {
-                try {
-                    final int qrSize = AndroidUtilities.dp(MEERO_PROFILE_BUTTON);
-                    final BlurredBackgroundDrawable qrBg = iBlur3FactoryLiquidGlass.create(
-                            actionBar.backButtonImageView, BlurredBackgroundProviderImpl.headerButton(resourcesProvider));
-                    qrBg.setRadius(qrSize / 2f);
-                    actionBar.backButtonImageView.setBackground(new MeeroCenteredDrawable(qrBg, qrSize, qrSize));
-                } catch (Throwable ignore) {}
-            }
             actionBar.backButtonImageView.setOnClickListener(v -> {
                 Bundle args = new Bundle();
                 args.putLong("chat_id", chatId);
@@ -2665,32 +2655,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
      * the iOS chrome uses.
      */
     private void meeroGlassProfileButtons() {
-        if (iBlur3FactoryLiquidGlass == null || actionBar == null) {
-            return;
-        }
-        try {
-            final int size = AndroidUtilities.dp(MEERO_PROFILE_BUTTON);
-            // Apply glass to back button (or QR button if present)
-            final View back = actionBar.getBackButton();
-            if (back != null) {
-                final BlurredBackgroundDrawable bg = iBlur3FactoryLiquidGlass.create(
-                        back, BlurredBackgroundProviderImpl.topPanel(resourcesProvider));
-                bg.setRadius(size / 2f);
-                back.setBackground(new MeeroCenteredDrawable(bg, size, size));
-            }
-            // Also apply glass to backButtonImageView (QR code icon)
-            if (actionBar.backButtonImageView != null) {
-                final BlurredBackgroundDrawable qrBg = iBlur3FactoryLiquidGlass.create(
-                        actionBar.backButtonImageView, BlurredBackgroundProviderImpl.headerButton(resourcesProvider));
-                qrBg.setRadius(size / 2f);
-                actionBar.backButtonImageView.setBackground(new MeeroCenteredDrawable(qrBg, size, size));
-            }
-            final ActionBarMenu menu = actionBar.createMenu();
-            if (menu != null) {
-                menu.setGlassMode(true);
-            }
-        } catch (Throwable ignore) {
-        }
+        // Glass disabled per user request
+
     }
 
     /**
@@ -2701,35 +2667,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
      * the text input never wears a floating circle.
      */
     private void meeroGlassProfileHeaderItem(ActionBarMenuItem item) {
-        if (iBlur3FactoryLiquidGlass == null || item == null) {
-            return;
-        }
-        try {
-            final int size = AndroidUtilities.dp(MEERO_PROFILE_BUTTON);
-            final BlurredBackgroundDrawable bg = iBlur3FactoryLiquidGlass.create(
-                    item, BlurredBackgroundProviderImpl.headerButton(resourcesProvider));
-            // headerButton (the dialogs pill's provider) doubles the fill
-            // carry and the outline exactly for 30-48dp discs - topPanel's
-            // small discs dissolve into the bar.
-            bg.setRadius(size / 2f);
-            item.setMeeroBackgroundPainter(canvas -> {
-                try {
-                    final int bw = item.getWidth();
-                    final int bh = item.getHeight();
-                    if (bw <= 0 || bh <= 0 || item.getAlpha() <= 0.01f || bw > size * 1.6f) {
-                        return;
-                    }
-                    final int left = (bw - size) / 2;
-                    final int top = Math.max(0, (bh - size) / 2);
-                    bg.setBounds(left, top, left + size, top + size);
-                    bg.setAlpha((int) (item.getAlpha() * 255));
-                    bg.draw(canvas);
-                    bg.setAlpha(255);
-                } catch (Throwable ignore) {
-                }
-            });
-        } catch (Throwable ignore) {
-        }
+        // Glass disabled per user request
     }
 
     @Override
@@ -14254,13 +14192,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         int dc = getDc();
                         boolean isUserSelf = userId == UserConfig.getInstance(currentAccount).getClientUserId();
                         detailCell.setTextAndValue(id + "", dc != 0 ? String.format(Locale.US, "DC%d %s, %s", dc, getDCName(dc), getDCLocation(dc)) : "DC " + getString(R.string.NumberUnknown), isUserSelf);
-                        // FIX: Add calendar icon for account creation date
-                        if (userId != 0) {
-                            Drawable calendarDrawable = ContextCompat.getDrawable(detailCell.getContext(), R.drawable.input_schedule);
-                            calendarDrawable.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_windowBackgroundWhiteBlueText), PorterDuff.Mode.MULTIPLY));
-                            detailCell.setImage(calendarDrawable, LocaleController.getString(R.string.AccDescrSchedule));
-                            detailCell.setImageClickListener(v -> showAccountCreationDate(v));
-                        }
                     } else if (position == restrictionReasonRow) {
                         ArrayList<TLRPC.RestrictionReason> reasons = new ArrayList<>();
                         if (userId != 0) {
@@ -14345,6 +14276,12 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         drawable.setColorFilter(new PorterDuffColorFilter(dontApplyPeerColor(getThemedColor(Theme.key_actionBarDefaultIcon), false), PorterDuff.Mode.MULTIPLY));
                         detailCell.setImage(drawable, LocaleController.getString(R.string.GetQRCode));
                         detailCell.setImageClickListener(ProfileActivity.this::onTextDetailCellImageClicked);
+                    } else if (position == idDcRow && userId != 0) {
+                        // FIX: Add calendar icon for account creation date
+                        Drawable calendarDrawable = ContextCompat.getDrawable(detailCell.getContext(), R.drawable.input_schedule);
+                        calendarDrawable.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_windowBackgroundWhiteBlueText), PorterDuff.Mode.MULTIPLY));
+                        detailCell.setImage(calendarDrawable, LocaleController.getString(R.string.AccDescrSchedule));
+                        detailCell.setImageClickListener(v -> showAccountCreationDate(v));
                     } else {
                         detailCell.setImage(null);
                         detailCell.setImageClickListener(null);
