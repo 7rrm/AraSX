@@ -1269,5 +1269,5 @@
     <string name="MeeroFastAnimTitle">حركات أسرع (0.75×)</string>
     <string name="AccDescrSchedule">تاريخ إنشاء الحساب</string>
     <string name="AccountCreationDate">تاريخ إنشاء الحساب</string>
-    <string name="AccountCreationTime">الساعة</string>
+    <string name="AccountCreationTime">الساعةة</string>
 </resources>
