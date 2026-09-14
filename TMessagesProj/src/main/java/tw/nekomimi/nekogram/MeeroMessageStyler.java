@@ -45,52 +45,43 @@ public final class MeeroMessageStyler {
             if (params.entities == null) {
                 params.entities = new ArrayList<>();
             }
-            
-            // Collect all custom emoji entity offsets so we can skip them
-            java.util.List<int[]> emojiRanges = new java.util.ArrayList<>();
-            for (TLRPC.MessageEntity existing : params.entities) {
-                if (existing instanceof TLRPC.TL_messageEntityCustomEmoji) {
-                    emojiRanges.add(new int[]{existing.offset, existing.offset + existing.length});
+
+            // Scan the text for high-codepoint characters (custom/premium emojis)
+            // These are characters with codepoint > 0xFFFF (surrogate pairs in Java)
+            // We create style entities only for the TEXT segments, NOT the emoji segments
+            int textStart = -1;
+            for (int i = 0; i < text.length(); i++) {
+                char c = text.charAt(i);
+                if (Character.isHighSurrogate(c) && i + 1 < text.length() && Character.isLowSurrogate(text.charAt(i + 1))) {
+                    // This is a surrogate pair = custom emoji character
+                    // First, close the current text segment
+                    if (textStart >= 0) {
+                        addStyleEntity(params, s, textStart, i - textStart);
+                        textStart = -1;
+                    }
+                    i++; // Skip the low surrogate
+                } else {
+                    // Regular character - start a new text segment if needed
+                    if (textStart < 0) {
+                        textStart = i;
+                    }
                 }
             }
-            
-            if (emojiRanges.isEmpty()) {
-                // No custom emojis — wrap the entire message
-                final TLRPC.MessageEntity e = entityFor(s);
-                if (e == null) return;
-                e.offset = 0;
-                e.length = text.length();
-                params.entities.add(e);
-            } else {
-                // Sort emoji ranges by offset
-                emojiRanges.sort((a, b) -> Integer.compare(a[0], b[0]));
-                
-                // Add style entities for the gaps between/around emojis
-                int currentPos = 0;
-                for (int[] range : emojiRanges) {
-                    if (currentPos < range[0]) {
-                        // There's text before this emoji — wrap it
-                        final TLRPC.MessageEntity e = entityFor(s);
-                        if (e != null) {
-                            e.offset = currentPos;
-                            e.length = range[0] - currentPos;
-                            params.entities.add(e);
-                        }
-                    }
-                    currentPos = range[1]; // Skip past the emoji
-                }
-                // Wrap any remaining text after the last emoji
-                if (currentPos < text.length()) {
-                    final TLRPC.MessageEntity e = entityFor(s);
-                    if (e != null) {
-                        e.offset = currentPos;
-                        e.length = text.length() - currentPos;
-                        params.entities.add(e);
-                    }
-                }
+            // Close the last text segment
+            if (textStart >= 0) {
+                addStyleEntity(params, s, textStart, text.length() - textStart);
             }
         } catch (Throwable ignore) {
         }
+    }
+
+    private static void addStyleEntity(SendMessagesHelper.SendMessageParams params, int style, int offset, int length) {
+        if (length <= 0) return;
+        final TLRPC.MessageEntity e = entityFor(style);
+        if (e == null) return;
+        e.offset = offset;
+        e.length = length;
+        params.entities.add(e);
     }
 
     private static TLRPC.MessageEntity entityFor(int s) {
