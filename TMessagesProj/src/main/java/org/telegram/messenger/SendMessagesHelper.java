@@ -4293,7 +4293,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
     public void sendMessage(SendMessageParams sendMessageParams) {
         // MeeroX v230: «تنسيق الإرسال» - wrap the outgoing text/caption with
         // the owner's chosen Telegram entity (0 = off, stock bytes intact).
-        tw.nekomimi.nekogram.MeeroMessageStyler.applyTo(sendMessageParams);
+        // DISABLED FOR TESTING: tw.nekomimi.nekogram.MeeroMessageStyler.applyTo(sendMessageParams);
         // FIX: Ensure custom emoji entities are preserved after styling
         // If style entities overlap with CustomEmoji entities, remove the overlap
         if (sendMessageParams.entities != null && sendMessageParams.message != null) {
