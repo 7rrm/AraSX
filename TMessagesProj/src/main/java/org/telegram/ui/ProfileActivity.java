@@ -14278,7 +14278,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         detailCell.setImageClickListener(ProfileActivity.this::onTextDetailCellImageClicked);
                     } else if (position == idDcRow && userId != 0) {
                         // FIX: Add calendar icon for account creation date
-                        Drawable calendarDrawable = ContextCompat.getDrawable(detailCell.getContext(), R.drawable.input_schedule);
+                        Drawable calendarDrawable = ContextCompat.getDrawable(detailCell.getContext(), R.drawable.msg_calendar);
                         calendarDrawable.setColorFilter(new PorterDuffColorFilter(dontApplyPeerColor(getThemedColor(Theme.key_actionBarDefaultIcon), false), PorterDuff.Mode.MULTIPLY));
                         detailCell.setImage(calendarDrawable, LocaleController.getString(R.string.AccDescrSchedule));
                         detailCell.setImageClickListener(v -> showAccountCreationDate(v));
