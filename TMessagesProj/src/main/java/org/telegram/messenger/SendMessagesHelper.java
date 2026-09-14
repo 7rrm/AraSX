@@ -4293,40 +4293,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
     public void sendMessage(SendMessageParams sendMessageParams) {
         // MeeroX v230: «تنسيق الإرسال» - wrap the outgoing text/caption with
         // the owner's chosen Telegram entity (0 = off, stock bytes intact).
-        // DISABLED FOR TESTING: tw.nekomimi.nekogram.MeeroMessageStyler.applyTo(sendMessageParams);
-        // FIX: Ensure custom emoji entities are preserved after styling
-        // If style entities overlap with CustomEmoji entities, remove the overlap
-        if (sendMessageParams.entities != null && sendMessageParams.message != null) {
-            String msgText = sendMessageParams.message;
-            java.util.List<TLRPC.MessageEntity> toRemove = new java.util.ArrayList<>();
-            java.util.List<int[]> emojiRanges = new java.util.ArrayList<>();
-            // Find all CustomEmoji entity ranges
-            for (TLRPC.MessageEntity e : sendMessageParams.entities) {
-                if (e instanceof TLRPC.TL_messageEntityCustomEmoji) {
-                    emojiRanges.add(new int[]{e.offset, e.offset + e.length});
-                }
-            }
-            // Check if any style entity overlaps with CustomEmoji
-            if (!emojiRanges.isEmpty()) {
-                for (TLRPC.MessageEntity e : sendMessageParams.entities) {
-                    if (!(e instanceof TLRPC.TL_messageEntityCustomEmoji) &&
-                        !(e instanceof TLRPC.TL_messageEntityTextUrl) &&
-                        !(e instanceof TLRPC.TL_messageEntityMentionName)) {
-                        int eStart = e.offset;
-                        int eEnd = e.offset + e.length;
-                        for (int[] range : emojiRanges) {
-                            if (eStart < range[1] && eEnd > range[0]) {
-                                // Overlap! Remove this style entity
-                                toRemove.add(e);
-                                break;
-                            }
-                        }
-                    }
-                }
-                // Remove overlapping style entities
-                sendMessageParams.entities.removeAll(toRemove);
-            }
-        }
+        tw.nekomimi.nekogram.MeeroMessageStyler.applyTo(sendMessageParams);
         final SendMessageChatArguments sendMessageChatArguments = sendMessageParams.sendMessageChatArguments != null ?
                 sendMessageParams.sendMessageChatArguments : SendMessageChatArguments.EMPTY;
         String message = sendMessageParams.message;
