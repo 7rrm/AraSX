@@ -10,8 +10,12 @@ import java.util.ArrayList;
  * once in Settings > Fonts and every outgoing text is sent with that
  * entity wrapped over its whole length. 0 = default (off). Values mirror
  * the format popup: 1 Bold, 2 Italic, 3 Underline, 4 Strike, 5 Spoiler,
- * 6 Quote, 7 Mono, 8 Code block. Styling is cosmetic and must never block
- * a send, so every failure path returns silently.
+ * 6 Quote, 7 Mono, 8 Code block.
+ *
+ * FIX v3: When the message contains custom/premium emoji (surrogate pairs
+ * in UTF-16), the style is NOT applied at all. This guarantees premium
+ * emojis stay premium. When there are no custom emojis, the style is
+ * applied to the entire message as before.
  */
 public final class MeeroMessageStyler {
 
@@ -26,9 +30,18 @@ public final class MeeroMessageStyler {
         }
     }
 
-    /** Wrap sendMessageParams' text (message or caption) with the entity.
-     *  FIX: Don't overlap with custom emoji entities — wrap only the text
-     *  segments between/before/after them so premium emojis stay premium. */
+    /** Check if text contains any surrogate pair (custom/premium emoji). */
+    private static boolean hasCustomEmoji(String text) {
+        if (text == null || text.isEmpty()) return false;
+        for (int i = 0; i < text.length(); i++) {
+            if (Character.isHighSurrogate(text.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Wrap sendMessageParams' text with the entity. */
     public static void applyTo(SendMessagesHelper.SendMessageParams params) {
         try {
             if (params == null) {
@@ -42,46 +55,26 @@ public final class MeeroMessageStyler {
             if (text == null || text.isEmpty()) {
                 return;
             }
+
+            // FIX: If message contains custom/premium emoji, DON'T apply style
+            // This guarantees the emoji stays premium
+            if (hasCustomEmoji(text)) {
+                return;
+            }
+
+            // No custom emoji - apply style to entire message (original behavior)
+            final TLRPC.MessageEntity e = entityFor(s);
+            if (e == null) {
+                return;
+            }
+            e.offset = 0;
+            e.length = text.length();
             if (params.entities == null) {
                 params.entities = new ArrayList<>();
             }
-
-            // Scan the text for high-codepoint characters (custom/premium emojis)
-            // These are characters with codepoint > 0xFFFF (surrogate pairs in Java)
-            // We create style entities only for the TEXT segments, NOT the emoji segments
-            int textStart = -1;
-            for (int i = 0; i < text.length(); i++) {
-                char c = text.charAt(i);
-                if (Character.isHighSurrogate(c) && i + 1 < text.length() && Character.isLowSurrogate(text.charAt(i + 1))) {
-                    // This is a surrogate pair = custom emoji character
-                    // First, close the current text segment
-                    if (textStart >= 0) {
-                        addStyleEntity(params, s, textStart, i - textStart);
-                        textStart = -1;
-                    }
-                    i++; // Skip the low surrogate
-                } else {
-                    // Regular character - start a new text segment if needed
-                    if (textStart < 0) {
-                        textStart = i;
-                    }
-                }
-            }
-            // Close the last text segment
-            if (textStart >= 0) {
-                addStyleEntity(params, s, textStart, text.length() - textStart);
-            }
+            params.entities.add(e);
         } catch (Throwable ignore) {
         }
-    }
-
-    private static void addStyleEntity(SendMessagesHelper.SendMessageParams params, int style, int offset, int length) {
-        if (length <= 0) return;
-        final TLRPC.MessageEntity e = entityFor(style);
-        if (e == null) return;
-        e.offset = offset;
-        e.length = length;
-        params.entities.add(e);
     }
 
     private static TLRPC.MessageEntity entityFor(int s) {
