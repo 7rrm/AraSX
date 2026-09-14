@@ -26,7 +26,9 @@ public final class MeeroMessageStyler {
         }
     }
 
-    /** Wrap sendMessageParams' text (message or caption) with the entity. */
+    /** Wrap sendMessageParams' text (message or caption) with the entity.
+     *  FIX: Don't overlap with custom emoji entities — wrap only the text
+     *  segments between/before/after them so premium emojis stay premium. */
     public static void applyTo(SendMessagesHelper.SendMessageParams params) {
         try {
             if (params == null) {
@@ -40,16 +42,53 @@ public final class MeeroMessageStyler {
             if (text == null || text.isEmpty()) {
                 return;
             }
-            final TLRPC.MessageEntity e = entityFor(s);
-            if (e == null) {
-                return;
-            }
-            e.offset = 0;
-            e.length = text.length();
             if (params.entities == null) {
                 params.entities = new ArrayList<>();
             }
-            params.entities.add(e);
+            
+            // Collect all custom emoji entity offsets so we can skip them
+            java.util.List<int[]> emojiRanges = new java.util.ArrayList<>();
+            for (TLRPC.MessageEntity existing : params.entities) {
+                if (existing instanceof TLRPC.TL_messageEntityCustomEmoji) {
+                    emojiRanges.add(new int[]{existing.offset, existing.offset + existing.length});
+                }
+            }
+            
+            if (emojiRanges.isEmpty()) {
+                // No custom emojis — wrap the entire message
+                final TLRPC.MessageEntity e = entityFor(s);
+                if (e == null) return;
+                e.offset = 0;
+                e.length = text.length();
+                params.entities.add(e);
+            } else {
+                // Sort emoji ranges by offset
+                emojiRanges.sort((a, b) -> Integer.compare(a[0], b[0]));
+                
+                // Add style entities for the gaps between/around emojis
+                int currentPos = 0;
+                for (int[] range : emojiRanges) {
+                    if (currentPos < range[0]) {
+                        // There's text before this emoji — wrap it
+                        final TLRPC.MessageEntity e = entityFor(s);
+                        if (e != null) {
+                            e.offset = currentPos;
+                            e.length = range[0] - currentPos;
+                            params.entities.add(e);
+                        }
+                    }
+                    currentPos = range[1]; // Skip past the emoji
+                }
+                // Wrap any remaining text after the last emoji
+                if (currentPos < text.length()) {
+                    final TLRPC.MessageEntity e = entityFor(s);
+                    if (e != null) {
+                        e.offset = currentPos;
+                        e.length = text.length() - currentPos;
+                        params.entities.add(e);
+                    }
+                }
+            }
         } catch (Throwable ignore) {
         }
     }
