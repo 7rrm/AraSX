@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="AppName">MeeroX</string>
-    <string name="AppNameBeta">MeeroX Beta</string>
+    <string name="AppName">ArasGram</string>
+    <string name="AppNameBeta">ArasGram Beta</string>
     <string name="LanguageName">English</string>
     <string name="English">English</string>
     <string name="LanguageNameInEnglish">English</string>
@@ -11253,4 +11253,17 @@
     <string name="AccDescrSchedule">Schedule</string>
     <string name="AccountCreationDate">Account creation date</string>
     <string name="AccountCreationTime">Time</string>
+    <string name="MeeroHdrSectionTitle">Chat top strip</string>
+    <string name="MeeroHdrStockTitle">Restore original</string>
+    <string name="MeeroHdrStockDesc">Restore the original Telegram header; disables centering and adaptive width</string>
+    <string name="MeeroHdrCenterTitle">Center chat title</string>
+    <string name="MeeroHdrCenterDesc">Glass capsule in the center, works without restart</string>
+    <string name="MeeroHdrAdaptiveTitle">Adaptive capsule width </string>
+    <string name="MeeroHdrAdaptiveDesc">The capsule expands and shrinks with the name and status width instead of fixed width</string>
+    <string name="MeeroHdrGlareTitle">Glare effects</string>
+    <string name="MeeroHdrGlareDesc">Moving glass shine across the title capsule and message bubbles</string>
+    <string name="MeeroHdrBadgeTitle">Unread counter on back button</string>
+    <string name="MeeroHdrBadgeDesc">Red counter showing your unread conversations while inside a chat</string>
+    <string name="MeeroHdrCommunityTitle">Linked community badge </string>
+    <string name="MeeroHdrCommunityDesc">White disc with arrow on avatars of channels/groups linked to a community - in list, search and profile (header retired permanently since v266)</string>
 </resources>
