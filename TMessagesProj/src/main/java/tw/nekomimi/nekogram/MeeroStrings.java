@@ -4,1025 +4,1447 @@ import java.util.HashMap;
 import java.util.Locale;
 
 /**
- * MeeroStrings - بدون تشفير، بدون مكتبات
- * يبحث في MAP أولاً، ثم في strings_meerox.xml
+ * MeeroX v186 (batch 2D) - degraded fallback string vault.
+ *
+ * Mirrors the layout the user uploaded (jja.java): the whole
+ * UI string table is XOR-garbled with a fixed SHA-256 stream
+ * ("MeeroStrFB1" | block counter) and stored as 8 Base64
+ * constants FB_0..FB_7. At runtime, fallbackTsv() decodes
+ * Base64, re-runs the same SHA-256 stream XOR, and returns
+ * the original TSV. parse() then splits the TSV into
+ * keys[] / vals[id][en,ar] / IDX<key,id>.
+ *
+ * If libmeerocore.so is loaded, ensure() prefers
+ * MeeroCore.nStrTsv() (seed-bound seal) and the FB_* constants
+ * here are never decoded — they remain as the silent fallback
+ * for lib-less builds.
+ *
+ * Generated from MeeroStrings (1).java by encrypt_meero_v186.py.
  */
 public final class MeeroStrings {
 
     private MeeroStrings() {
     }
 
-    // ============================================================
-    // جميع النصوص - المفتاح -> [إنجليزي, عربي]
-    // ============================================================
-    
-    private static final HashMap<String, String[]> MAP = new HashMap<>();
-    
-    static {
-        put("BackAnimationIos", "iOS", "آي أو إس");
-        put("JanitorDays14", "14 days", "14 يوم");
-        put("JanitorDays30", "30 days", "30 يوم");
-        put("JanitorDays7", "7 days", "7 أيام");
-        put("JanitorModeDaily", "Daily", "يومي");
-        put("JanitorModeLimit", "Only when over the limit", "فقط عند تجاوز الحد");
-        put("JanitorModeWeekly", "Weekly", "أسبوعي");
-        put("JanitorReport", "Storage janitor freed %1$s of cache", "حارس التخزين حرّر %1$s من الكاش");
-        put("MeeroAmoledBubblesInfo", "On dark themes with a pure-black background, incoming bubbles turn true #000000 black for contrast and battery saving. OFF restores the theme colors.", "مع الثيمات الداكنة ذات الخلفية السوداء الخالصة، فقاعات الطرف الثاني تصير سوداء 100% (#000000) للتباين وتوفير البطارية. الإطفاء يرجّع ألوان الثيم.");
-        put("MeeroAmoledStrokeInfo", "Draws a barely-there 1px outline around pure-black incoming bubbles so their borders stay visible on true-black backgrounds. Works only while AMOLED black bubbles is on.", "يرسم خطاً خافتاً جداً بسماكة 1px حول فقاعات الطرف الثاني السوداء الخالصة حتى تبقى حدودها واضحة على الخلفية السوداء الحقيقية. يشتغل فقط إذا خيار «فقاعات سوداء AMOLED» شغّال.");
-        put("MeeroAppEdition", "App edition", "إصدار التطبيق");
-        put("MeeroAuditChat", "Locked chat", "محادثة مقفلة");
-        put("MeeroAuditFailed", "Wrong code", "رمز خطأ");
-        put("MeeroAuditSettings", "Lock settings", "إعدادات القفل");
-        put("MeeroAuditSuccess", "Succeeded", "ناجحة");
-        put("MeeroAuditVault", "Hidden vault", "القبو المخفي");
-        put("MeeroAutoJanitorInfo", "Automatically cleans re-downloadable cached media on the schedule below. Messages and the database are never touched; music files are kept.", "ينظّف الكاش القابل لإعادة التحميل تلقائياً حسب الجدولة أدناه. لا يمس الرسائل ولا قاعدة البيانات أبداً، وملفات الموسيقى مستثناة.");
-        put("MeeroAutoRelock", "Auto relock when leaving the app", "القفل التلقائي عند الخروج من التطبيق");
-        put("MeeroAutoReplyBounds", "Guarantees: private chats only - groups, channels, bots and your Saved Messages are always excluded. Never replies while you are inside that same chat with the screen on. Works in the background after you leave the app (a device \"Force stop\" kills everything - that is Android law). With Ghost Mode: the reply is sent without any read receipt, so the other side's read ticks stay unchanged. The cooldown is kept in memory and resets when the app restarts.", "الضمانات: الدردشات الخاصة فقط — القروبات والقنوات والبوتات ورسائلك المحفوظة مستبعدة دائماً. لا يرد وأنت داخل نفس الدردشة والشاشة شغالة. يعمل في الخلفية ولو خرجت من التطبيق («الإيقاف الإجباري» من إعدادات الجهاز يطفي كل شيء — قانون أندرويد). مع وضع الشبح: الرد يُرسل بدون إيصال قراءة، فصحات القراءة عند الطرف الثاني لا تتغير. الفاصل الزمني يُحفظ بالذاكرة ويُصفَّر عند إعادة تشغيل التطبيق.");
-        put("MeeroAutoReplyCooldown", "Reply cooldown per chat", "الفاصل بين الردود لنفس الدردشة");
-        put("MeeroAutoReplyDefaultText", "Hi {name} 👋 I'm busy right now, I'll get back to you as soon as I can ✅", "أهلاً {name} 👋 مشغول هسة، أرد عليك بأقرب وقت إن شاء الله ✅");
-        put("MeeroAutoReplyDelay", "Delay before sending", "التأخير قبل الإرسال");
-        put("MeeroAutoReplyInfo", "Automatically sends one reply to incoming messages in private chats while you are busy, with a per-chat cooldown so it never becomes spam. Off by default - and while off, nothing is ever sent, exactly the stock behavior.", "يرد تلقائياً برسالة واحدة على الرسائل الجديدة في الدردشات الخاصة وأنت مشغول، مع فاصل زمني لكل دردشة حتى لا يتحول لسبام. مطفي افتراضياً — وعند إطفائه لا يُرسل أي شيء، سلوك رسمي تماماً.");
-        put("MeeroAutoReplySampleName", "Ali", "علي");
-        put("MeeroAutoReplyText", "Reply text", "نص الرد");
-        put("MeeroAutoReplyTextHint", "Write {name} and it becomes the person's name", "اكتب {name} وتنحط اسم الشخص مكانها");
-        put("MeeroAutoReplyTitle", "Auto-reply", "الرد التلقائي");
-        put("MeeroAutoReplyUsage", "How it works: automatically sends one reply to incoming messages in private chats while you are busy, with a per-chat cooldown so it never becomes spam. Off by default - and while off, nothing is ever sent, exactly the stock behavior.\n\n⏰ Time window: when enabled, replies are only sent within these hours on the chosen days. If the start is later than the end, the window crosses midnight (e.g. 23:00-08:00). Outside the window (or on unchecked days) nothing is sent. Off = replies around the clock, exactly like before. The optional night text replaces the general reply text while the window is active.\n\n✅ Guarantees: private chats only - groups, channels, bots and your Saved Messages are always excluded. Never replies while you are inside that same chat with the screen on. Works in the background after you leave the app (a device \"Force stop\" kills everything - that is Android law). With Ghost Mode: the reply is sent without any read receipt, so the other side's read ticks stay unchanged. The cooldown is kept in memory and resets when the app restarts.", "شلون تشتغل: يرد تلقائيًا برسالة واحدة على الرسائل الجديدة في الدردشات الخاصة وأنت مشغول، مع فاصل زمني لكل دردشة حتى لا يتحول لسبام. مطفي افتراضيًا — وعند إطفائه ما ينرسل أي شيء، سلوك رسمي تمامًا.\n\n⏰ النافذة الزمنية: عند التفعيل يُرسل الرد فقط داخل هاي الساعات وبالأيام المختارة. إذا البداية بعد النهاية فالنافذة تعبر منتصف الليل (مثال 23:00–08:00). خارج النافذة أو بيوم غير محدد ما ينرسل رد. مطفية = يرد على مدار الساعة مثل السابق. «النص الليلي» الاختياري يستبدل نص الرد العادي داخل النافذة فقط.\n\n✅ الضمانات: الدردشات الخاصة فقط — القروبات والقنوات والبوتات ورسائلك المحفوظة مستبعدة دائمًا. لا يرد وأنت داخل نفس الدردشة والشاشة شغالة. يعمل بالخلفية ولو خرجت من التطبيق («الإيقاف الإجباري» من إعدادات الجهاز يطفي كل شيء — قانون أندرويد). مع وضع الشبح: الرد ينرسل بدون إيصال قراءة، فصحات القراءة عند الطرف الثاني ما تتغير. الفاصل الزمني ينحفظ بالذاكرة وينصفّر عند إعادة تشغيل التطبيق.");
-        put("MeeroAutoReplyWindowDays", "Window days", "أيام النافذة");
-        put("MeeroAutoReplyWindowDaysAll", "Every day", "كل الأيام");
-        put("MeeroAutoReplyWindowDaysNone", "No days - window never runs", "بدون أيام (النافذة لا تعمل)");
-        put("MeeroAutoReplyWindowEnd", "Window end", "نهاية النافذة");
-        put("MeeroAutoReplyWindowInfo", "When enabled, replies are only sent within these hours on the chosen days. If the start is later than the end, the window crosses midnight (e.g. 23:00-08:00). Outside the window (or on unchecked days) nothing is sent. Off = replies around the clock, exactly like before. The optional night text replaces the general reply text while the window is active.", "عند التفعيل يُرسل الرد فقط داخل هذه الساعات وفي الأيام المختارة. إذا كانت البداية بعد النهاية فالنافذة تعبر منتصف الليل (مثال 23:00–08:00). خارج النافذة (أو بيوم غير محدد) لا يُرسل أي رد. مطفية = يرد على مدار الساعة مثل السابق تماماً. «النص الليلي» الاختياري يستبدل نص الرد العادي داخل النافذة فقط.");
-        put("MeeroAutoReplyWindowStart", "Window start", "بداية النافذة");
-        put("MeeroAutoReplyWindowTitle", "Auto-reply time window 🌙", "نافذة زمنية للرد 🌙");
-        put("MeeroBubbleStyle", "Chat bubbles", "فقاعات المحادثة");
-        put("MeeroCardsInfo", "Group settings rows into inset rounded cards, iOS 26 style.", "تجميع صفوف الإعدادات ببطاقات مدوّرة بأسلوب iOS 26.");
-        put("MeeroChannel1", "Channel 1", "القناة الأولى");
-        put("MeeroChannel2", "Channel 2", "القناة الثانية");
-        put("MeeroChatLockAdd", "Lock a chat", "قفل دردشة");
-        put("MeeroChatLockChangeCode", "Change code", "تغيير الرمز");
-        put("MeeroChatLockCodeMismatch", "The two codes don't match - try again", "الرمزان مو متطابقين - حاول مرة ثانية");
-        put("MeeroChatLockCodeSaved", "Code saved", "انحفظ الرمز");
-        put("MeeroChatLockCodeWrong", "Wrong code - try again", "الرمز غلط - حاول مرة ثانية");
-        put("MeeroChatLockConfirmCode", "Confirm the code", "أكّد الرمز");
-        put("MeeroChatLockEmpty", "No locked chats yet. Pick one above.", "ماكو دردشات مقفلة بعد. اختار وحدة من فوق.");
-        put("MeeroChatLockEnterCode", "Enter code", "أدخل الرمز");
-        put("MeeroChatLockEnterCodeHint", "Enter your 8-digit lock code", "اكتب رمز القفل المكوّن من 8 أرقام");
-        put("MeeroChatLockGateHint", "Unlock to view this conversation", "افتحها حتى تشوف المحادثة");
-        put("MeeroChatLockGateSubtitle", "Unlock with your fingerprint or device lock", "افتحها ببصمتك أو رمز جهازك");
-        put("MeeroChatLockGateTitle", "Locked chat", "محادثة مقفلة");
-        put("MeeroChatLockHeader", "Locked chats", "الدردشات المقفلة");
-        put("MeeroChatLockInfo", "A locked chat is covered by an opaque gate and asks for your unlock secret on EVERY entry path (list, search, notification, link) - system biometric/device lock or your 8-digit code, chosen above. The chat also disappears from the main list, folders, archive and every search result, and reappears only inside Hidden chats (long-press the Chats tab on the bottom bar). It relocks the moment you leave it (screen rotation relocks too). Locking also mutes the chat server-side so system notifications reveal nothing, and you get a private \"new message in a locked chat\" notice instead. Unlocking restores notifications only if the lock muted them. The 8-digit code is stored on this device ONLY as a salted hash - if you forget it there is NO recovery (you would have to clear the app data, which logs you out). Off = everything behaves stock.", "الدردشة المقفلة تنغطى بستارة معتمة وتطلب سر الفتح بكل طرق الدخول (القائمة، البحث، الإشعار، الرابط) - بصمة/قفل الجهاز أو رمز الـ8 أرقام حسب ما تختار من فوق. الدردشة أيضاً تختفي من القائمة الرئيسية والمجلدات والأرشيف وكل نتائج البحث، وترجع تظهر بس بشاشة «المحادثات المخفية» (ضغطة مطولة على تبويب المحادثات بالشريط السفلي). تنقفل لحظة خروجك منها (تدوير الشاشة ينقفل أيضاً). القفل يكتم إشعارات الدردشة من السيرفر حتى ما ينكشف شي بإشعارات النظام، ويوصلك بدلها إشعار خاص «رسالة جديدة بمحادثة مقفلة». فك القفل يرجّع الإشعارات بس إذا القفل هو اللي كتمها. رمز الـ8 أرقام ينحفظ بهذا الجهاز فقط كتجزئة مملّحة - إذا تنساه ماكو أي طريقة استرجاع (لازم تمسح بيانات التطبيق ويعني تسجل دخول من جديد). مطفي = كل شي يرجع أصلي.");
-        put("MeeroChatLockInvalid", "This chat cannot be locked.", "هاي الدردشة ما ينقفل عليها.");
-        put("MeeroChatLockMaster", "Enable chat lock", "تفعيل قفل المحادثات");
-        put("MeeroChatLockMethod", "Unlock method", "طريقة فتح القفل");
-        put("MeeroChatLockMethodCode", "8-digit code", "رمز من 8 أرقام");
-        put("MeeroChatLockMethodSystem", "Device biometric / device lock", "بصمة / قفل الجهاز");
-        put("MeeroChatLockNewMessage", "New message in a locked chat", "وصلتك رسالة جديدة بمحادثة مقفلة");
-        put("MeeroChatLockRemove", "Remove lock", "فك القفل");
-        put("MeeroChatLockRemoveConfirm", "Unlock %1$s and restore its notifications?", "تفك القفل عن %1$s وترجّع إشعاراتها؟");
-        put("MeeroChatLockRowDetail", "Locked - fingerprint needed on entry", "مقفلة - البصمة مطلوبة عند الدخول");
-        put("MeeroChatLockSetCode", "Set your code", "عيّن الرمز");
-        put("MeeroChatLockSetCodeHint", "Enter an 8-digit code (numbers only)", "اكتب رمز مكوّن من 8 أرقام (أرقام فقط)");
-        put("MeeroChatLockTitle", "Chat lock", "قفل المحادثات");
-        put("MeeroChatsMenuFogInfo", "Blurs the whole screen behind the bottom-bar chats long-press popup so the menu stays in focus. Off = plain dimming, exactly like before.", "يضبّب الشاشة كلها خلف قائمة الضغط المطول على زر المحادثات بالشريط السفلي حتى التركيز يبقى على القائمة. مطفي = تعتيم عادي مثل قبل بالضبط.");
-        put("MeeroCooldown10", "10 minutes", "10 دقائق");
-        put("MeeroCooldown30", "30 minutes", "30 دقيقة");
-        put("MeeroCooldown5", "5 minutes", "5 دقائق");
-        put("MeeroCooldown60", "1 hour", "ساعة واحدة");
-        put("MeeroCooldownEveryMessage", "Every message", "كل رسالة");
-        put("MeeroDayFri", "Friday", "الجمعة");
-        put("MeeroDayMon", "Monday", "الاثنين");
-        put("MeeroDaySat", "Saturday", "السبت");
-        put("MeeroDaySun", "Sunday", "الأحد");
-        put("MeeroDayThu", "Thursday", "الخميس");
-        put("MeeroDayTue", "Tuesday", "الثلاثاء");
-        put("MeeroDayWed", "Wednesday", "الأربعاء");
-        put("MeeroDelay10", "10 seconds", "10 ثواني");
-        put("MeeroDelay3", "3 seconds", "3 ثواني");
-        put("MeeroDelay5", "5 seconds", "5 ثواني");
-        put("MeeroDelayInstant", "Instant", "فوري");
-        put("MeeroDeveloper", "Developer", "المطوّر");
-        put("MeeroDialogsStyleInfo", "Centred title, filled folder tabs, pill search field and an always-visible Edit button. Restart to apply everywhere.", "عنوان بالنص، تبويبات ممتلئة، حقل بحث مدوّر، وزر تحرير ظاهر دائماً. أعد التشغيل للتطبيق الكامل.");
-        put("MeeroExclusionsAdd", "Add exclusion", "إضافة استثناء");
-        put("MeeroExclusionsInfo", "People here never receive your auto-reply at all - even if they have their own text rule. Remove a person and replies work for him again as usual.", "الأشخاص هنا لا يوصلهم ردك التلقائي أبداً — حتى لو إلهم قاعدة نص خاصة. إذا شلت الشخص يرجع الرد يشتغل عليه طبيعي.");
-        put("MeeroExclusionsNone", "No exclusions", "بلا استثناءات");
-        put("MeeroExclusionsRemove", "Remove from exclusions", "إزالة من الاستثناءات");
-        put("MeeroExclusionsRowDetail", "Never receives the auto-reply", "لن يصله أي رد تلقائي");
-        put("MeeroExclusionsTitle", "Excluded people", "استثناء الأشخاص");
-        put("MeeroExclusionsWordMany", "excluded", "مستثنى");
-        put("MeeroExclusionsWordOne", "excluded", "مستثنى");
-        put("MeeroFlexWidthInfo", "Short iOS-style menus shrink toward their content instead of the fixed 252dp minimum. Long menus stay exactly as they are.", "القوائم القصيرة بنمط iOS تصغّر نحو محتواها بدل الحد الأدنى الثابت 252dp. القوائم الطويلة تبقى كما هي تماماً.");
-        put("MeeroFontAdd", "Add a font from your device", "إضافة خط من جهازك");
-        put("MeeroFontBadFormat", "That file could not be loaded as a font. Pick a valid .ttf or .otf file.", "تعذّر تحميل هذا الملف كخط. اختر ملف .ttf أو .otf صالح.");
-        put("MeeroFontDeleteConfirm", "Delete this font?", "حذف هذا الخط؟");
-        put("MeeroFontPick", "Select a .ttf or .otf font", "اختر ملف خط .ttf أو .otf");
-        put("MeeroFontSection", "Fonts", "الخطوط");
-        put("MeeroGateCodeHint", "Enter your lock code to open", "اكتب رمز القفل حتى تفتح");
-        put("MeeroGhostSwipeReadInfo", "\"Don't read messages\" hides read receipts from everyone, but sometimes you want one person to know you read their chat: enable this, swipe that chat in the dialogs list, and its receipt is sent alone while everything else stays hidden. One requirement: the swipe action must be Read - set it in the Chat swipe action row above, or in Settings - Chat Settings - Chat list swipe gesture. When off, ghost mode behaves exactly like the stock fork.", "خيار «عدم قراءة الرسائل» يحجب إيصالات القراءة عن الكل، لكن أحياناً تريد أن يعرف شخصٌ واحد أنك قرأت: فعّل هذا الخيار واسحب تلك المحادثة في قائمة الدردشات فيصلها وحدها إيصال قراءة حقيقي، والباقي يبقى مخفياً. شرط واحد: إجراء السحب لازم يكون «مقروءة» — تضبطه من صف «ضبط إجراء السحب» في الأعلى، أو من: الإعدادات ← إعدادات المحادثات ← «إجراءات السحْب لقائمة المحادثات». عند الإطفاء يرجع الشبح لسلوك الفورك الرسمي بالضبط.");
-        put("MeeroGhostSwipeReadNeedRead", "For ghost swipe-read to work, the swipe action must be Read - set it in the Chat swipe action row above.", "لتعمل القراءة الشبحية بالسحب لازم إجراء السحب يكون «مقروءة» — اضبطه من صف «ضبط إجراء السحب» بالأعلى.");
-        put("MeeroGlassBordersInfo", "A hairline outline on menus, panels and the search field.", "خط رفيع حول القوائم واللوحات وحقل البحث.");
-        put("MeeroGlassSettingsInfo", "A fixed exclusive skin for Meero settings: frosted glass with a soft glow. It ignores Telegram themes completely and only follows day/night mode.", "جلد ثابت حصري لإعدادات ميرو: زجاج شفاف بتوهّج هادئ. لا يتأثر بثيمات تيليجرام نهائياً ويتبدّل مع الوضع الليلي/النهاري فقط.");
-        put("MeeroGlassSwitchesInfo", "Switches drawn exactly like the preview mock: a 48x28 pill that fills with a rose-to-violet gradient and a soft rose glow when on, a white knob that stretches under your finger, and 280ms springy motion. Off keeps the stock switch.", "سويتشات مطابقة لموقع المعاينة: حبة 48×28 تمتلئ بتدرّج وردي إلى بنفسجي مع توهّج وردي ناعم عند التشغيل، وكرة بيضاء تتمدد تحت إصبعك، وحركة نابضة 280ms. الإطفاء يرجّع السويتش الأصلي حرفياً.");
-        put("MeeroGroupAppearance", "Appearance", "المظهر");
-        put("MeeroGroupChat", "Chat", "المحادثة");
-        put("MeeroGroupMotion", "Motion & feedback", "الحركة والإحساس");
-        put("MeeroGroupNavigation", "Navigation", "التنقّل");
-        put("MeeroGroupSound", "Sound & launch", "الصوت والبداية");
-        put("MeeroGroupStorage", "Storage", "التخزين");
-        put("MeeroHeaderEdit", "Edit", "تحرير");
-        put("MeeroHeroMsg1", "Hey 👋 how are you?", "مرحبا 👋 شلونك؟");
-        put("MeeroHeroMsg2", "Did you try the new aRRaSGram design?", "هلا والله! جرّبت تصميم آراس ڪرام الجديد؟");
-        put("MeeroHeroMsg3", "Wooow fire 🔥", "وااو ناريي 🔥");
-        put("MeeroHiddenChats", "Hidden chats", "المحادثات المخفية");
-        put("MeeroHunterClearConfirm", "Delete the whole log?", "تمسح السجل كله؟");
-        put("MeeroHunterDeleteConfirm", "Deletes %1$d selected items from the catcher log on this device only. Your chats are not affected.", "راح ينحذف %1$d عنصر محدد من سجل الصائد على جهازك فقط. محادثاتك ما تتأثر.");
-        put("MeeroHunterDeletedMsg", "deleted a message", "حذف رسالة");
-        put("MeeroHunterEditedMsg", "edited a message", "عدّل رسالة");
-        put("MeeroHunterEmpty", "Nothing caught yet", "لا شيء ملتقط بعد");
-        put("MeeroHunterInfo", "When the other side deletes or edits a message you get an instant notification and the event lands here with the original text (old ← new for edits) and the time. Own messages and service messages are never captured. Everything stays on your device. Switch off = nothing is caught and nothing is notified. Note: edit catching follows the built-in \"save edit history\" toggle (on by default). Long-press any entry to select one or more items and delete them.", "لما الطرف الثاني يحذف أو يعدّل رسالة يوصلك إشعار فوري وينسجل هنا النص الأصلي (قديم ← جديد بالتعديل) مع الوقت بالدقيقة. رسائلك أنت والرسائل الخدمية لا تُلتقط أبداً. كل شيء يبقى على جهازك. المفتاح مطفي = لا التقاط ولا إشعارات. ملاحظة: التقاط التعديل يتبع مفتاح «حفظ تاريخ التعديلات» المدمج (فعّال افتراضياً). اضغط مطولاً على أي عنصر لتحديد عنصر أو أكثر وحذفه.");
-        put("MeeroHunterLogHeader", "Delete & edit log", "سجل الحذف والتعديل");
-        put("MeeroHunterMaster", "Catch deletes & edits", "التقاط الحذف والتعديل");
-        put("MeeroHunterMedia", "Media 📎", "وسائط 📎");
-        put("MeeroHunterNothingSelected", "Nothing selected. Long-press an entry, tap the ones you want, then delete.", "ماكو عناصر محددة. اضغط مطولاً على عنصر، حدد اللي تريده، بعدين احذف.");
-        put("MeeroHunterSelectAll", "Select all", "تحديد الكل");
-        put("MeeroHunterSelectedCount", "Selected: %1$d", "المحدد: %1$d");
-        put("MeeroHunterSomeone", "Someone", "شخص ما");
-        put("MeeroHunterTitle", "Delete catcher", "صائد الحاذف");
-        put("MeeroIconAlt", "aRRaSGram (alt)", "aRRaSGram (بديل)");
-        put("MeeroIconStyle2", "aRRaSGram (style 2)", "aRRaSGram (نمط ٢)");
-        put("MeeroIosAlertsInfo", "Rules a hairline above the buttons of a dialog and between each pair, the way Telegram for iOS separates its alert actions.", "يرسم خطاً رفيعاً فوق أزرار الحوار وبين كل زرين، مثل ما يفصل تلكرام آيفون أزرار تنبيهاته.");
-        put("MeeroIosAnimInfo", "New messages spring into place from the corner, the way iOS does.", "الرسائل الجديدة تنبثق من الزاوية بحركة نابضة، مثل الآيفون.");
-        put("MeeroIosCallInfo", "Draws the round controls on the call screen at the 72dp Telegram for iOS uses instead of 52, spaces them the way it does, and sets each label at 13dp, 8dp below its button.", "يرسم أزرار المكالمة الدائرية بقياس 72 مثل تلكرام آيفون بدل 52، ويباعد بينها بنفس طريقته، ويكتب كل تسمية بقياس 13 على بعد 8 تحت زرها.");
-        put("MeeroIosCodeInfo", "Taller, softly rounded code boxes set in a monospaced face, sized the way Telegram for iOS draws them.", "خانات أطول وزواياها أنعم بخط ثابت العرض، بنفس قياسات تلكرام آيفون.");
-        put("MeeroIosFastScrollInfo", "Lists every section letter down the edge so you can tap straight to one, instead of dragging a handle. Long indexes are thinned to fit.", "يعرض كل أحرف الأقسام على الحافة حتى تضغط الحرف وتنتقل له مباشرة، بدل سحب المقبض. القوائم الطويلة تُختصر لتناسب الشاشة.");
-        put("MeeroIosHapticsInfo", "Distinct feedback for selections, confirmations and errors instead of one buzz for everything. Needs Android 11 or newer for the full set.", "اهتزاز مختلف للتنقّل والتأكيد والخطأ بدل اهتزاز واحد لكل شي. الشدّات الكاملة تحتاج أندرويد 11 أو أحدث.");
-        put("MeeroIosIconsInfo", "Use Telegram for iOS's own glyphs. They are static, so the animated tab icons are replaced.", "استخدام أيقونات تلكرام آيفون الأصلية. هي ثابتة، فتُستبدل أيقونات التبويبات المتحركة.");
-        put("MeeroIosInputPillInfo", "A floating, panel-free composer: attach moves into its own glass circle at the far left, the text sits in a capsule with the emoji inside it, and the mic becomes a neutral circle that turns into a rose send button while typing. Off restores the stock Telegram bar.", "لوحة شفافة فوق خلفية الدردشة: المشبك بدائرة زجاجية أقصى اليسار، كبسولة حقل بداخلها الإيموجي، والمايك دائرة رمادية تتحول لزر إرسال وردي عند الكتابة. إطفاءه يرجع تصميم تليكرام الرسمي.");
-        put("MeeroIosIntroInfo", "iOS typography and button sizing on the intro pages, with page dots that slide instead of stretching. The animations themselves stay as they are.", "خطوط وأزرار بقياسات آيفون بصفحات الترحيب، ونقاط تنقّل تنزلق بدل ما تتمدّد. الرسوم المتحركة تظل مثل ما هي.");
-        put("MeeroIosLoadingInfo", "Thinner ring that stretches as it spins, sized the way Telegram for iOS draws it.", "حلقة أرفع تتمدّد وهي تدور، بنفس قياسات تلكرام آيفون.");
-        put("MeeroIosMainMenuInfo", "The main-screen menu styled like iOS: rounded card, iOS icons, hairline separators and no gap bars. OFF restores the stock menu exactly.", "قائمة الشاشة الرئيسية بشكل الآيفون: بطاقة مدورة، أيقونات بنمط iOS، فواصل شعرية بدون القضبان السميكة. الإطفاء يرجّع القائمة الأصلية حرفياً.");
-        put("MeeroIosMediaGridInfo", "Prints a video's length straight onto its thumbnail under a soft shadow, as Telegram for iOS does, instead of boxing it in a filled tag.", "يكتب مدة الفيديو على الصورة مباشرة بظل خفيف مثل تلكرام آيفون، بدل حصرها داخل مستطيل ملوّن.");
-        put("MeeroIosMenuAnimInfo", "A context menu scales up out of the message or row it belongs to, instead of always unfolding from its own corner.", "قائمة السياق تتوسّع من الرسالة أو الصف الي تخصّه، بدل ما تنفتح دائماً من زاويتها.");
-        put("MeeroIosMsgMenuInfo", "The long-press message menu styled like iOS: same card, trailing icons and hairlines, with delete actions in their own red card.", "قائمة الضغطة المطولة على الرسالة بشكل الآيفون: نفس البطاقة والفواصل والأيقونات بالطرف المقابل، والحذف ببطاقة حمراء منفصلة.");
-        put("MeeroIosPopupMenuInfo", "The ⋮ menu styled like iOS: rounded card, icons on the trailing edge, hairline separators, and destructive actions split into their own red card.", "قائمة ⋮ بشكل الآيفون: بطاقة مدوّرة، الأيقونة بالطرف المقابل، فواصل شعرية، وخيارات الحذف ببطاقة حمراء منفصلة.");
-        put("MeeroIosRowInfo", "Lays a chat row out the way iOS does - a 60dp picture 16dp from the edge with the text starting at 84dp - and applies the same sizing to the account switcher, where it also shows each account's unread count.", "يرتّب صف المحادثة مثل الآيفون — صورة 60 على بعد 16 من الحافة والنص يبدأ عند 84 — ويطبّق نفس القياس على شاشة الحسابات، وهناك يعرض عدد غير المقروء لكل حساب.");
-        put("MeeroIosSearchInfo", "Solid tinted pill with a smaller, dimmer magnifier, the way UISearchBar is drawn. Removes the hairline edge.", "كبسولة ممتلئة بعدسة أصغر وأخفت، مثل ما يرسمها آيفون. تشيل الحد الرفيع.");
-        put("MeeroIosSelectionInfo", "Uses Telegram for iOS's own glyphs for the pin, mute, archive and delete controls shown while chats are selected, and for the entries in the overflow menu behind them.", "يستعمل رموز تلكرام آيفون نفسها لأزرار التثبيت والكتم والأرشفة والحذف الي تظهر عند تحديد محادثات، ولعناصر قائمة المزيد وراها.");
-        put("MeeroIosShadowsInfo", "A wide, faint shadow under settings and profile cards, the way iOS suggests depth instead of drawing an outline.", "ظل واسع وخفيف تحت بطاقات الإعدادات والملف الشخصي، مثل ما يوحي آيفون بالعمق بدل رسم حد.");
-        put("MeeroIosSoundsInfo", "Use Telegram for iOS's own send and receive tones.", "استخدام نغمات الإرسال والاستقبال الأصلية من تلكرام آيفون.");
-        put("MeeroIosStoriesInfo", "Groups the collapsed story circles beside the \"Chats\" title and centres the pair the way iOS does, instead of parking them at the left edge, and draws them at the reference size.", "يجمّع دوائر الستوريات المطوية جنب عنوان «المحادثات» ويوسّط الاثنين معاً مثل الآيفون بدل تركها على الحافة اليسرى، ويرسمها بالحجم المرجعي.");
-        put("MeeroIosWaveformInfo", "Wider, fully rounded waveform bars on a 4pt pitch, and a lighter recording indicator, matching Telegram for iOS.", "أعمدة أعرض ومدوّرة بالكامل بتباعد 4، ومؤشر تسجيل أخف، مثل تلكرام آيفون.");
-        put("MeeroKeywordAdd", "Add keyword set", "إضافة طقم كلمات");
-        put("MeeroKeywordAddAll", "All chats", "كل المحادثات");
-        put("MeeroKeywordAddChat", "Specific chat", "دردشة محددة");
-        put("MeeroKeywordAll", "All chats", "كل المحادثات");
-        put("MeeroKeywordEdit", "Edit words", "تعديل الكلمات");
-        put("MeeroKeywordEmpty", "No keyword sets yet. Add your first one.", "ماكو طقمات كلمات بعد. أضف أول وحدة.");
-        put("MeeroKeywordHeader", "Keyword sets", "طقمات الكلمات");
-        put("MeeroKeywordInfo", "You get an instant notification whenever a new incoming message contains one of your words - even from muted groups. It works while the app is alive in the background. Words shorter than 2 letters are ignored and each chat alerts at most once every 30 seconds. All matching happens on your device; nothing is sent anywhere. Off = nothing is watched.", "يوصلك إشعار فوري لما أي رسالة جديدة واردة تحتوي كلمة من كلماتك، حتى لو القروب مكتوم. يشتغل والتطبيق حي بالخلفية. الكلمة الأقصر من حرفين تُتجاهل، وكل دردشة تنبّه مرة وحدة كل ٣٠ ثانية. كل المطابقة تصير على جهازك وما ينرسل أي شي لأي مكان. مطفي = لا توجد أي مراقبة.");
-        put("MeeroKeywordMaster", "Enable keyword alert", "تفعيل منبه الكلمات");
-        put("MeeroKeywordTitle", "Keyword alert", "منبه الكلمات");
-        put("MeeroKeywordWordsHint", "Comma separated, e.g. money, meeting", "كلمات مفصولة بفاصلة، مثال: فلوس, اجتماع");
-        put("MeeroLockAudit", "Unlock attempt log", "سجل محاولات الفتح");
-        put("MeeroLockAuditClear", "Clear the log", "مسح السجل");
-        put("MeeroLockAuditClearConfirm", "Every recorded unlock attempt will be deleted. This cannot be undone.", "راح تنحذف كل المحاولات المسجلة، وما تكدر ترجعها بعد.");
-        put("MeeroLockAuditCleared", "Log cleared", "انمسح السجل");
-        put("MeeroLockAuditEmpty", "No attempts recorded yet", "لا توجد محاولات مسجلة بعد");
-        put("MeeroLockAuditInfo", "Successful unlocks and wrong-code attempts are recorded for locked chats, the hidden vault and this section. Biometric unlocks are logged on success only. Everything stays on this device, newest first, last 40 entries.", "يسجّل محاولات الفتح الناجحة والرموز الخاطئة للمحادثات المقفلة والقبو المخفي وهاي الإعدادات. فتح البصمة يسجّل بس عند النجاح. كل شي يبقى بجهازك، الأحدث أول، آخر ٤٠ محاولة.");
-        put("MeeroMenuBlurInfo", "Frosted glass backdrop when you long-press a message.", "خلفية زجاجية ضبابية عند الضغط المطوّل على رسالة.");
-        put("MeeroNightText", "Night text", "النص الليلي");
-        put("MeeroNightTextEmpty", "Not set - the general text is sent", "غير مضبوط (ينرسل النص العادي)");
-        put("MeeroNightTextHint", "e.g. Sleeping now, will reply in the morning", "مثال: نايم هسه، أرد عليك باجر");
-        put("MeeroNightTextOn", "Night reply text", "نص الرد الليلي");
-        put("MeeroOnceConsentAccept", "I agree", "موافق");
-        put("MeeroOnceConsentDecline", "Decline", "رفض");
-        put("MeeroOnceConsentText", "Notice and release of liability (legal and religious): this feature (view-once guard) can save photos and videos others send as view-once, which may violate the sender's privacy, the terms of use, or even the law in your country. By pressing \"I agree\" you affirm before God and His people that you alone are civilly, criminally and religiously responsible for any use of this feature, that MeeroX and its developers carry no liability or claim whatsoever for your usage, and that you will only use it for a legitimate need. Not okay with that? Press \"Decline\" and leave. Agreement is saved once; every declined visit asks again.", "تنبيه وإبراء ذمة (قانونيًا ودينيًا): هاي الميزة (حارس مرة واحدة) تنحفظ منها الصور والفيديوهات اللي يرسلها غيرك بصيغة «عرض مرة واحدة»، وهاي الفعلة ممكن تخالف خصوصية المرسل وشروط الاستخدام وحتى قانون بلدك. بضغطك على «موافق» أنت تؤكد وتتعهد قدام الله وعباده: إنك المسؤول الوحيد مدنيًا وجنائيًا وشرعًا عن أي استخدام لهاي الميزة، وإن MeeroX ومطوريها ما يتحملون أي تبعة أو مطالبة أو مساءلة ناتجة عن استخدامك لها، وإنك رح تستخدمها بس للحاجة المشروعة. إذا ما موافق اضغط «رفض» وطلع. الموافقة تنحفظ مرة وحدة، وأي دخول بدونها يعيد الشاشة.");
-        put("MeeroOnceConsentTitle", "One more thing first", "قبل ما نكمل");
-        put("MeeroOnceCount", "Saved to gallery", "المحفوظات بالمعرض");
-        put("MeeroOnceCountHeader", "Statistics", "إحصائيات");
-        put("MeeroOnceInfo", "While ON, the context menu of a self-destruct / view-once photo or video shows its \"burn\" and \"save to gallery\" buttons - the app built-in saver stores your pick in the gallery and this counter plus a small notification confirm it. While OFF, once media behaves exactly like official Telegram: no save button at all. Nothing is downloaded automatically and nothing leaves your device.", "والميزة شغالة، قائمة خيارات وسائط عرض-مرة (الصور والفيديوهات المؤقتة) تظهر بيها زرّي «حرق» و«حفظ في المعرض» - الحفظ يستخدم أداة الحفظ المدمجة بالتطبيق ويأكده بإشعار صغير والعدّاد اللي فوق. ولما تكون مطفية تتصرف وسائط عرض-مرة تماماً مثل تلكرام الرسمي: بدون أي زر حفظ. ما ينحمّل أي شي تلقائياً وكل شي يبقى على جهازك.");
-        put("MeeroOnceKindPhoto", "Photo", "صورة");
-        put("MeeroOnceKindVideo", "Video", "فيديو");
-        put("MeeroOnceMaster", "Save view-once media", "حفظ وسائط عرض مرة واحدة");
-        put("MeeroOnceSavedNotif", "Saved to gallery", "انحفظت بالمعرض");
-        put("MeeroOnceTitle", "View-once guard", "حارس عرض-مرة");
-        put("MeeroPickerCardMsg", "Hey 👋", "مرحبا 👋");
-        put("MeeroPickerLiveHint", "Live preview - your tap applies instantly", "معاينة حية — لمسة على البطاقة تُطبَّق فوراً");
-        put("MeeroPickerRowTitle", "Bubbles & read marks", "الفقاعات وعلامات القراءة");
-        put("MeeroPickerSwipeHint", "Swipe the cards sideways for more", "اسحب البطاقات جانبياً لعرض المزيد");
-        put("MeeroPickerTabBubbles", "Bubbles", "الفقاعات");
-        put("MeeroPickerTabTicks", "Read marks", "علامات القراءة");
-        put("MeeroPoolAdd", "Add a text", "إضافة نص");
-        put("MeeroPoolDelete", "Delete", "حذف");
-        put("MeeroPoolEdit", "Edit", "تعديل");
-        put("MeeroPoolInfo", "When on, every general auto-reply picks one random text from this list (looks more human). A per-chat rule always wins - the pool is the general reply only. Write {name} and it becomes the person's name.", "عند التفعيل، كل رد تلقائي عام يختار نصاً عشوائياً من القائمة (يبدو طبيعي أكثر). قاعدة الشخص الخاصة تتغلب دائماً — العشوائي للرد العام فقط. اكتب {name} وتنحط اسم الشخص مكانها.");
-        put("MeeroPoolMaster", "Random reply texts", "تفعيل النصوص العشوائية");
-        put("MeeroPoolNone", "No texts", "بلا نصوص");
-        put("MeeroPoolTitle", "Random replies ⚡", "نصوص عشوائية ⚡");
-        put("MeeroPoolWordMany", "texts", "نصوص");
-        put("MeeroPoolWordOne", "text", "نص");
-        put("MeeroPrivacyAccept", "Accept and continue", "موافق ومتابعة");
-        put("MeeroPrivacyBody", "aRRaSGram is an unofficial Telegram client.\n\n• aRRaSGram does not collect, store or transmit your personal data to any third party.\n• Your messages travel only between your device and Telegram's servers, exactly as with the official app.\n• Settings, fonts and preferences are stored locally on your device.\n• The source code is open and can be reviewed at any time.\n\nBy continuing you agree to use aRRaSGram at your own responsibility, and to respect Telegram's Terms of Service.", "آراس ڪرام تطبيق غير رسمي لتيليجرام.\n\n• لا يجمع آراس ڪرام أي بيانات شخصية ولا يرسلها لأي طرف ثالث.\n• رسائلك تنتقل بين جهازك وخوادم تيليجرام فقط، تماماً كالتطبيق الرسمي.\n• الإعدادات والخطوط والتفضيلات تُحفظ محلياً على جهازك.\n• الكود المصدري مفتوح ويمكن مراجعته في أي وقت.\n\nبالمتابعة فإنك توافق على استخدام آراس ڪرام على مسؤوليتك الخاصة، وعلى احترام شروط خدمة تيليجرام.");
-        put("MeeroPrivacyTitle", "Privacy Policy", "سياسة الخصوصية");
-        put("MeeroRandomEmoji", "Random emoji at the end 🎲", "إيموجي عشوائي بالنهاية 🎲");
-        put("MeeroReadAllChats", "Read all chats", "قراءة جميع الدردشات");
-        put("MeeroReadAllConfirm", "Every chat (including the archive) will be marked as read. Unread counters will be zeroed and cannot be restored.", "راح تنعلّم كل الدردشات (وياها الأرشيف) كمقروءة، وعدادات غير المقروء تصفّر وما تكدر ترجعها بعد.");
-        put("MeeroRelockAfter5Min", "After 5 minutes", "بعد ٥ دقايق");
-        put("MeeroRelockAfterMin", "After 1 minute", "بعد دقيقة");
-        put("MeeroRelockDelay", "Relock delay", "تأخير إعادة القفل");
-        put("MeeroRelockNow", "Instantly", "فوري");
-        put("MeeroRulesAdd", "Add rule", "إضافة قاعدة");
-        put("MeeroRulesChatFallback", "Chat", "محادثة");
-        put("MeeroRulesContentHeader", "Content", "المحتوى");
-        put("MeeroRulesDelete", "Delete rule", "حذف القاعدة");
-        put("MeeroRulesEdit", "Edit text", "تعديل النص");
-        put("MeeroRulesInfo", "A rule replaces the global reply text for that chat only - every other condition (cooldown and all gates) still applies. Tap a rule to edit its text or delete it.", "القاعدة تستبدل نص الرد العام لتلك الدردشة فقط — باقي الشروط (الفاصل بين الردود وكل البوابات) تبقى شغالة عليها. اضغط أي قاعدة لتعديل نصها أو حذفها.");
-        put("MeeroRulesNone", "No rules", "بلا قواعد");
-        put("MeeroRulesPickPrivate", "Pick a private chat only", "اختر دردشة خاصة فقط");
-        put("MeeroRulesTimingHeader", "Timing", "التوقيت");
-        put("MeeroRulesTitle", "Per-chat rules", "قواعد لكل شخص");
-        put("MeeroRulesWordMany", "rules", "قواعد");
-        put("MeeroRulesWordOne", "rule", "قاعدة");
-        put("MeeroSearchHint", "Search", "بحث");
-        put("MeeroSectionCategories", "Categories", "الأقسام");
-        put("MeeroSectionData", "Data", "البيانات");
-        put("MeeroSectionInfo", "About", "حول");
-        put("MeeroSepFadeInfo", "Hairline separators inside iOS-style cards fade in over 120ms after the menu settles instead of snapping in at once. OFF restores the instant appearance.", "الفواصل الشعرية داخل بطاقات iOS تتلاشى تدريجياً خلال 120ms بعد استقرار القائمة بدل الظهور الفجائي. الإطفاء يرجّع الظهور الفوري.");
-        put("MeeroSettingsInfo", "Every aRRaSGram switch in one place, grouped by what it changes.", "كل مفاتيح aRRaSGram بمكان واحد، مقسّمة حسب الي تغيّره.");
-        put("MeeroSettingsTitle", "aRRaSGram", "aRRaSGram");
-        put("MeeroSigContinue", "Continue at my own risk", "الاستمرار على مسؤوليتي");
-        put("MeeroSigExit", "Exit now", "خروج فوري");
-        put("MeeroSigWarningText", "This copy's signature does NOT match the official MeeroX fingerprint. It may be a fake or tampered build that can steal your account.\n\nThis copy:\n%1$s\n\nOfficial fingerprint:\n%2$s\n\nInstall MeeroX only from the developer's official channel.", "توقيع هذه النسخة لا يطابق بصمة MeeroX الرسمية. يمكن أن تكون نسخة مقرصنة أو معدّلة تسرق حسابك وبياناتك.\n\nبصمة هذه النسخة:\n%1$s\n\nالبصمة الرسمية:\n%2$s\n\nحمّل MeeroX فقط من قناة المطور الرسمية.");
-        put("MeeroSigWarningTitle", "⚠️ Warning: unofficial copy", "⚠️ تحذير: نسخة غير رسمية");
-        put("MeeroSmoothPassInfo", "Pre-warms the first popup menu, the first chat you open and the first chat-list swipe after launching the app. OFF restores the exact previous start-up.", "يسخّن مسبقاً أول قائمة منبثقة وأول دردشة تفتحها وأول سحبة بقائمة الدردشات بعد تشغيل التطبيق. الإطفاء يرجّع التشغيل مثل السابق حرفياً.");
-        put("MeeroStatsChartInfo", "Bars show your outgoing messages by hour of day (device local time). The tallest bar carries its value on top.", "الأعمدة تعرض رسائلك الصادرة موزعة على ساعات اليوم (بتوقيت جهازك)، وأعلى عمود مكتوبة قيمته فوقه.");
-        put("MeeroStatsDryDays", "%1$d days without a reply", "%1$d يوم بلا رد");
-        put("MeeroStatsDryHeader", "Quiet chats", "المحادثات الجافة");
-        put("MeeroStatsDryInfo", "Private chats whose last message came from their side - you have not replied yet.", "محادثات خاصة آخر رسالة بيها من طرفهم وأنت بعدك ما رديت عليها.");
-        put("MeeroStatsDryToday", "Today", "اليوم");
-        put("MeeroStatsDryWord", "chats", "محادثة");
-        put("MeeroStatsDryYesterday", "Yesterday", "أمس");
-        put("MeeroStatsExport", "Export stats as text", "تصدير الإحصائيات كنص");
-        put("MeeroStatsFrom", "since", "منذ");
-        put("MeeroStatsHoursHeader", "Your busiest hours", "أنشط ساعاتك");
-        put("MeeroStatsInfo", "Computed from messages stored locally on your device only - nothing is ever sent anywhere. Chat-most = exchanged message count. The app-open counter starts at v102 install (Telegram stores no historical open times).", "تُحسب من الرسائل المخزنة محلياً على جهازك فقط — لا يُرسل أي شيء لأي جهة. «أكثر من تحچي وياهم» حسب عدد الرسائل المتبادلة. عدّاد فتح التطبيق يبدأ من تثبيت v102 (تليجرام لا يخزن أوقات الدخول السابقة).");
-        put("MeeroStatsLoading", "Computing…", "جاري الحساب…");
-        put("MeeroStatsMonth", "Last 30 days", "آخر ٣٠ يوم");
-        put("MeeroStatsMsgWord", "messages", "رسالة");
-        put("MeeroStatsOpens", "App opens", "مرات فتح التطبيق");
-        put("MeeroStatsOverview", "Overview", "نظرة عامة");
-        put("MeeroStatsProHeader", "Activity pro", "نشاط برو");
-        put("MeeroStatsShare", "Share", "مشاركة");
-        put("MeeroStatsTitle", "Activity details", "تفاصيل النشاط");
-        put("MeeroStatsToday", "Messages today", "رسائلك اليوم");
-        put("MeeroStatsTopHeader", "People you chat with most", "أكثر من تحچي وياهم");
-        put("MeeroStatsTotal", "Total stored", "المجموع المخزن");
-        put("MeeroStatsWeek", "Last 7 days", "آخر ٧ أيام");
-        put("MeeroStoryDownload", "Save to gallery", "تحميل للمعرض");
-        put("MeeroStoryDownloadInfo", "Adds a button inside the story menu (⋮) that saves the photo or video straight to your gallery - even when the owner forbids saving. When off, the button disappears exactly like the official Telegram.", "زر داخل قائمة الستوري (⋮) يحفظ الصورة أو الفيديو مباشرة بالمعرض — حتى لو صاحب الستوري مانع الحفظ. عند الإطفاء يختفي الزر كما في تيليجرام الرسمي.");
-        put("MeeroStorySaved", "Story saved to gallery", "تم حفظ الستوري بالمعرض");
-        put("MeeroSwiftMenusInfo", "Popup menus open and close in about 180ms on an ease-out curve, instead of the inherited 150–350ms mix. OFF restores the original timings.", "القوائم المنبثقة تفتح وتنسد بحدود 180ms وبمنحنى ناعم موحد، بدل القيم الموروثة المتفاوتة (150–350ms). الإطفاء يرجّع التوقيتات الأصلية.");
-        put("MeeroSwipeAction", "Chat swipe action", "ضبط إجراء السحب");
-        put("MeeroTapMenuInfo", "Tap a message bubble to open its menu. Long press keeps working.", "انقر على فقاعة الرسالة لفتح قائمتها. الضغط المطوّل يبقى يعمل.");
-        put("MeeroTickStyle", "Tick shape", "شكل العلامة");
-        put("MeeroTicksSwitchInfo", "A dedicated switch for the sent and read ticks: on shows the shape picked in the list below, off brings back the official Android Telegram ticks. Applies after restarting the app.", "مفتاح مستقل لعلامات الإرسال والقراءة: عند التشغيل تُعرض العلامة بالشكل المختار من القائمة بالأسفل، وعند الإطفاء تعود علامة تيليجرام أندرويد الرسمية. يُطبَّق التغيير بعد إعادة تشغيل التطبيق.");
-        put("MeeroUnifiedRadiiInfo", "Reply, quote, link and fact-check cards inside bubbles all use the same 12dp corner radius as the MeeroX iOS family. OFF restores per-card radii.", "بطاقات الرد والاقتباس والروابط داخل الفقاعة تستخدم نفس انحناء 12dp مثل عائلة MeeroX الآيفونية. الإطفاء يرجّع الانحناءات الأصلية.");
-        put("MeeroUsageGuide", "How to use", "طريقة الاستخدام");
-        put("MeeroUsageGuideGotIt", "Got it", "فهمت");
-        put("MeeroVaultBrandSub", "Hidden from everywhere - they only live here", "مخفية عن كل مكان - ما تعيش غير هنا");
-        put("MeeroVaultCount", "%1$d hidden chats", "%1$d محادثة مخفية");
-        put("MeeroVaultEmpty", "No hidden chats.", "ماكو محادثات مخفية.");
-        put("MeeroVaultEmptyHint", "Lock a chat from the Chat lock section and it shows up here", "اقفل أي محادثة من قسم «قفل المحادثات» وهي ترجع تظهر هنا");
-        put("MeeroVaultGateHint", "Unlock to see your hidden chats", "افتح حتى تشوف محادثاتك المخفية");
-        put("MeeroVaultInfo", "One unlock per session, instant relock on exit. Vault access: long-press the Chats tab > \"Hidden chats\".", "فتح وحدة للجلسة والخروج ينقفل فورًا. الوصول: ضغطة مطولة على تبويب «المحادثات» ← «المحادثات المخفية».");
-        put("MeeroVaultTitle", "Hidden chats", "المحادثات المخفية");
-        put("MeeroVaultUnread", "%1$d unread", "%1$d غير مقروءة");
-        put("MeeroVersion", "Version", "الإصدار");
-        put("MeeroWatchAdd", "Watch someone", "إضافة شخص للمراقبة");
-        put("MeeroWatchAddByHandle", "Enter username or ID", "إدخال يوزر أو أيدي");
-        put("MeeroWatchAddFromChats", "Pick from chats", "اختيار من الدردشات");
-        put("MeeroWatchAdded", "Now watched ✅", "صار تحت المراقبة ✅");
-        put("MeeroWatchAlready", "Already watched", "هذا الشخص قيد المراقبة أصلاً");
-        put("MeeroWatchChangedBday", "changed the birthday", "غيّر مواليده");
-        put("MeeroWatchChangedBio", "changed the bio", "غيّر البايو");
-        put("MeeroWatchChangedName", "changed the name", "غيّر الاسم");
-        put("MeeroWatchChangedPhoto", "changed the photo", "غيّر صورته");
-        put("MeeroWatchChangedUsername", "changed the username", "غيّر اليوزر");
-        put("MeeroWatchHandleHint", "e.g. ali, @ali or 123456789", "مثال: ali أو @ali أو 123456789");
-        put("MeeroWatchInfo", "Watch anyone (a contact or any account by username/ID): name, username, bio, birthday or photo changes reach you as instant notifications with full details and a log. Master switch off = nothing watched. Every person has his own ON/OFF switch. Note: bio and birthday sync about hourly; a hidden phone number can never be revealed - Telegram privacy law. Message tracking (its switch above): logs what watched people write in groups you both share - their messages, who they reply to and who replies to them, with second-precision timestamps, newest 150 events, all stored locally on your device only. Responsibility: tracking a person's activity can be sensitive in your circle and under your country's law - use it at your own full responsibility.", "راقب أي شخص (جهة اتصال أو أي حساب بيوزر/أيدي): تغيير الاسم، اليوزر، البايو، المواليد، أو الصورة — يوصلك إشعار فوري مع التفاصيل الكاملة والسجل. المفتاح العام مطفي = لا مراقبة نهائياً. كل شخص بمفتاح تشغيل/إطفاء خاص. ملاحظة: البايو والمواليد بمزامنة دورية تقريباً كل ساعة، ورقم الهاتف المخفي لا يجوز كشفه — خصوصية تليجرام. تتبع الرسائل (سويتشه فوق): يسجل شيكتب المراقبون بالقروبات اللي تجمعكم — رسائلهم، منو يردون عليه، ومنو يرد عليهم — بدقة الثواني وآخر ١٥٠ حدث، وكل شي يبقى بجهازك بس. المسؤولية: تتبع تحركات شخص ممكن يكون حساسًا بمحيطك وبقانون بلدك — استخدمها على مسؤوليتك الكاملة.");
-        put("MeeroWatchLogClear", "Clear log", "مسح السجل");
-        put("MeeroWatchLogClearConfirm", "Delete all logged changes? (cached photos stay on device)", "تمسح كل التغييرات المسجلة؟ (الصور تبقى محفوظة)");
-        put("MeeroWatchLogEmpty", "No changes logged yet", "لا تغييرات مسجلة بعد");
-        put("MeeroWatchLogInfo", "Newest 150 changes. Photos are cached on your device - tap a photo change to view or download it.", "آخر ١٥٠ تغيير، الأحدث أولاً. الصور محفوظة على جهازك — اضغط أي تغيير صورة لعرضها أو تنزيلها.");
-        put("MeeroWatchLogRow", "Change log", "سجل التغييرات");
-        put("MeeroWatchLogTitle", "Change log", "سجل التغييرات");
-        put("MeeroWatchMsgIn", "in", "في");
-        put("MeeroWatchMsgMedia", "media", "وسائط");
-        put("MeeroWatchMsgNotify", "Instant alert on tracked messages", "تنبيه فوري عند رسالة متتبعة");
-        put("MeeroWatchMsgReplyingTo", "replying to", "ردًا على");
-        put("MeeroWatchMsgTheirMsg", "their message", "نص رسالته");
-        put("MeeroWatchMsgTrack", "Track messages in shared groups", "تتبع رسائل المراقبين بالمجموعات");
-        put("MeeroWatchNoOne", "Nobody watched yet - add above", "ماكو أحد بالمراقبة — أضف من فوق");
-        put("MeeroWatchNotFound", "Account not found (numeric ID works only for accounts already known to you)", "ما لكيت الحساب (بالأيدي: فقط إذا الحساب معروف عندك مسبقاً)");
-        put("MeeroWatchPhotoHint", "tap to view photos", "اضغط لعرض الصور");
-        put("MeeroWatchPhotoMissing", "Photos unavailable for this change", "الصور غير متوفرة لهذا التغيير");
-        put("MeeroWatchPhotoSave", "Save to gallery", "تنزيل للمعرض");
-        put("MeeroWatchPhotoViewNew", "View new photo", "عرض الصورة الجديدة");
-        put("MeeroWatchPhotoViewOld", "View old photo", "عرض الصورة القديمة");
-        put("MeeroWatchRemove", "Remove from watch", "حذف من المراقبة");
-        put("MeeroWatchSaveFailed", "Save failed (check storage permission)", "فشل الحفظ (تأكد من إذن التخزين)");
-        put("MeeroWatchSaved", "Saved to gallery ✅", "انحفظت بالمعرض ✅");
-        put("MeeroWatchTitle", "Account watch", "مراقبة الحسابات");
-        put("MeeroWatchWatchedHeader", "Watched people", "المراقَبون");
-        put("MeeroWatchWhatMsg", "sent a message", "أرسل رسالة");
-        put("MeeroWatchWhatMsgReply", "replied to a message", "رد على رسالة");
-        put("MeeroWatchWhatReplyTo", "got a reply", "لقى رد على رسالته");
-        put("MixerAccent", "Accent color", "اللون المميز");
-        put("MixerAccentBlue", "iOS Blue", "أزرق آيفون");
-        put("MixerAccentGold", "Gold", "ذهبي");
-        put("MixerAccentMint", "Mint Green", "أخضر نعناعي");
-        put("MixerAccentOrange", "Orange", "برتقالي");
-        put("MixerAccentRed", "Red", "أحمر");
-        put("MixerAccentRose", "Meero Rose", "وردة ميرو");
-        put("MixerAccentSky", "Sky", "سماوي");
-        put("MixerAccentViolet", "Violet", "بنفسجي");
-        put("MixerApplied", "Mixed theme applied — it is now listed with your themes and can be shared as a file.", "انطبق الثيم المخلوط — صار مدرجاً مع ثيماتك وتقدر تشاركه كملف.");
-        put("MixerApply", "Mix & apply this theme", "اخلط وطبّق هذا الثيم");
-        put("MixerBackground", "Background", "الخلفية");
-        put("MixerBgAmoled", "AMOLED Black", "أسود AMOLED");
-        put("MixerBgGraphite", "Graphite Dark", "فحمي غامق");
-        put("MixerBgMidnight", "Midnight Blue", "كحلي منتصف الليل");
-        put("MixerBgPaper", "Paper White", "أبيض ورقي");
-        put("MixerFailed", "Could not generate the theme file. Please try again.", "ما قدرنا نولّد ملف الثيم، جرّب مرة ثانية.");
-        put("MixerHeader", "Compose your theme by feel", "كوّن ثيمك على ذوقك");
-        put("MixerHubTitle", "Theme Mixer (aRRaSGram)", "صانع الثيمات (آراس ڪرام)");
-        put("MixerInBubble", "Incoming bubble", "فقاعة الطرف الثاني");
-        put("MixerInBubbleBlack", "Pure AMOLED black", "أسود AMOLED خالص");
-        put("MixerInBubbleFollow", "Follow background style", "يتبع نمط الخلفية");
-        put("MixerInBubbleGraphite", "Graphite (iOS gray)", "فحمي (رمادي آيفون)");
-        put("MixerInBubbleTinted", "Tinted by my accent", "مخلوط بلوني المميز");
-        put("MixerInfo", "Pick accent, background and the incoming-bubble color; the preview above updates live. Applying creates a real theme file named \"MeeroX Mix\" through Telegram's official pipeline — it appears with your other themes, syncs nowhere private, and going back is one tap from Telegram's theme screen. Your chat wallpaper is never touched.", "اختار اللون المميز والخلفية ولون فقاعة الطرف الثاني؛ المعاينة فوق تتحدث مباشرة. التطبيق يولّد ملف ثيم حقيقي باسم \"MeeroX Mix\" عبر القناة الرسمية لتيليجرام — يظهر مع ثيماتك الأخرى، والرجوع لثيمك السابق ضغطة من شاشة ثيمات تيليجرام. خلفية محادثتك الحالية لا تتغير.");
-        put("MixerRestore", "Back to your other themes", "ارجع لثيماتك الأخرى");
-        put("MixerTitle", "Theme Mixer", "صانع الثيمات");
-        put("SmartFolderActiveGroups", "Active groups", "مجموعات نشطة");
-        put("SmartFolderActiveGroupsRule", "Rule: type = group + not muted", "القاعدة: نوع=مجموعة + بدون كتم");
-        put("SmartFolderBots", "Bots & services", "البوتات والخدمات");
-        put("SmartFolderBotsRule", "Rule: type = bot (archived excluded)", "القاعدة: نوع=بوت (باستثناء المؤرشف)");
-        put("SmartFolderCreate", "Create folder", "إنشاء المجلد");
-        put("SmartFolderDone", "Created ✓ — manage it from Settings → Folders", "مُنشأ ✓ — دبّره من الإعدادات ← المجلدات");
-        put("SmartFolderExists", "This smart folder already exists in your folders list.", "هذا المجلد الذكي موجود أصلاً بقائمة مجلداتك.");
-        put("SmartFolderFamily", "Family & contacts", "العائلة وجهات الاتصال");
-        put("SmartFolderFamilyRule", "Rule: type = contact (archived excluded)", "القاعدة: نوع=جهة اتصال (باستثناء المؤرشف)");
-        put("SmartFolderUnreadChannels", "Unread channels", "قنوات غير مقروءة");
-        put("SmartFolderUnreadChannelsRule", "Rule: type = channel + has unread + not muted", "القاعدة: نوع=قناة + بها غير مقروء + بدون كتم");
-        put("SmartFolderUnreadChats", "Unread chats", "محادثات غير مقروءة");
-        put("SmartFolderUnreadChatsRule", "Rule: contacts + non-contacts + groups with unread", "القاعدة: جهات اتصال + غير معروفين + مجموعات بها غير مقروء");
-        put("SmartFoldersHeader", "One-tap folders, built from rules", "مجلدات بلمسة وحدة، مبنية بقواعد");
-        put("SmartFoldersHubTitle", "Smart Folders (aRRaSGram)", "المجلدات الذكية (آراس ڪرام)");
-        put("SmartFoldersInfo", "Each preset creates a real synced Telegram folder composed of rules (type, unread, muted). It appears in your chats list immediately, syncs to every device, and can be edited or removed from Telegram's regular Folders settings. Count-based rules (e.g. \"unread more than 5\") cannot live in the server engine, so they are approximated by \"unread\".", "كل قالب ينشئ مجلد تيليجرام حقيقي متزامن مركّب من قواعد (النوع، غير المقروء، المكتوم). يظهر بقائمة محادثاتك فوراً، يتزامن لكل أجهزتك، وتقدر تعدله أو تحذفه من إعدادات «المجلدات» الرسمية. القواعد العددية (مثلاً «غير مقروء أكثر من 5») ما يدعمها محرك السيرفر، فاستبدلناها بـ«غير مقروء».");
-        put("StyleIos", "iOS", "آي أو إس");
-        put("meeroAmoledBubbles", "AMOLED black bubbles", "فقاعات سوداء AMOLED");
-        put("meeroAmoledStroke", "AMOLED bubble edge", "حد شعرة لفقاعات AMOLED");
-        put("meeroAutoJanitor", "Auto cache janitor", "حارس التخزين التلقائي");
-        put("meeroBubbleDesc0", "The original Telegram for Android bubble with its small tail.", "فقاعة تيليجرام أندرويد الأصلية بذيلها الصغير.");
-        put("meeroBubbleDesc1", "The real iPhone bubble: 18dp corners and the true crescent tail, decoded from the official Telegram-iOS source.", "فقاعة الآيفون الحقيقية: زوايا 18 والذيل الهلالي الأصلي، مستخرجة من مصدر تيليجرام iOS الرسمي.");
-        put("meeroBubbleDesc2", "Large 18dp rounded corners with a clean, tail-free edge.", "زوايا مستديرة كبيرة 18 بحدود نظيفة بدون ذيل.");
-        put("meeroBubbleDesc3", "Fully rounded pill ends, no tail.", "أطراف مستديرة بالكامل على شكل كبسولة، بدون ذيل.");
-        put("meeroBubbleDesc4", "Soft 10dp corners with a small wedge tail.", "زوايا ناعمة 10 مع ذيل مثلث صغير.");
-        put("meeroBubbleDesc5", "Crisp 6dp corners, no tail. Minimal and flat.", "زوايا مستقيمة 6 بدون ذيل، طابع مينيمال نظيف.");
-        put("meeroBubbleDesc6", "Extra-rounded 22dp, no tail. Instagram DM vibe.", "استدارة مفرطة 22 بدون ذيل، مثل رسائل إنستا.");
-        put("meeroBubbleDesc7", "Soft 8dp corners with a tiny curved nub.", "زوايا ناعمة 8 مع طرف منحني صغير مثل واتساب.");
-        put("meeroBubbleName0", "Stock (official)", "الافتراضي الرسمي");
-        put("meeroBubbleName1", "Official iOS bubble", "فقاعة iOS الرسمية");
-        put("meeroBubbleName2", "Modern iOS, no tail", "iOS حديث بدون ذيل");
-        put("meeroBubbleName3", "Capsule", "كبسولة");
-        put("meeroBubbleName4", "Classic", "كلاسيك");
-        put("meeroBubbleName5", "Sharp modern", "حادة عصرية");
-        put("meeroBubbleName6", "Instagram", "إنستغرام");
-        put("meeroBubbleName7", "WhatsApp", "واتساب");
-        put("meeroCards", "Rounded settings cards", "بطاقات إعدادات مدوّرة");
-        put("meeroChatsMenuFog", "Fog behind chats popup", "طمس خلف منبثقة زر المحادثات");
-        put("meeroDialogsStyle", "iOS chats header", "رأس المحادثات بنمط iOS");
-        put("meeroFlexWidth", "Flexible menu width", "عرض مرن للقوائم");
-        put("meeroGhostSwipeRead", "Ghost read by swipe", "قراءة شبحية بالسحب");
-        put("meeroGlassBorders", "Glass edges", "حدود زجاجية");
-        put("meeroGlassSettings", "aRRaSGram glass design", "تصميم آراس ڪرام الزجاجي");
-        put("meeroGlassSwitches", "aRRaSGram glass switches", "مفاتيح آراس ڪرام الزجاجية");
-        put("meeroIosAlerts", "iOS dialog rules", "فواصل الحوارات مثل الآيفون");
-        put("meeroIosAnim", "iOS message animation", "أنميشن الرسائل بنمط iOS");
-        put("meeroIosCall", "iOS call buttons", "أزرار المكالمة مثل الآيفون");
-        put("meeroIosCode", "iOS verification screen", "شاشة رمز التحقق بنمط iOS");
-        put("meeroIosFastScroll", "iOS index bar", "شريط الأحرف بنمط iOS");
-        put("meeroIosHaptics", "iOS haptic weights", "شدّات الاهتزاز بنمط iOS");
-        put("meeroIosIcons", "Official iOS icons", "أيقونات iOS الرسمية");
-        put("meeroIosInputPill", "iOS-style composer bar", "شريط الكتابة مثل آيفون");
-        put("meeroIosIntro", "iOS welcome screen", "شاشة الترحيب بنمط iOS");
-        put("meeroIosLoading", "iOS download indicator", "مؤشّر التحميل بنمط iOS");
-        put("meeroIosMainMenu", "iOS main menu", "قائمة الرئيسية بنمط آيفون");
-        put("meeroIosMediaGrid", "iOS media duration", "مدة الفيديو مثل الآيفون");
-        put("meeroIosMenuAnim", "Menus grow from the item", "القوائم تكبر من العنصر");
-        put("meeroIosMsgMenu", "iOS message context menu", "قائمة سياق الرسالة بنمط آيفون");
-        put("meeroIosPopupMenu", "iOS popup menus", "قوائم منبثقة بنمط آيفون");
-        put("meeroIosRow", "iOS chat rows", "صفوف المحادثات بنمط iOS");
-        put("meeroIosSearch", "iOS search field", "حقل البحث بنمط iOS");
-        put("meeroIosSelection", "iOS selection icons", "أيقونات التحديد بنمط iOS");
-        put("meeroIosShadows", "Soft card shadows", "ظلال ناعمة للبطاقات");
-        put("meeroIosSounds", "iOS message sounds", "أصوات الرسائل بنمط iOS");
-        put("meeroIosStories", "iOS stories row", "صف الستوريات مثل الآيفون");
-        put("meeroIosWaveform", "iOS voice waveform", "موجة الصوت بنمط iOS");
-        put("meeroJanitorAge", "Delete files older than", "حذف الملفات الأقدم من");
-        put("meeroJanitorLimit", "Cache size limit", "الحد الأقصى للكاش");
-        put("meeroJanitorMode", "Cleaning schedule", "جدولة التنظيف");
-        put("meeroMenuBlur", "Blur behind context menu", "طمس خلف قائمة السياق");
-        put("meeroSepFade", "Soft separator fade-in", "تلاشي ناعم للفواصل");
-        put("meeroSmoothPass", "Smooth-start pack", "حزمة السلاسة");
-        put("meeroStoryDownload", "Save stories to gallery", "تحميل الستوري للمعرض");
-        put("meeroSwiftMenus", "iOS menu speed", "سرعة القوائم الآيفونية");
-        put("meeroTapMenu", "Open menu with a single tap", "فتح القائمة بنقرة واحدة");
-        put("meeroTickDesc0", "The exact same thin ticks you already have, completely untouched - the default.", "نفس علامة الصح الرفيعة الحالية تماماً وكما هي — الاختيار الافتراضي.");
-        put("meeroTickDesc1", "One heart when sent, a pair of hearts when the message is read.", "قلب عند الإرسال، وقلبان متجاوران عند قراءة الرسالة.");
-        put("meeroTickDesc10", "A shield when sent, two shields when read.", "درع عند الإرسال، ودرعان عند القراءة.");
-        put("meeroTickDesc11", "The infinity loop when sent, two loops when read.", "رمز اللانهاية عند الإرسال، ورمزان عند القراءة.");
-        put("meeroTickDesc12", "A little paw when sent, two paws when read.", "مخلب لطيف عند الإرسال، ومخلبان عند القراءة.");
-        put("meeroTickDesc13", "A tree leaf when sent, two leaves when read.", "ورقة شجر عند الإرسال، وورقتان عند القراءة.");
-        put("meeroTickDesc14", "A fire flame when sent, two flames when read.", "شعلة نار عند الإرسال، وشعلتان عند القراءة.");
-        put("meeroTickDesc15", "A paper plane when sent, two planes when read.", "طائرة ورقية عند الإرسال، وطائرتان عند القراءة.");
-        put("meeroTickDesc2", "A five-point star when sent, two stars when read.", "نجمة خماسية عند الإرسال، ونجمتان عند القراءة.");
-        put("meeroTickDesc3", "A simple round dot when sent, two dots when read.", "نقطة دائرية بسيطة عند الإرسال، ونقطتان عند القراءة.");
-        put("meeroTickDesc4", "A four-point sparkle when sent, two sparkles when read.", "شرارة رباعية الأطراف عند الإرسال، وشرارتان عند القراءة.");
-        put("meeroTickDesc5", "A lightning bolt when sent, two bolts when read.", "صاعقة عند الإرسال، وصاعقتان عند القراءة.");
-        put("meeroTickDesc6", "A crescent moon when sent, two crescents when read.", "هلال عند الإرسال، وهلالان متداخلان عند القراءة.");
-        put("meeroTickDesc7", "A diamond when sent, two diamonds when read.", "ماسة عند الإرسال، وماسَتان عند القراءة.");
-        put("meeroTickDesc8", "A droplet when sent, two droplets when read.", "قطرة عند الإرسال، وقطرتان عند القراءة.");
-        put("meeroTickDesc9", "A bell when sent, two bells when read.", "جرس عند الإرسال، وجرسان عند القراءة.");
-        put("meeroTickName0", "Current iOS tick", "علامة iOS الحالية");
-        put("meeroTickName1", "Hearts", "القلوب");
-        put("meeroTickName10", "Shield", "الدرع");
-        put("meeroTickName11", "Infinity", "اللانهاية");
-        put("meeroTickName12", "Paw", "المخلب");
-        put("meeroTickName13", "Leaf", "الورقة");
-        put("meeroTickName14", "Flame", "اللهب");
-        put("meeroTickName15", "Paper plane", "الطائرة");
-        put("meeroTickName2", "Stars", "النجوم");
-        put("meeroTickName3", "Dots", "النقاط");
-        put("meeroTickName4", "Sparkle", "الشرارة");
-        put("meeroTickName5", "Bolt", "البرق");
-        put("meeroTickName6", "Crescent", "الهلال");
-        put("meeroTickName7", "Gem", "الألماس");
-        put("meeroTickName8", "Water drop", "قطرة الماء");
-        put("meeroTickName9", "Bell", "الجرس");
-        put("meeroTicksSwitch", "Custom read ticks", "علامات قراءة مخصصة");
-        put("meeroUnifiedRadii", "Unified card corners", "زوايا موحدة للبطاقات");
-        put("MeeroIconMBold", "Bold M", "M عريض");
-        put("MeeroIconMMarker", "Marker M", "M ناعم");
-        put("MeeroIconMTile", "Tile M", "بلاطة M");
-        put("MeeroIconMDuo", "Rose Duo", "وردي ثنائي M");
-        put("MeeroAuditIntegrity", "Log integrity", "سلامة السجل");
-        put("MeeroAuditIntegrityOk", "Chain verified ✓ All %1$d sealed attempts are intact.", "التحقق تم ✓ — كل المحاولات المختومة (%1$d) سليمة");
-        put("MeeroAuditIntegrityBad", "Tamper detected - the first broken seal is at entry %1$d", "عبث مكتشف — أول ختم مكسور عند القياس %1$d");
-        put("MeeroAuditIntegrityNone", "No sealed entries to verify yet", "لا توجد قياسات مختومة للتحقق بعد");
-        put("AboutMainChannel", "My main channel", "قناتي الاساسيـة");
-        put("MeeroChannelPromoBody", "Join the official channel to get MeeroX updates first and everything new.", "اشترك بالقناة الرسمية حتى توصلك تحديثات آراس ڪرام - aRRaSGram أول بأول وكل جديدنا");
-        put("MeeroChannelPromoJoin", "Join the channel", "انضم");
-        put("MeeroWatchCopied", "Technical report copied - paste it and send it to the app developer", "تم نسخ تقرير فني — ألصقه وأرسله لمطور التطبيق");
-        put("MeeroChatHeaderAvatar", "Chat top-bar avatar", "صورة البار العلوي للمحادثة");
-        put("MeeroMenuWatchDiag", "Menu diagnostics", "تقارير تشخيص القوائم");
-        put("MeeroMenuWatchDiagDesc", "Off by default - turn on only when a menu misbehaves: it copies a technical report you can send to the developer", "مطفأ افتراضيًا — شغّله فقط إذا صارت مشكلة بقائمة: ينسخ تقريرًا فنيًا ترسله للمطور");
-        put("MeeroIosAttachPanel", "iOS-style attach sheet", "لوحة إرفاق بنمط آيفون");
-        put("MeeroIosAttachPanelDesc", "The attach panel's first face in iOS style: drag grabber and a grouped action list with colored icons", "الوجهة الأولى للوحة الإرفاق بشكل iOS: قبضة سحب وقائمة إجراءات مجمعة بأيقونات ملونة");
-        put("MeeroKeywordLogHeader", "Alert log", "سجل التنبيهات");
-        put("MeeroKeywordLogEmpty", "No alerts recorded yet", "لا توجد تنبيهات مسجلة بعد");
-        put("MeeroKeywordLogClear", "Clear log", "مسح السجل");
-        put("MeeroKeywordLogClearConfirm", "Delete all recorded alerts? This cannot be undone.", "حذف جميع التنبيهات المسجلة؟ لا يمكن التراجع عن هذا.");
-        put("MeeroKeywordLogInfo", "All alerts are stored locally on your device only.", "جميع التنبيهات مسجلة محلياً على جهازك فقط.");
-        put("MeeroKeywordLogEntryFormat", "%s in %s", "%s في %s");
-        put("MeeroKeywordLogDetailFormat", "🔔 \"%s\" • %s", "🔔 \"%s\" • %s");
-        put("MeeroKeywordMatchedWord", "Matched word: %s", "الكلمة المطابقة: %s");
-        put("MeeroKeywordAlertHit", "Keyword hit", "تنبيه كلمة");
-        put("MeeroHdrSectionTitle", "Chat top strip", "شريط الدردشة العلوي");
-        put("MeeroHdrStockTitle", "Restore original", "رجوع للأصلي");
-        put("MeeroHdrStockDesc", "Restore the original Telegram header; disables centering and adaptive width", "يرجع الهيدر لشكل تيليجرام الأصلي؛ يطفي التوسيط والعرض المتكيّف حتى تطفئه");
-        put("MeeroHdrCenterTitle", "Center chat title", "توسيط عنوان الدردشة");
-        put("MeeroHdrCenterDesc", "Glass capsule in the center, works without restart", "كبسولة زجاجية بالوسط، تشتغل بدون إعادة تشغيل");
-        put("MeeroHdrAdaptiveTitle", "Adaptive capsule width ", "عرض الكبسولة متكيّف");
-        put("MeeroHdrAdaptiveDesc", "The capsule expands and shrinks with the name and status width instead of fixed width", "الكبسولة تتسع وتضيق بعرض الاسم والحالة بدل العرض الثابت");
-        put("MeeroHdrGlareTitle", "Glare effects", "تأثيرات البريق");
-        put("MeeroHdrGlareDesc", "Moving glass shine across the title capsule and message bubbles", "لمعة زجاجية متحركة تعبر كبسولة العنوان وفقاعات الرسائل");
-        put("MeeroHdrBadgeTitle", "Unread counter on back button", "عداد غير المقروء على زر الرجوع");
-        put("MeeroHdrBadgeDesc", "Red counter showing your unread conversations while inside a chat", "عداد أحمر يعد محادثاتك غير المقروءة الثانية وأنت داخل دردشة");
-        put("MeeroHdrCommunityTitle", "Linked community badge ", "شارة المجتمع المرتبط ");
-        put("MeeroHdrCommunityDesc", "White disc with arrow on avatars of channels/groups linked to a community - in list, search and profile (header retired permanently since v266)", "قرص أبيض بسهم على صور القنوات/المجموعات المربوطة بمجتمع - بالقائمة والبحث والبروفايل (رأس المحادثة متوقف نهائياً منذ v266)");
+    private static final String FB_0 =
+        "0pOpZU2b52ovr/27Az7BizCOGl8n2i0FlVIKxrBgyHN3VOccn4CtAnBV38/Fnvep8hgzjYW8"
+            + "vR2qJR83oLQUoaHkFXSvO2HjhzuxwSg5bzfOfY9zLe+5WDq5f7RhoWHp+b7maM34fYmYwdod"
+            + "Is9+xPrSIMAoGKnEl99CL/U+FE2m/9tic2i275BDKchgHY4JU/NrK9laD6cnyIW+rEJHpBE5"
+            + "xN4Lta6GMbv0fgymvone39wzWUwm8RMPjeM4yDqk6fzeXyogCP2jNKuKo6jUOc/kaVYvH1yo"
+            + "uX3376b0xZwvkxeeVFLKLj7XjSd8q4Qa5N8qhyZoG+WddHHP2vSHM9MMtY1G6CrtEKt37Cut"
+            + "dkcBncka0LtzQwdWwvbFG2mPMyUw9H5peKeIjzcJ2XNPj3HFrpo007yGLB+ThY05Wiv/qK5I"
+            + "bbEZxPCrwIuIqLxiWkQ569ZROnwZyp8BErgkvx0xU6M5rdDgLn9E2sS12n0th0gSvLChmb3e"
+            + "pZ/FFEoKOs1E/zwUhcwhjXBv3xvtTZLuNZTahX/4c3GuEMyR8GfjIQpZ8TzSBC+E3JPoj7Uz"
+            + "q88k4B9L2GWs6bdGt5ilodwrF4IpjxmfN+fawNJRECqMYEp6xgp17FW6enEd41jXTHU5Ijf/"
+            + "ghr2/Zr1P6ZWo3gy/LG+V8kLm+ixtsD5Uz5u6UPHsyDkUK3vh1dRPme5FSlFLTFDo1NuXsZU"
+            + "8buEAsOtYB1MI1XpQxAHszuYqZOcRcIwIhZUAY4tz71/6zZxtgTMIJaEgrW2sDmy32gWf8Es"
+            + "9y/Zfvs57TIEHGzt4gpapbbXhYkKMqJZtZ+wfo8CAIywXq3zaMar9gHR+hPFWFNzUzw9H4++"
+            + "GVbTlc3yrKEpXuKu8M65T33cgkZOdrmAMLhuw5P4kF8pzXay6JLbk3ZPWF/HOQWzpgD6/LeK"
+            + "f3d9xBkMNmpxjiTsUnW5V3zpx4cUFUeWxWxO18WGmKWXAvqFhl5zbF1fQ9YiLXon6eaESSFx"
+            + "QjLtD18Jv9VdlVYVGje5JLR+Uo5pxylxbdHWS7l4tIWD9tkPdhDTbKMo8Mvy5rcHKG/zsvJP"
+            + "UYZfVOvu3llLIUuAx5Eg+6HgwcJrk2yW8/AADYtnwPzmIODsJ79CfwJN5dI/daPJJy+DwJIg"
+            + "+vpTJYXSORCXSxfTk/omYXOFylaruv90OfqGY4j0PPdclzYUxU1VdbAbHdVL4E0S7so+dmtz"
+            + "tRsS7VaaRayr7vBpLPdY5zVrA5Hpq4qQ2CDKtMEXOKd4piWcMbcFDMoBtI3zg+qQBKwvGsDR"
+            + "AoghOE8Pu3fa0jja2IEbCzzEMS8sRiElaazSXaykshlX3VeSfsP+cKPrwJ+jw8MU+XN3j7e7"
+            + "dpJB897x+TeQ8yCZ0WHHw5A6ArbSCd8tSXUxa/qQ1X+0eqeOsngAMzQIfdS8VO488PMjgH/K"
+            + "5CiTBHuhATEM6CEt/QYGNkLWISftBs3BpzxaQjWzOVn8k7U3hKKd/oRB29eW8OPhZQzeZBTL"
+            + "UmGf3X8hCkuij9gon5Oqd03I+nCOFAbkIP9gJmjnF2gIwVtMqqw6rB1tgc48mqVvE38aQxfu"
+            + "G03C+n9WGqCrMEsIEqjScYKungfJEnmYsQOMTdbTXmLkIL98VVRl7UY8QRNbbOP5r/Bxfhnf"
+            + "mRpz6gw2QxZQV8esBAPsZfSGJ9uIn7JSAKkAgJpp2/Qe3A6WDHJtksTzp1QdFCaam1MYTW+D"
+            + "s4taRjtjTC4QRMM4PnhAE4e0hyxj2ShZFC/15hEpS6MBVA8BjXDBVmTVPM7VxLUpqE2dwb9O"
+            + "EkBQ/93Ep8+yfAz2gjhhjfvzqVTcqDzc6Dqa1ByLsIgBxVTWLZ/5leuDQUM7iHmmUNwijEtW"
+            + "cH48Wy97zs3zZMv8BGcXdwUeCOy1YhwtoZ0SLlmJ58or9spjcuuXfzXbZqEOw7xBZ6E4X+rG"
+            + "NhmIUOEpUUiGBMl/DBAfoyodkrnlMggxCWg0GplDWMpgHegYO9t8goDOZRvcHel4hNcxxwFe"
+            + "oFhxoqnB/CTTb+CFGlSSjVuKMskTYPfj7y2XYeOZCebyv02JkqFuM9fPoKprCQuyBsaHJ/Ur"
+            + "zohvhaqsTFyc3qPRrZ/RLty5SnW4t8/Z6WS2C/NvDYKwGWxPlicgqbphOJUuXFIDB/qt/ir4"
+            + "gNjQyrEL5OXmeyy8SK3lWq7NH9Oq2fsHhBP6rZLdfO8G+mnjg0Q+lhvtJoqd+mJKX3uA7HJi"
+            + "Udib6VwwrHitGwLcRzxFteRx26rBVVKiaV9LZb3KiElVKzrbg3vEhHjsuSBtIgxhfiYv3ka2"
+            + "BfAWVpekoJ2xz8+8WFbRQne+N4x+ulVp29vOAfLLhHijyVlkS3Cv/LfmfExxCbDgiQVFpm9Q"
+            + "DYK3AmNAq4B6N4ZMcXKn6H+SKv/8kDvX3h75GHLNG7nBr+qN1oVDqUglXA6ptvvYSMhgx+/+"
+            + "QSxPaSzrApbzPpaOH3FX3iezphFN03+ZOLOWHjV99mSdsDNXElaIUKTJEANAPIw7jXwFXtL7"
+            + "N6BBsS6SYfy3DnX3tmjjXwsPrt8TeCjyhf6EhoOgY7ybMBAblrcq9eOOQIG3OCD+G8l1M7KD"
+            + "g9SVP1BIMwiQZoevz+X3ZlNCeM9sOuOdjyBD7PG1W2Jf37z0qqdJYexXA8ca8FxWfqQ/4UVm"
+            + "mUrT+FsavnMr9MOhy5A8rjpHP3aUfQOppgQNWX9jE1UDzGbSFrednWf1n0hjMmQi8oBlP3RJ"
+            + "VzG4npFJby3J7AmibUyA5Vi4605ucHnGFD9IcnT6FpNgyDQyOfWSPpamf+B2WhCu5ra0TCtD"
+            + "WY+jC3jFks8uSSn/O21ay8cxZLREENrnw9G1/bTQMsV31tkJdBbY0wC9BenKX2IblMTpk32Q"
+            + "IDZPBZS/Y2ehcNQI0YWSsoJFSL3Ynb4Kw7/bujbYi8VWtFoj3vU/UikxYFmMpy+L42SU4awl"
+            + "xxeLDqmbxfElXQUqjtNFwxyXcDhnQBK5VuNXw8gZuusFo7duhDSAftE7WxCdBKx3nBUcPNes"
+            + "QxvMETZrGOadaN4VHjAV4maaGzfJTgAgINcKzlkRhTGkU6zcASyEGmo97XBcVePhUmWQxdXU"
+            + "McM2urJC+qxlEE1kHjE6XsBk1juKvaiIzy1KId4n3WzfPemaistMtpZfAKUiFMslilujvrvY"
+            + "6sNHnW8znS/vjXoEV+QvR9+8S4pinP/03IaJQDHKVM112jeUEik60XnUUa+x7vbPCQZlFl9u"
+            + "KhkDo3Im+nLsSvh6r7aKPfRJJxU3KmNzV11gG38OircSC+7i40G/aKavE9/vniKaJF4/dIm5"
+            + "0zXUCPeS6vYavBE1dtlTCNAAzFnvhfa7t0ZFLMaxJu+4IdZDurbt8Tkg5yC3Yir7lB9Y8j8P"
+            + "TRFWlztsKisZR6yEvCCsbKZ5uCsR0OHn5vBwb0OTRLILmwvjueOyn0AaBvKEsWfMpBkdai85"
+            + "5EwX6A1X4mV/oRWUPsQSUFTT7ngeyhJ5qrx5YqLAqmls16F+aZgobiFco9eS3MxYpESQLqhp"
+            + "NZO2BeTN5kBK9hoHNeqBYDu6w39edRNbYCTC7loNor9qmEw7UzD8Ik0g58hKCRftQM6EcElJ"
+            + "BO2ZDOZqH6sHarrUtaJ3nvNbV/i1R51FKOXBKvOB5zrlkPDA+bRSIZAnMEyepwLxXgJopV9r"
+            + "YCyv1OpVKoEAIK6yX5smvsBL/pp/XyVzQ27/iGYeVcLwAPUhDNRNSxNUQcir6HZvWVVFyPMe"
+            + "nTZRmx+XQN7INmpoZBHzR5R43G/Ifw7EL9fURMjbA+pUq73SqxjfKC/U2N1zeCPwULWVoXxn"
+            + "RKwzvZyQlday6m850Vpy2RXba+gu+mIxsnEwXEJmFhuqKBAxMfY5a2gdT7XtH1ASTUhNmyvP"
+            + "DfK/lBBLeTpBv1CL88nJ+/hyrVTS3C5ToO0Xfb9HKOq6hcOkLi+at2pTjcGaShDwaWPe1H6n"
+            + "Y0l/OhdLX+KG3EHFzTpDuaR+4Tu86AnKq7liYeJhqv8pA4n8b/zkOJ9amGuJbGYtdGWPeTIT"
+            + "110BJdppMu8NQd13tg6kVRtVkrVKdcBYppKaDRKiwHUWhLBkwNdM3xikBiFP4BSOqCvAplK7"
+            + "vJ4NXg2/qrCfwlRYmBmt3waEMyXnmw3CJVXocL+WI87Z2kM4YLcrp/srKaQ0VQwNjN+hCTW/"
+            + "KZtfx5J1fUWQSKIqsAqCpy5xbBQf5k+Ox7rJK56Bp4cAdePZUwOLNgIRsfbPbSbqXYRiotPJ"
+            + "BF9VXBJXRx06QZLFD2Z/Bu2F24Xh7URatcJuenv63hJuOAFSJ+EjocTi0qCgESg/uuPc0OcJ"
+            + "kh7NRLeDaFh+sEQbMdohXDKOdaJdskUrB5lWDMApn0QI66uNkxcsVIHtK/3l+fK7S5hZzr5h"
+            + "iiJBrKhrlZAUN4rKxOg/1+614NEXS14jXI1FfJLxPbv4/4NGKq5JiHfo+iv2yoemFkDJou2b"
+            + "aTpVuT+VNXa4v34xHmBGKrQz4xFizXcIYHqF8C1tuL90MYHxE2aY8aN4ZMokYVT2QIeMxzxQ"
+            + "1vdXK3RIM06Ew6wSW9gw5ynfyiu2yZAuuee/Mq0dQUIrzdZ2ssXAicQjm3JP24k9xMrGnlMn"
+            + "BKIZM7jTIat8sOQAWqfy2wC+ufyaxWIVla62UYTv3tfHX04oTw8H5m5Tazo9JCn2NII4gLHs"
+            + "OwLyuTSH7c0BcHqEo+GBYv40v6Vid9dmCz3e4GDkyQwPmvp4zUZcOFlqSeVvjmEXxuE4JG/6"
+            + "Wm2c69ipaeVRNQK+7n2K/Xy9wdT+KqQLa+VXA0s1aeFbGOUUOlNBLQyUPEfaV01q260lxMGQ"
+            + "zgawnx4GyX+Hk4vdYeqHwvBvO8a3lMjojN/aW2A9h5jysXVInrsJRkYUEzyiApDb2xy6xibJ"
+            + "fY3qbsFIxu4Yaif76JtzmaDb8P8wb6ApYFBzRk2W5n7ZRvOjPX4oYIXqRJ1b41BrYtbykjfO"
+            + "EF+uy1VHhIhSkyUne+mpZc0jS5So1nLOYHJDmPqhYltgGspThRo20iyuM7wxZBJHreoPvJY2"
+            + "YKQFKZE9O9weKCUSyEaM8xE2zOxlfQcrg6BI0aMgXqq+s33HvS5KXCSyE4lrutOuIWkK46n0"
+            + "MR9hH+wElb/fLSd45ALUhmWbnJkyHBgZLrrwfBzeR0TVLfd/nw6Yls4CiNgjzRQanw9acz6i"
+            + "5NvAePd2UgSJx9QKtjOe/HTvUkxi2yXh120w7ssHXveUz5VjHJsDQlrUwxnTIlcXVXM0qRYp"
+            + "0F/hnyZ2849EhtHV0sO+jJxSjWL2gDWcJ4Gzbh/HdBz5gFLasmp6ZRRu5Me9p210sgLk/6GR"
+            + "t2ltuS8c4VxcWSNW+KdJYWPf5VPUSx+PlsfPXjCAxkqnyjWxTP94HxVKi0cNJHIpob3b2oLP"
+            + "q6s6TUAppfL2RQHOCNtahn3fhvm7QmEq+fMbafFt3d2wptrdOPFZN4pe7rJbnH6QOGVzsbwm"
+            + "XZVaE2kcjCFur7O9qdJXhg5pS80Db6t0fpvFGo6dpgwVYzBq6J4eIHOpMny62e+4dGIXA8/k"
+            + "IbvjSyHj1nhP4dmYfyDa7r/1AR5/+iYQIitVU+l2YBG8u9gHWuQ03G/MFjOcVQtsNiKM0I2X"
+            + "dhDDSE0nCTnAYe3V/UhDJJTMx61IqnO5gRPKd5A85M+xA6s6Dt0JEelJ6GYbjmoTHVLezU/N"
+            + "zI4rgXT2MSqD5UP3MUfq9Waymex2RJTOrneJ1VlmAs5JlLDxxpVk3Z0NadagkBL4WAzBw0jw"
+            + "c2vDv+NpaIcZ00PydZOvhtLHmljw46IBEu444v4Q5SF7Lw8hK7jdLzlpqu1DbV29ZwDa6iyT"
+            + "NqqD4WaYUK9OSyLK9kASKrNSojsUcHZ8a+xSNxgYSHozEThHcakrGIxtDTsfmGWUq91VQyco"
+            + "YrwxyTVwIZAJJVRFo6zNjKZwGoD9egAc08cPCBCVZG6Cc84+0iTZJ0aNAmoR60iNYsfRibTm"
+            + "PfOV9ZvEsCqgRRV/WF16VAe3Q/9sIOmTvWylBsbeCMWqQIViERNXStOy3h/JTFd9sW3yZmew"
+            + "WOmz4FVXvW0mrcUrWwAvtIttykVfLheHjT9zbS0pwSI0EKBwRx9iox31DpU5l434HxG3Hs2z"
+            + "NwIIwTFQBa+BQSdHylDfqLk1eeK0mNE/3DveKQaPL1R+ZIFvcNl6HEjvIm7IX7shWTMjClDm"
+            + "fRXcZxtTdvzzw58LTjEDkfb/F6nK/w3qGRxWy/y0bGCaGf0aAWL6wsBeZxix8Kjnn85kN+QO"
+            + "3X/11aXD0HZKDcFfpUu8QZ13iWBkRI1QlxVq6Qh07CIpC1KAsiFgdfEFaxktH9nyNPAoRAc5"
+            + "xy14nDs55GMpFld4iRk2JIXVpfl68iBegUEThv2EPFiLiHI8fiJhNQM7/j2zIBI30Vjrzkh8"
+            + "Rjlizok+LNIFn0oP5S3Zc/ydi48qCF2iNBX+yyX3o5u5Weu9lEcJgmJvdJrEMW/ie7TV6U5a"
+            + "Un3ps7tZGgLzjeDGHsFx7Ue3cHIyZXMFQ5Jmsh+o8uvrGbUTgDFcK65FC3/S3+J9DGVOA+Y1"
+            + "fe/dbzEikwUrYtZBg0wTwbI7lroQFdKGMBL0GykPnBUVDHHsy8vkB9xZgGoPzoAmTNxNzSCU"
+            + "aRqB8bu05RJlQecA0+a53AgL6yqPq+9coLSzKhdJeahdj0Qq39LW1dL0kbtD8+93imTnZCQi"
+            + "eUgMCe7MXgxCPVK+TFPZYpvVOFYNrWtat/IzwznJUH8yisifbuXeIYmscPidNA1213AcLngC"
+            + "VGCjOkr4ontk4UCEau12L5Ts20c23wESUEVXa7a38Qz1LNPk/xTDBq4bG6GiJMTWwKGe/Krh"
+            + "eYicl8TM40mHFP7WbKUGCRwInfXPgS/z9OJFtydejCbZ9IiI8t5qPwhJAUSUduwSmVopdPwl"
+            + "LiScpDVCks2J21l/6fOWnfDy2PPFLQUrV8fEu5tG609JisFKCSlqk52BRqfCAsZm/mKpAwl7"
+            + "MICza9U5qVyDDoTP5D3T2QtxOSKNyHElKH1mPhpx7ayy4staO2Bj6EQCngyMtl65VDUEgdY1"
+            + "UuwmyjHwI/j4PNcYvIAmMB718Zq4YcaIEIa0PxdoGDaDIhK4oUZwBK3uN2mRPKM+C+JHny+F"
+            + "4/dlv7O4nXB1pnGDYy7x1i98DAs8MuEkZgjUSz8pc4OCBIJPMl6FHnyKSuvnXkSva5QocXB8"
+            + "ugxxr61nnSaxYkh1JEMvWNJ08fzXOXg11FS/W/5pR9Qc6/2Z8BtWmuYlcRel9P8fEooxq2jO"
+            + "8dzzbzZXhOhp28zVSyzxdpBmvKwEbmeDGRK3BnrYNsSOTH05/Qz0pbIhSX86smL+fhDLDX29"
+            + "6/dCYAbRnG1eHwfNZg7tI7/lxsc6m2GNjdwfmgc3rT+R2/gwl3aRdyXSLfPJedk+AroLOHP8"
+            + "mMUfSfghXndi3s9kla6Y9d0elkYVeC2r8q1DouNN1USy+ZgZCaYOavymupeJzPCaOie1lIsP"
+            + "S1AAcoXQvp5BrVgnRj4KnhV3fqz2QEsOL5ME9xGPUfTym4wHFd4Ig+9LFz0px9Tpb91z8keL"
+            + "riXKGmwE7tTxPojJxP5Y+qjUJKD1SIOiPjPGl3/iR/lnVDZXdHr8NEqbb5C97FC4hPq0C5s6"
+            + "B/cyVZ/56507Zwveb2JGlrUU+CI440xLrY4480mYTREjD81ZAQnjEw4M4cDDLE/CEkhxbzzk"
+            + "44vl2qiDOaE22JGul8EwK45JWqeuKt9a0TUM1IZ+LjWHuAOqNSqIkgYZOfI+oD/CbsTPFrRJ"
+            + "u2ixRnx8fmnom3UvIMcrKfiUELR1Z8do/bpbR+D8KtQYLVkyo+izKiQddLvU+eOfDppqZ+yA"
+            + "izh6TEDeqhXrNKdiFv38aztQPfLVb0sxKwMqiR2+gQFxdsfCAoPAEZXy484Y2EpAynxd3yvF"
+            + "rK//iO9wsIWCiKJqHsoF0fvTH3rOyLHjCnmm0+FzL+DyjCpLBq77sWcC2gIFCVUZPMQ1WxHy"
+            + "nHhg0rgfm0cRKFUXU2EhVadaDj7F83N/agBz3Xyu9OBF7P33LfagvaHXAeQVcOxKh2alUfax"
+            + "yzEL4Dxhae3jYrjAoCO3XpQ3sJQsY0z4LnuNp+FEX6/3cBDBxzQXy5XIr7hQ5k4TIoFOCmB0"
+            + "P7RCBSc6uXofcB5MLGnkkW4ST0efS5etBqF32UeLirCWz0Mj4jFURVZ3G2bIbMsc0OLpPAMY"
+            + "rSMYF8EV2ab3/ZgZDK4rJ8muzJrjQWT6+GDYQxNkWg/ISKypT4jxlEDF0uRbZm7ABb6JiLEY"
+            + "Bqfj17IZZ73nfabAoqeJ+rdp/i6pgeMAPzZSHOOjIwxTTzCMT21Zljvm2uZ2wNGXPLKTJuhz"
+            + "guxrnnS0tVHkkcw9rTytSX3vsvBqNhrysex7U1AVBpuwJlWmtI1JHRVrOgpGuGhAz+ECRA8Z"
+            + "zUan6apOJDJuicyi9a0CmrmP3teSkEesXt7LAUNNzecBoxaiGN8tBKDOftIBB1vs09UcLe42"
+            + "4lYCr3XTUApFxor6BBOskypBoUzV8eeaqQGASZB2p32E4u7CG9D0cmzXgkAArpuide5tHSNi"
+            + "6J+jBWG0/BNljVvvRkfwPAipaAjSZ3awGDC2ZM6LMtbMu9Ulha39X0o83hN2GBS+M0suUniw"
+            + "dDYRfB5gHylmd84DREgIpVINYsKI1Hwuq/8U51YtJUH2xFQ0w/Ey6yl3MT6k7occmbR7tiAP"
+            + "/qMRln0DtcjoZEZbJK5MZwekH4KLpeYK91/Gxowta2CSLZ/mhck5ojlywWK9zXNwFl2Tvax0"
+            + "sfvUNTFnyA/mscAkv4REHg6CGtG+nlmY2JpgxXvRG6CkgeY8feealkKZqTbH0Pot4Uu19xuU"
+            + "KQZ/W+6rLyCp2XAlOVXupukOnXXlbewDs2MlZoqlXVXcIkqq1yVswHMm/qehFy9i6T0isnXr"
+            + "wsp1rTkkA74d0KFfmnNL1lcegfeNP+JJ6S1sAB+CjG0bcMZTf1qIEzV7e+RZi1wxeQ2tUYuC"
+            + "2/xigsifBsXAjw+cCYq3P10JBNQ9ljID1hVxIQhx4uHOUT8n002U6i1yCQXXHKP8dTRvzdzH"
+            + "yhx2wEH+8GFA0hw078XF4VgEenfhK8b56xAB6VqV4J3HRj0upWGC64Jh7cr6qzbaO7/QMiW6"
+            + "jENQvrtSkHqGpTIxCMRjxPvwXYwEMf2iiItNGOCd5ovFHxkMzQizVjUTentBpSrAQAKbzBwp"
+            + "ikOq2eVvuRIycHyKn312lkIxhAnnIap1hbvj/lsgeREGBq4oC1EZbN2iSf85Rrajg4zvjAIf"
+            + "yLwQozDD8g8iOIp64/HFTaMcIr6/8nnbKway2FoYBEoA04mhxCOS/NS27JtopQXI2YVE9drQ"
+            + "qTNc6taqMntRHTGoi3yUksB5Fx1vUoPuGd4c6Be928gXzpBBWgSFrVijoUyyBkFdLza3scsx"
+            + "BHJ4pKuQb3q3AeeNShi7LtmBteSndwlp3UgpC1A/Q+lFsZH4n2PwqEN7S+PBDR5TYHotORSO"
+            + "ho93r+I3AExDZ9lNzeaIsmZZ5VjDYAh4z86TailrMzpvnUtm227260zilubxgh0F3nBsVrvu"
+            + "37WSUUZD7hgoczUixXXFan8AQsKX98L2CgHWrWYe4NhijoxqtepKZaSpCWA1mMlUCg5CuCrn"
+            + "vyEsukJG1Q9xFbXdLwqfwrz6RQPFmc+/6PT//hGOfXfPA/slehaD5zCJ9Lgz9Kc4jRDKlm0T"
+            + "1wYW0+AZYCAqyOfYVAQaG/T2BtOaULZBqkl5tPtKz3RUrGpbodQgG4NO5KWI6ammpYjLACNp"
+            + "12dajyFJUOkLPaA8qI49ovJCpTw9DD33Jr8BoTvNvNYHlYBk33+BzzhvheSQsOn2P6JB+ElI"
+            + "FZrxIwK6bFEjjKnp5YHMoVQDjH7KH7IIDj39R+oZsKQYBP8Jbdm4+RgltbcJ68oDLppIho48"
+            + "J106ExdF4kzFCJHaiJHSz388oZlvhf9IjWpWnLQMz4hohJKA08WJYyTXevDq9Ckz/uweakaf"
+            + "FOsWYrigSTo6z9TkshC9JZa0BriQfiMvtrbkAxPDkaVHvq7MsKi6KwJk1y9TLSdaGKiU8m1D"
+            + "SgtUf7YfKbU7qRrXqq7APSICYi7Q1VnW6U14vI6YXbaFbaTcPNE7MwVN+4piNfj8koVR0IRU"
+            + "g9iq/q4iVd4GIWgkLInDAG+tZQyKWHIJ/eEM03F5+sQkPqhj5Z0pKl/BRESP/TZG722Z/7Kr"
+            + "AGUd1X8OVu96D9UhTvc+S3xEVKYhfk1x5dn53Og6g/fwVfzWqY6GeBhihQqJuYGnK5/gltja"
+            + "JfsQPbroMkre6cTDx3MEC1d7PZRC+2+fPfJXy0icCCxlGeJtDu4ePXZDA0OV8DWHRSGE+B5j"
+            + "YZbdJmJ7ivedaa7wZ0jWOBprNnzHhSqQCDEzTnQrrMJ+OKaWO60mziG+JGMf2tCRETlgLucc"
+            + "BH56cxPJ/1DLnAdbuq/OJTB/Q2/lmlH1bgGKrUArW68X4x6JB5zFHemtKf3PhxoBDZqHB/sS"
+            + "YWbmOlzNMuwRdrMgUm2XM+ZCjP9y+DsSRT4T4TxUvA0sgQsLucjQO/7PoHA84UQxVPrLMOA4"
+            + "IkHUJJ6/JltGQq58RJmnoTQ23R5ABgcGVcyCtIpMn/aYAjGuNthxaiNLYe7YRRG+pPYu2/+k"
+            + "BaUYADvRE6Rx1u+KmngapPMoVROo9sWfEEbp61ul+6v+NwKsogVr2rjw8TaL7WziblhqgVEZ"
+            + "a9LXgP3z67Pyb5P2Yagf3aGN7tBsykeFQHgOt7Tvkcc9tqkBZAGHBSZv92zCmkofHZ44d+ZJ"
+            + "Y2fG40WuFVrt80itTlS3+y2SfLJgaLi/rOAfwIQEsaM2DWNs71rMJeiDRsVn2rKFz0m0B+31"
+            + "V5kA/pJYvDXQdyv6OeZnsRuLj1LDFwBwzZEUa7HENSQu7DFwkqwP4/DQr1VzgNKQx3KLGfoG"
+            + "2qxwTtATW+7WQMl34xeAHsZ4newKuqMcGGuK1VBm6q0jm5XGUKECX9hLlihwBQyWCkQgB9L1"
+            + "aavCWmFunSdbJi1TK8OZofLuuIXTND5Fiqjh8tawSiPjYTZXQvEBFtuDjeXoQt1oRHJQM+8t"
+            + "cnuYV2Tc5rqZw2OFSm1makpWip7NWI932WUGEornZPpHWOBzBNMCyi6rsjnXl9z5KPmoNfGq"
+            + "Uwp97Xei5pu2CiJQSXirfi8YgF01ZZjBbtv1V+PUT+16pNFwzW+0LilX846yAuck7svZyGtJ"
+            + "9nlzrJjImoB2sNcGU+lKOTLdJ9aiv2rNpiL4PAE4Io8KMVhM4C2yvtDYN610IECr7n++MVoW"
+            + "3VvP6umpwDI2E6jo6Ql+do5B/HZpkqdilLMRc0Y4PlQ0+iyQw1y3WaFPUAv8qScfTdqBySKe"
+            + "uw4+bFWBN9NBG83XgsFr1MXq/bU81WJB5+LONA5Ydj3UiHo+1IZAHonehsvAbRiZFYahhbLL"
+            + "DJgqkD+5sCy34l/jfpYdm+4YeaZC3+w++PCV/qYLLHxzmwemHUtgs2i4O5FWT+vTkZzYbuus"
+            + "HQ5zZS+uryhepWNxjgOCO9RX9ODnDZkbVjsxJx6zKrLXadLh1lD6pbhUfvEgC43zVZb7cnnQ"
+            + "VKuIitY8e6EKK6yDEQE63IinaC4SCzAdkzx8lr27IFfJ1nWTY8U/RIQO"
+;
+
+    private static final String FB_1 =
+        "TNfrv9xuRzjtX73IdvUdJV6V8Uo+SjS5u2qjmv9wd6//mF6Ee0AsLX5ScRBZMYqJ03E8P1ON"
+            + "44/mGDIYQVTfloKOFzjq1+gsKZs7dYCXh+Bft17zw7xuLDxEneLmyPrElRJIbAydPnDrmYWm"
+            + "9B73J3tMwBNBCtVWY68LlhpwaQ4/jREmIBmNcEIaL/2RTetTj+a+JSNMCk8+cj35Aq3GtH/b"
+            + "bszpOaS+H4JfZnWu3TqW7OxnZZSv8tYSnpfNgTviTs7MqpyvWneuyiLcOWoPZVoWjoeOjzWF"
+            + "uTX7Hn1XxLc1N2MFwDSaH2+nvQNqobkt7F4eW1XFwlaFFuxy3DUnWQhDQ6ybpEBPxZKcBIdf"
+            + "vtyPKVAm0Tbb7sDTiGmkS9sXJtN5w2dKK4g+JiB4x/TzcmPu6kk63KJou79QRTqIHiHsLhLL"
+            + "St26P2AH1zse5ZC/UbB8BtUq526opZvTnJlc83mv191XB4q9CP/+uN+IlAL78w1WiXm8czBC"
+            + "iUxedGkWAyi925O/vBWHEyDtH6WXu5ZoRjoZ4PN0pBquUUXx4Q/ac04CBegiQiUbqC4Eu8/S"
+            + "vlj2fAnBzkrcjA2LEJv08Q+/oFY04aMS8e1Y6Fjj8SGn01ikiAySS/ro/9T3c0tvDQWjLU8X"
+            + "ZwqxyVIeX6aZooATupr68fgqS2NZn2RiG5pdoz9YH+WzGZ8zebmIQSkcxPTUxC1P2b5l10O/"
+            + "74hQdkyR2XEPvmWBiO2GatvQWyBlpqwR3yQtJ8bnpIPk3DycsefRFilq8de9Q4dg5Gukw0E9"
+            + "aJ7H7E+zCC0/PeTRYTK9S9nrEWVfcI9IdT6CfkScgu3SAJmKXDgb2ff4dmQ72wdL5ZXhpWKl"
+            + "dAsJLntmvjzxAeQ4TKJJbPThtnwUO8Ey5yMMnycvBFEl2MP7Rl5CubyP60sUlivaJ3kn/+57"
+            + "02PqNvwCIiLMe1qLZj5LhezBu/57x49yk6oHxju+dFbj46YE/sWpWBskcu7kVAnHajJhFSor"
+            + "1fKANGUIlH3wQmQYSzqMC7HHuopvX6OK8toje3pYv9l02wS1EMGQRzXJlRkVHEivNXPhT80M"
+            + "AxXy7PS4Ehj+fKV9srJtW1wYDu+ncgOvBQwwQBbQRUKgJoPBtOAVyXGGyKtoegvvCJ7F5dY5"
+            + "w1zsvQex9wlS/LukduITZ9lvZTybKNiUWpmRQKQGz19g43nFAeW8dP1y+6OYCEEkK25H3Avf"
+            + "6eYqRGjEOBfhHKWIfespMZ3Irh7VMypPxT5ggvfEdrMPp+jXV8j9Y0n/S+rd4BTy6zwv47R5"
+            + "RMkSd//gNH1+rQlxBv45BsqMNphzdvG3uF4mSQNI1vhD89oPbbLJX11hG8cTdLVmZjdApGCO"
+            + "rxKwq2wFFgc0OGTf6kq0Xlz7fugURsW3cUnJ6D9O64VBHvZsONrUat/5yk/CnJ1dkj2x0WEU"
+            + "U5Vfr1bkcPzy1dTVa1fDp3V3Xxxc9B/yBUrNppTDrCCUl4mPrA9SCbTjOCLcGM7u51QXnCHB"
+            + "rtAdiA41QlFbgpuE8Fk7gAvIezwuzTPtvy467cpJib2nmJjs0ez6wcOohOlmXPJfM4gfmY/Y"
+            + "VOE8zn25PRWEuqvxzRHZdvXwUFPh8CpBuNYS1nKmE1UGIK7JGxvr+WOOlAl5z7RdiwnuSWHE"
+            + "z6uSdg+jTCC5df9VVuh9ZbCirEfKvIu5YEInaJhrKS12cPSyTyt7SfCfhEfuif+2fSG71R5h"
+            + "h0v6bavXg+QOWw6iPYDldlgHOjypWa8xj7uropKjTGFLP8ZCPE4ud+5WxJoYKztG+5n35TwX"
+            + "Lc/HuYaEl+Rw/UDVvCojlAijF6JOdDqXk2H5bMjOFzHz6NaMC+HAXnBol+I9H18OsypHE3c0"
+            + "9LLBp9PvrJj+uvpozx/eYUB7gPF5N3j8qbrGbMHvXxSMuYwWyOJIsq8aNl8GuGN6vtf/7KZb"
+            + "CEp5obBHZU/1G/N1F4kOLDXKk1l8iJ/9m3Vyy4pUoAO8HoRlc5LR9u7VaIs1LXdEKgJDs6Yx"
+            + "okVCYKMvZH3e67X0Kn+QVmqHxNvjN8GNQ7hnFA7xE2Lr2d+hIhzezETfDgGl+dyjHJycva9c"
+            + "DwF8gJwKZwQacwXOD7LEkNpFam00S1C+yaOvyt2azv6Nj7z78sM742oSA6hU6mI4jmosIWCy"
+            + "FJi9a58JsM5mV9ipqNIMwlsVNSkFEb9sK3BXLqOkyzePgRyKrHKAeJVbKXg+bFXCkM1/Imjc"
+            + "Ay1Ge8jCx6brSpNxcHuCvHk5QhrDKrtaEaSskBEwkBIcTg1UCypavXS6t+2C1a4sNoE6Q273"
+            + "WKXqpnRII6x3+ex0hPjBzO5x0mgaqpKbbZjhwClbkiHkuBNMrqeujwAUtRZx5X45mwa+755a"
+            + "QZ4rvbLm9xDXhXSkKr/cUA3jNx3xOv/6dzvJpanwWqJGM1JGxn5vB9i0dSnLg9s/tM9I0rTu"
+            + "5b9HtcnRRyX4CawKn8HIb1sTVs7+ng+dZSsxGSR0BQ694qOtI5GvQUNphh/XMLY41/S7PN8Y"
+            + "m0kO6iBM6HhrMkdDm4Oz3gw120r/KvenJHXhWPsieHxvtRun7UPXpafRm0T0neM0GqLaQKxA"
+            + "5gfRgitcO3O+TLPLptgdYFFKKjeJJ1U1hI8mYdtVsEn1V+8KvSs5r1PG/4vu3EpwIoHDyvEa"
+            + "5qDQKHmGbpDA9gVGeWT7p3vmx1cWVIW6gThgqt1gm9sr5+bZ5BDxmKyNKot7cQN0p5tbyk6S"
+            + "7A1ppljfNIjC94o+es2O+m60DXudTc+1dh/+ba6XXf61KJrUDuWxN+9yr9J/ql6phRERSjbX"
+            + "rxKATl1smS1FB3AWJbVAeGHkooS+sHI7qobSt3TIzVtt3ErqZnZPgM1Q5JLK+zDW4bvqkb45"
+            + "HxYUAnk4V0xbmtng1dGfRFFubQzoZhDh4v27KzQ5Y6ypheJ42WBlnejY0tOnUTTruF00nWsm"
+            + "oktwd4OM1WCaZ9SOKkgTY/I8HtDQASfZqgSfLFCDIykxn/RLqtzmMfdNsgEJ0jl3UsxxV8Tn"
+            + "4IrzBXRV7UmRPp6efH8VN7IJe5kzzN42p635/hHQ5LShj8PBWCtsuDRNQKZ8LW+7DThvIpbI"
+            + "B4DwBpkWc2a1R6W9bRirkVg3J9C/2ZQkI65y2pQs/fVzXZum4dkL1/jcthQtqkGeP1g3WhJ9"
+            + "S90uNmBeJtIkHz6pSvWLcxsXuXc4P8u2eCx7mGfz+kgZCEPxwAhakn8gVSRzuaJ5cchK4gxt"
+            + "c38vyT1Vd93THlo5NDtHG+HNHEi8DY6kr90/8j18sh/qoJYmUsZmufUDjhwh75y2unG+68sc"
+            + "6G9htus+AIZcUbYG9hZzSbatG2n61zs1nQjO0yQLbRF1nG6s4MZ/B+JQGW4HaWgrcHR23CQT"
+            + "lAThC2UhFJrn4cZ3CcdoGqJ3xkMIynrqEUJWhihXml+S+5nZCokRyLbI8GSxT/IjVVAMg6ph"
+            + "d3SX9XaggGp4OATvToXYL4ue7YnyURF0ZO6lRQbtnweol9yL17qzhTc23vVl2p2Lno5tkQSU"
+            + "IL87E1o3XuYZhhjMpT7xjIOpUqifXiWiwE7OA/GabNhyNiQpkwAPBAbNDTQHYVJgT2QRNgll"
+            + "0GtE6DfG2+WsFlJrTTaQ6l7noCEzcZishmfA7Vm8n4/b6cuiGNeFSL2Ny6CLQILs0FeW6bUS"
+            + "IRveuc9NuZ10dXnuq9CU7+FH+cpMLW0rhsWcY6gqz6O8eBB21TjhsCV68Jqg3C0CayWDG8Ne"
+            + "iX5IE1ZUWdRsj3dKUTOqGHFx51Cd9HQShq+2FYSoe1cayfIgeszk+8OlMownNFSWOBWOFC3Z"
+            + "kCDL38U4PuGXZTmzAd4Pninysh5XdWIeHDSpZozWvIBeCsiPNz0y0lQWLidRc5QJZx9CUJ8d"
+            + "awPBkTSFTXUD2g3wMlG61FnXw4RqkxAOqh4yo7jIzP5ArQleCFbV5XGwYJF7qj88wpjzsHkM"
+            + "O3rVp0tZY5h23Y9s74oEFQlRCjOL4KbXbtFWgD6+6WyzeTiMKvr5DgoOHuPBaZLsN/KclZ9X"
+            + "fvwXDak1OT9viRFUN8MncusDVrpqNMDU20MqJIhwd92U9Utid07RvVX7Yrh3mVGfbWjmRgCe"
+            + "+XfounJwLI2u0MK4PAIC3h6XSiwvJiFuopHDyOTCvH6V2bMM0K8QgGLSBErx9C6mI2kza/+g"
+            + "UenXntqqREH6wVwsJkaFUzVsOHfeu8HA1WFoLABnHbkfpkenIJqOPpsj3JMEiGwjCd3whaap"
+            + "HKgwGTOU8x1puhpUYgJjyAOhEPTH3AK1lbxl/GMsFs9FTyBqsvMFB1HO7nXpEbKZ7T0NqhhR"
+            + "3ZHpZ8PxsqemAFPkN6AXZwJQoy5aRL3MFDKLS1btFtB2jyYY7jMrga553ADpxJ855f00nCTA"
+            + "6FB1OJ71EGo/h7jhpdqdIcKQrqofN8mqF7gWt65ssEVKjuvzcd84wdtwcxdwMDBIHFLaaGb8"
+            + "XGeNZcb60zKqppEacGrFFjGI3u1faEqWpqUAWwYFoftSUlsce1gHYX9VrRK47jhzxKhY2Gw8"
+            + "Ae+mqfapsQdIYJM7csHm+t6J3hE9MBSJeJLKsLaK9tHuQFlkhlcA1oMM68rkquukUveF28QQ"
+            + "0HTX9hBLaVUPQYIx+XkWXbmmcpWzMKck91jv/Anff/zkF4kWjK9+OR+3cBZAN4B/0lNGEAMM"
+            + "FTnWVdiWHI11v67mqt8XGYuWSW19IrQXZUmcMndOnm+6fmnZHZYv0MMa2pJDYmuLg0k7vjxP"
+            + "mMTrMDggzL88sOzowmzWjoVD9cGJ0zi/xv8m7scv7qhhhtxtxZeybHB5NFJW8/NDH9hxFoPM"
+            + "yEhOKQeVjrQV9t/yae+RfNrPJDCbIggVX8J1KDIOQ3o+bjA2vXd2vs16MrbBcV/Fp7ewKTOb"
+            + "L1Wr93oaLfPlERwXUh9fw+yeYmvYX4mauJD1dVzxF0pQlesz9iTFFOVwUjBwctsSiHY2ei/O"
+            + "rWCSgwq6obUN1y398ZUSiLGkL8v+ZTpGSx9K4NGX1lm3SzET6ZTPhbo6OCiHbLUhZXqABCDb"
+            + "8/9Ae2PNFgQvKo5+FZNXSOA2ufKt2lZ2rXqwdSymXsF7bpERvoLvDgNuYiFEK3DX1ge53ARn"
+            + "oJLGkAzr77VII6qXNqkfrwN1ii3Rmoe3ycqhXMbT9LXsHwkMi0ru+XKs0bQ0cUAiT6KClfm7"
+            + "SL1x3MbSv58bv7lVkDjBXMshIz4QM2WWP0FgRVpcN4m+HEF18HwLKYHbyCTslBl2uTj0z61w"
+            + "zKmvlA0ea4gDufyRCG0XIXT8oNvka59NZu/yywK8rfQGS5DV3Abal09pLk3iZOkGytZxlK0S"
+            + "hQBgHh1svnUAnrspqTtyG7PMTnXLvJTUGQzCLlV42E0MD2ejKauAcGlpIPezaUOgzJIRUC1g"
+            + "tTfVnyxkZF7WikbyzyCTVTemdz55uTXjIkQccKCP/Pnp/CYi3sqI1U1wYuB8JCSy6Z3g77La"
+            + "5a4qsRBxyhiuPdaqKkv9LczTqgztGoOAVmcJxhnyT7g9mOHlWTa4OehQUnGlfJU7I723U9pz"
+            + "rwVqkXakUZB+60WcDLul6giC2p6OnGzPtoewIEb7DREWui0cOdoM5BbsSVObcAj1xBqF9W2W"
+            + "YIUv59LeSUDSQ5X7H0TzrIAQswXiXPyk+0yKrUNTSeKGB16Spi+cTYVOIWexAN7Qct35aNpS"
+            + "qLLVBYnf/HeVE39lurR5V3e+c9bAMoTW/HcxX654XAXiiDRgOfOt4+277+/a1PBUQrUnWf3e"
+            + "HJaFBhpaz/I+qNECWeIvwEam1UBJHMDLMCdRv3VTgNzwikbKlR8chzE7buQ546rrcBHKPaKH"
+            + "4gGiO8ShmRTMP0N2eEaJgut0zaAQLC617IPGwUfvRTRyEoYz5gZ6YT9PQhlxH6L4KLzqyzE2"
+            + "UzJfLdr2RozKKpLkeRy5GhG9F/eX6sEXeNFt0jbG5rRwtSzTopKP40Fo6YhFJ3w8cA1tkVXW"
+            + "R9KBDGSAwttngEtHoBaQo/zFi1nXwueq64/0oTirxnXeeHSODaUFArI2tDUUwDhH4fF2+ImQ"
+            + "IvYhGGZH0OjbNoJU6h28ebpAV0mFjyIH7HvzV0wnuZA7EFD3G1Lao7AH0Hy8gWyhdOicMsub"
+            + "WRlPRzROnu95jIDd2WQsN2tZV4Z5PT5donVjEaoHqRLaJkQPhv09CSGsH3D/0QW8/YurEe0s"
+            + "l7NxtdFu3UW8JTAbFqXEMp3bRJskIwq5uNsEUP8tZ62JOu6x5j2n+uoNmD3FNnOtPqsOvHJU"
+            + "xgf+eai9g75z3v5DhSQid2XDr+i0358kWgxSQkeuwade01u15vrGrNbpZ3Vxf5rKQc0FbAVF"
+            + "0cHqr02O0R3j30YE7w41jJZA3Npds67T8hooBYQjFu/SI9i3Fyn+F7X2RklxyWWJ/iMfhbFg"
+            + "Vwqo+EplSi7YPixH5S5DMTkTcNyO4Wi7ZgUuupx4h6WN4Sqtj3W/uotk2Googtn2JSMYlKdq"
+            + "XHSx7qITYdwbBzZJN9+pukNX9vE9T5rmWMeFbNLIZddOPQnO6h0cSv1sCTbGKltqjLSVD4ws"
+            + "RlZx7X3m7qdbeYb/Z+eBAZVY8zJ62t8IsBC9oZnNVmiTKa8LwLpMbMAMi65Tifip96cbY6+w"
+            + "F5u/W6SYM3npvMPvq1gLHv95l6ZV1FZmxHWoJH6k+s11VuAvJSSthXaIpwfn107XJuuQ/0Hr"
+            + "EJUNNtf8FWeDyKz8BrJyDyOA/f/6MrV0u7xUq9jxqO5QOyVzASDEYcBSzLW22TlVSm5G6JBm"
+            + "gqegSen/JPLQzxu4Hsb10frI7RniQD3dR8lUgZ/UbUn7tPxAYN/Ub8av/1GW4mAxglV5I1qP"
+            + "9zmf9ntEm6uulhurnE0FeFJbk/QK1UaDov/XegsPitbJbJ4QSsSgJI6hKU7y1cxwUdBREzty"
+            + "KQ5Vm/kode27RE0NovxveZmJxpyuIl6G8JGH6s9YuWjarvpCOTUfskKNzjHhhBVPNg6Scz6t"
+            + "fcIR5kJbLaHUYah3wmIV+mba1+28mq1CXwSJmRZK/YtWFJJ7UoS4AL1KilAELAbXOmgu42nq"
+            + "/byWE9lgzZ+tOChUfFzED+uQnpI8rBeuELaxlg6HvHVKjZkyNOiVG+dp+q5frwnTVt8QAZcE"
+            + "s9XY6OIcO5EwVf6FazrJ0UgpP9oDtomAqOuRpshAasSpwl13k7Cq15XPARKEopvKS/kI6mqq"
+            + "SRf/CmClMDgNIh1UCXLnow83JViL+xk0ew/NaepTlYJVnknu2awt/HeJg4m910DEw87w6YBe"
+            + "ElL/0qBPAR9b2Dbqo/bzOUQqxe5xsLVHwlTCKABuAqTKUWEnzyM/NW4V1yOxBEwOhFdZEoLd"
+            + "lN+4ec9Bem2+jsx+73eF4ZB8RxvY9h9vu0/zc/lS65iruZVNWVT/QOlQj4F9CdSajPQOgynD"
+            + "hnnpdxhPCmNNZ5lVS2DjlYWoc16onbFj27hs3oOiynif7Ajuc9SsqGTeuAtjn6OK5J4AYUdQ"
+            + "xuxfKGN9kjog5XRUwABoBMJziX1rabG8q23hOhqzhhppEYiKM/FkjPrTswxTn0GLs65meHnk"
+            + "p3zQIgRQaDtUvL7ynwzRvb5u9HBHmlbjtpx+GeKAe1v1iTS0Ayb7yNjpfcjj4b+ON6QMdrjS"
+            + "WR1DDHDmbU6KyHtlZDa4f+dPCuGPsqdOLNCy3mgiONpUAxl0z8rCr+ccl5fEPl0pBNyKkEUT"
+            + "ZTZos5hoIIMtsbmbOLbYtXiHbMcIDzd1wQrBdcy3v8h2c4zjo3C1nNLGCO8zBPELxKBEV1DP"
+            + "xEnqLw2iQtqEQ0nPz37Q/79COTXa04XmUxE20qVN2JLi/53IdiBXfI6/3ti2r79z1YBOMaEv"
+            + "cSeRAeiq9nz2ZMgsORuSpOOfnrdCyVAloGeVicRKOCYdD7ur8ZkcGUdYl1EVOXLM8pKrNHTI"
+            + "nkYHwKTHJVnJaICTFLHQEbTSM4JGGtggeK758cHyKHYr/cH1ly21VmMWBtphDewmsEl6mheT"
+            + "U2WneuQt9X5Y1gmRjYL9Fr2d2kAlXnrHBZ0psyLrZS2i+iRSxSkhWjVk1G6y0CleY6+8qI9N"
+            + "80Wi89V1VaIMRv2gq3ogOeEec5/eyUiHOEqmsJhy+I5CNpZVRNeIbJWwYHLJSV+zSb1NuC9G"
+            + "A24/cILJ5zQnEASykdOzWKcKfrKdvINK0Z1NhLs/BdytAXXVhhJ3f24+Tjqrdvzh+ylBnJFf"
+            + "UqF2YyAt+IzjJBJRhPXDo+cdITP0ady3+t+dEekuDFZrbbHydSy2DTv970VGZFYDkPHwXPgt"
+            + "hC6xov7mc6T2GXDJztL6Bocl5CBu2u6XROuOQRAj86wohmSaJBkz5XgnbwBzLhkl8gEe+7lu"
+            + "Akc+mMUcozrlRHTA1GSKletbRDsmNml8xQ7Jv9m2QXrdemWL/FsuNnDlbPG3iMhwvANQfjPV"
+            + "/T8Gt6H7iNag5DHArWXxPj/V/T+R8CDyFmyJV+945r3hcnJe0WYU6eVacdalA5o92B6TBiDp"
+            + "6Z01zAIqPiPUt3IzQIvrXm8LiRb7RQ6D+w1esHKcW+Nt9CwEOGyKsNyX3cC5XXYdU2PKZvuV"
+            + "s3RC++xKQdBda3vxP/ltxc/4Cw2PMHCagjXTddT1Czeje2jmZeVLM4NCrBlGbaz5C8TYLbNV"
+            + "z6AaePy5Toehl0x1LZTp4NMsNthX4m62eUEBKKJPbpRZxMTSIxDast1Ks9ySMiHlbCWBSPdD"
+            + "q1JTEJXeFzeMoo/jdf71BGcpzcR748p1fwexgS0dMqU1Ea8ePKutc25XTYO5DXgqiRcc6CJv"
+            + "jnIctowp6ufcdhXP4rIeBuOIqX8qnkoq5PiqIIXFZkXT3LQUU4DLZ7doxgaCf+iP80aOLwoN"
+            + "vB4PzsT3FCB2yv2QA5jm6J72d5jyGVvFHalsQgbQmeg1sGLMa1tmxnMKwzYkc4H7mjpKIDXS"
+            + "jJDHOTpnC6Pe7HqUeD2JI+sBGHe5fp9u40KcrWN44D+VJdl4jbkzcbj6hxz4Jib9dl2LOQ+z"
+            + "FzHJ94dY/7eljKLePI/+bVo1EmYyfgNcuXuUOXMehjqS2rOqt8Cagzx+UVM6jmbShZK03vLV"
+            + "AW+I4gv6Ukv/uMamFFXk+1N6p1Q2WWl6/Um81oD1W0IMkHvO/moZElC+IqOkScFSTTVA5/ND"
+            + "HpRcWpa4M3W3pxZzTgxlLqJjNMqbpLMls9Ih0QJtvyAOKyt1drv1b2BLIKzLtPfEAVgEXU+h"
+            + "O34EPNOyLsWnlptv+TpazQqNFCbsNkQhODn4GWy7xch2fx1BjNCZN5PZLqHylYKSYpiF0ULJ"
+            + "S0lq/2gVkvEbRZmEc36DoKHjyWUX46f0OfJViVN7mhbXMnEsClRgHK9QD2/RAKlx5k3ETNry"
+            + "zUnCPO0dxV7GmoxxPSr4AyrWZy1JsvUv54p7hrXNNFR7RK/yJsKkWAJDiFi3tTwikvPS3OIA"
+            + "n4f2MUdSPAPpQq36gK3V5A8QY345Yaa1/FdDtMWdNYwKdsPpuLiBEuf4OFUNi0QC2eUpaHoP"
+            + "3qURqvvxUCfHRVORS1yg3eh8VYrP9LTLFPQLxKm4z/4Sv2U/3A6a8xHz07dOJHhru82VeUax"
+            + "28dCtXYvC31Co4SmquWUVQwYSq9cjzI2XIMABJhyskwAj2Alc7GUNbF54/xG6DBH+7ASm0A0"
+            + "neSELL0Cu2YncAXGf2d1LcUXNXxzuMkP/R06eQydxoqiXYW8ZyUS9Vt5N/l/uq4xpcoXOaCd"
+            + "XvGhXX7zslPhCd15r/R/GR7dzeoOBt1s67F/tkcFT+A1ILXwIzCMmsBkTxhWrlpumiskFRyN"
+            + "flVswa+wvr6+Jt98wEKBI5ityUXZWws+i+FgZT3ozHOIPAgykDvfDnEyrx3OA1J9gQeRRiil"
+            + "2Zln4epGHO5S8T9/tusgiNYqxkAtWp0GIw/J392GwB/FstvwOYUsEH9vGm+gpYoN+0CARLGI"
+            + "HStgXAyU6doEAWfweXnTaG+5RUm6z8Aw34z6XhYs5uTv3L5VH4z5MyLYd8jBkTG3e7aIfJrl"
+            + "uAbVSdjyBJUxFg+KGBD9yZitSeso/uV0HtcfzjP/O0NhqRCYB5FGr7TqitTynoS9X5pzQv1j"
+            + "oRt+dF8wg8KNFMmnhHfoXjeE3mXYjcc0lRD5uATZSser0YNIitCicEjPg0ihqYrbdpGWKr9S"
+            + "BXDa2wY6Nta4O0KaM3NC36RffZHBfmmiXPtYirzPGf6g92cMfJdnv4H/wiH+0RdtqxnuDLH5"
+            + "3HG4vYDN3QxT0fBZt/TosEy+JYLIA/Tp5EjBfK8Yk8XHgJLwiGMpCUJx9hT7hBht8xCSPEDy"
+            + "85FYZ39zJ78CVQYq/OBal6RYvRyETBcr5/SduJFQ6PTMsG0a98n0QFXaa4ExuDf5P5Q3nrX2"
+            + "jJCh5kgz/oR/Uz79FYl56XIZxcrOTdTJYHXvb8nPzThazMn0C5J+hB23CiGxjRWBPQQqqCs+"
+            + "oXxIRrt7sX54bhcM8/AjrHdE40hs/p9qAPYR+ZZ0HuJDwxGZz1lBptBGXps8VLj1PXiXp5gO"
+            + "HahAv/CgHSVu6azmrLFp4tQKeYAiWSWCj0dt+aD+dDguvmm8c+6NQep03aATrwkhs9ZQWvuX"
+            + "ynnGrFsm8kerYMNdffvS1FwKtcr3TNyXHv7mRK/ozA1JtRaYvBg6N0o9aVoeLc+ZVCVMrR09"
+            + "qBGi0oxVjxp4ouXdhNoBDGkxSUPdbwQU8Sols9oiJ8b/BJuCBu6eAOvDqATeeN2qZKfU8mMf"
+            + "FqRbsolmET59OvDBpUE81uFCG5xPH6AcAFqUqLuUerSfyA+SKYrs5ivTbnQtYIbUNJjvOQGb"
+            + "q01StprmBVz48sS1k5BonBczzGoki5S9hvV4DL0CvaEjJ2VOyIgk2ALkEnBM4MEcfuDjcG0l"
+            + "kQuj2LENpX8iCoLZyVyMbwPM1RRKiWgqTrqY0iYQ1V8MXfueYM8ou9LHSJGwADpLQ0qH1Tm3"
+            + "DiKxpmw6bJ3lSymPK0pI/mvU8KUopvNbCSjpcK72fhkXUmK0v90XJDoTDrx+CBH1mUbFyU5B"
+            + "hPo2l6XvNxWoAo+DYyrnkE7KEcMjrL2JWB0z2Ma+Puda7N8Hoz2uEpU0W0CWMcrO7d1CsJ1l"
+            + "a/Snw6YdH5NaXFuCx2MuzivfA8ZCrczH1NmNoSsQyt+KVAEO94rqrSaP6UczWpuMqWxTTlzT"
+            + "oLhArgEMvjZ0ho3dhLu+2VGN4s+wl71G0OGRkG6xkGuthHuAhKEx3/VIBzmMAF2PKov546Bp"
+            + "eZt5xIIshI8H5pRs8m9e6QwMDsiZRLt2fKVtI5cjm9dgQL4PPf8NtYG+o6q6hen9RVvwnaih"
+            + "SNBSVOVwysb6VZyFy3O9lRNNezW1aYoNtCuG5eFNjwQIUGsNU8CAgTgb4k1fS8CmHdfz26y+"
+            + "SgpmUgWuyEtIZx4b/bbRYI/odJsiKX+5qXSvYknwNo8agg6Izo7v/tkfap7sDe7yP32K5LBF"
+            + "VMFgd80GZaVn20eMDE6VSWAiHCqi/99HQdwyg7mjLim8AC3lO+csW2cMMpBsBUbOmbQ1Kdl/"
+            + "WZYV8E1gLjA0JR3tFd1I2Rl0rKzTX2mEWWyMrcXHsGdX6eQwxJIN8nFrieWhRccCRe8cG+bd"
+            + "TZcD1Mk5AZHQB5fjwbQHE5rxlHqTw5gnJeEVG7NDnnGcviSe1C4q7xN7"
+;
+
+    private static final String FB_2 =
+        "DNUA+n7jP4BIvbFgynCdELLpw4xLeJ1RZ6Lbn5yxPdxWchsm9l2sgF43T6lM0jM+NTRY9wLs"
+            + "Nk+cm1y49ZuuBAnTZNHDTqBjrMlGnh7fuejvfwNbwiN+cmVDAgePnyMAefKBbmZhJzSWsJLj"
+            + "4sFszMulGCUWKF5ER/xZCrQROZfxltmxp9Oz2ZrZExfq6qGdTz4iV2u6MC9rtMaxVC0ULSnM"
+            + "lpbfq7EFr2BNuz/Rq3VWi1TEG2PPJfetcIzkM8FAMPO5/lQGFnvvegeeJ+SkLNPz4gF2BCKa"
+            + "Ij9h7P1MgVWaSMF9QEoWZmF8og0A/EvDGg3UO1kWN9t3ZhHzByJvoPUclbbsLjnCXDICZ1ZN"
+            + "NqZkU4KO3D9V2IUzb9iaQtVrGEp82ffYBCMNaeF9FikCJvA/qF6sZtdyO5dkjXZtIbl8d58u"
+            + "xdTm62ds32jRUdi5s6TtYJDDW6KvYsJhTs9i6jOc6YhVNeZX8U9UPo+WsxaCbSsGNoTGR3es"
+            + "dpZlja2zr0WHOq/utsZsfMsY+5O2AeTRl4SI2ZtzwC6GvSHraNca1minTzOSn3YvD9lUKnJ8"
+            + "jE8SMC1ID3x6mdzLhMT3dK34HB29/9b0o5B93FR4sbFTPAzvQu04UoqqaOPMSDfbrcGaYAit"
+            + "hmGgfuAWxuBJb24q97gjK3SQGEjA0DMZ/DZBw16w6yOlwfRzYhvRvS+885I4pOA8gdtig7gV"
+            + "4vA17v2jKTn6Hv6wAzDeFCTLRgdHjxK6oirR5+5Ki19j37zjxH9UZNuJkqn8XNeJsCzdgsWW"
+            + "3gOl13qc6liJHMysdT/POj21NuENQMEY/oKRy1Lb93aQilU8cmq3OA8c6upUY+57IdasKJhJ"
+            + "0RYVZRgVZOjL2pqrOUc7MKvGOhhmreNVcZNLnaATmGx9GHVYLqY54DpVxHjH76Yd+9gIza1P"
+            + "XaTkMcNi9G5sjTWDcw/Rx8aCCNBjYjqbIAVCOxA1GJoTgKPvmK+BAtxsWY7ALxSKJU7OyPme"
+            + "KcZERORLk9EEAMInken+6ss1SDXst9dFPQJwt7EiCO3SMoTgNPW06T3NeYkeXIoAicE48khI"
+            + "s0jEuNeeAxSGGiomay1wxsHSmQMm0LGULoMkswsZuU5EjJPu28Ol+I/s4W83yrV2KIUAC/Ju"
+            + "7htsxYA9NZ8ye4d2RzxR2sp55FZeJMoLKA0ClI+bEc1HSa0/pe205DBWseN+DpkobJgXSV9N"
+            + "1dUktCuC/iQqvaR128E25Ygsi0a/v+q4EKS8KzGU/d4ba8Q76SaITW/ruwDj6BZsfV0S1xfS"
+            + "4Q3NtOOsOCz05G1VPkXgifTORU5EJ9avTLufhJDfXyklmp2+EYEBbYXvCGjFp3NdbKnilO9B"
+            + "4nta/OU19Rk39yjwka9QkGt+xiacM9K7ndPSPGJI02iub4DSwtA3uWx2jMoOfH6ondr7wkhM"
+            + "oEgNknvz/YeBGuJ0VDA1QzWzCkMulYTU3UzZMgWl0wMDkiOIG+v9KW7ciEL8/g/J6Gvf2+wO"
+            + "wvQpD7YxeBhr2+FSb0kp9dN/7fGV1Ek2GJI3UNv3mqJtijXgY/RjqqtF898Jfgi0/TRsA/wa"
+            + "4RVOaQR3I9EhQjCQw0r9mTbkHmO4q4IsvhxPtszp6pce6E+qxGyAS4ZRQs0TPXG4kUawB5D+"
+            + "JuBs1SmL0NyQhDxCBjxp7QRa10ZGghvqN0KpGO33fHW8HHmLd22+KsyLjpCAUpU4A/JXZY63"
+            + "3101nvALNPSlwzZSOpYYuGKbcNQGmtbCeCIXhXz9OmBbaQ55kDAp1tUQxPJQQkVSgUGloM4k"
+            + "PX6EJE4/i0waysQK2Igra2KZrhsK1HfE/d/Fp/DX4fLN2BeojUfWchuQSlhUI9BuLoWI7iUE"
+            + "G8PRRZqQtbQ+5gDzjeM+L2vbh5Vr/ZVVYK3MbjaZiPN9rmWh5+p3V/GhQ8sgjhR4/zX/RMow"
+            + "PjDm3B32Nh80+3r+qNxGnfHdN6pDGihZi5wmcNXKrAn/SqK2mis3GKYVBYqrxwrbEB43oOtg"
+            + "oHOnigIbwVNSO1ALfMAGfv0kr51TXi9Mt8h99SDnNRErKiXdqa+pvaUfpIq8E/L/EXoaIzMp"
+            + "rs6bcYh/3Y4O1rXlQZ2N1J47QQwCpeWumEtrbqwcQhQbF6ZGGYgVKux2J8yxGRKKLn1RbEj8"
+            + "cZ/Zx5+rFk9M9bgOMySyZ+Ff3VG8Fibb8n0dZpOSVhgRrPZg/uXrYEjbnbxZCmd0g7hB8giv"
+            + "nXWmfFh8hfkuO1jgHC+Ki49ikXfmfTXnPace4lcF9f0CWnJIxdKaFR+DJmhO4QOOPFSUvLjv"
+            + "SAvweQr9aJTU7I/yRBtjV2fEzzq5pBMDwrh8khDNIqwKeJfnQE6XdmmN4YrSjx6wxh1Uy4e5"
+            + "11kx7DjizJdfZYolLaU9xG15JLWv/gaTlkt6MRa/uXsrr3VVdak3O0ZOT8SXSf4Yx9mArEIs"
+            + "LRyugzuHc2atQ9na6NpehnfqSS3m96pKIXPm4KG4Xmbzw5VLnrf+lE/f6D8EE3Fx4aOvArGP"
+            + "J7KQsCaBpNCCHItft+s6AWqMLpH+TcX06QauXDJbbHsvaC7mLUSdbO8OPIqKgATqgNgSmv+Y"
+            + "5mGjU0R720Naij9JqqWqzHk2kVXqLu9yZvTILEN19xq/wchpQ2snkMzarKlM1yRkr/Y8yu1D"
+            + "/idKILf239YPiD3vOHxc2n098mzaz8yoj5HHz9JdDrlJ1A++lJ9br9MZn55PDbyHr7J98udg"
+            + "BVuXJbHFz/rDwDU4ZUW1Fwj0+z4MkUjEh2vvI+eEUox+8tqMDes+bgD6hyFQrKb2PZDSyLam"
+            + "G798onYe8nQCpIctJJ+nO+TKk2b5c+kzkECddKjXLFw23jPNmQtZRp9IRpxryGj+jLs7STR4"
+            + "HNL1QpdHRLW7sfzM3Pl4dnIDB0Ax/Wgn1J8xJcyrdxG/K2jlNw12j6jBFuHXzYmnh2K/Fx0+"
+            + "kcKGpJEZ6Kh21co/lINk2qqHwSI3HMrv8rUdvspkQpzG7JtgnapUm4AJTPDEzCEA3dgYDqa6"
+            + "3dc5ZvNbBc8kiY1EM/uvbZmUifaHFPs9nFpavzSO83cxgZuvLOVQv0N/NZFkv6GJxeNYWBLz"
+            + "OSaYox/fm4sRVW3kNAEolOrxwnt2E5v4ujd8i3VO4FJK4eWUYv+aDqyKDaVMMhsdI4o6k/aX"
+            + "mC/+yi+Calm4J+3Ye2euu9eQeWlKJ7GGsExHe+gb6uSu5PKPBh8o0jJuyAcYbKs2EtJd/mWn"
+            + "PcWO4ITWvRzngt9RAzpuUbDEC3r1ImcybIzo5xlcg9PwlaXxTMRnM2HvENiuPu0aASje0eff"
+            + "y12S+pqEmh1ynbUyZOCw4znLqmMyRk1Ik1rRT+MpODuJtAd0Hktke6qAH8ZDX2BLUOBpuqQZ"
+            + "3GgQ7H1X1td8Pe9Jfg6SgogJtkmIHt3JiFihDCxgQF8EjnKl3wN9ShTlMzx4W+9RGBe/Pwh6"
+            + "oRTWpVP6mhNfkl2shJ1FTZlMjv3KJFUt9jusfVdOQqOHY9/9MeoVL49eNBcpz/YBSmXDDUO3"
+            + "XHq4WLvuolzgLa2Dc3eFzhAy5o9NrmOua9xNMreamYQtL6CBOt3DtRydvtKhxMJCS/Y1p8qK"
+            + "AAprxMg5AAj1o7rL/YaGPzXs44JoKbJtcr3PbFdZs9cjXIUojBtB4oF5BF0j0B0eyLxoomqp"
+            + "bvpT190g5bdOOlrVQU2ePFkRyexkHzanWB566LAYyiMkESo5HMY0iBMWX5eYzclzCDfSVDnV"
+            + "0XkhADJBEKNWVV9T9RzVZd6IHfjV0LKrk+VSpgNewyljWqdjNzOa22CvIZ4pzfFdJkQ3wHb1"
+            + "DExJ4q9l7muegw36GKWei7hxDLoXU7T3FNSi6qljkFr8N2/voiUngfmY5SkqF1juen2fWn6h"
+            + "zjsLNz+3xKpdLx7WLOsFU8jATGpFb2g8C1zf5yhxc4wjnXiLj0fipjPEpJ3JdS9mr2HrKhdR"
+            + "JPf9288UA1Ac/GA1f2dHnLYs53sDvu+U8g+txCXozFXPfLZvt2BAQDk/wpKwWzkk1JkYQwNf"
+            + "bibCsMtmGLLgQ0fvKD4ZkIYHIX0Le2t7CZXoKBAPR7tx8fFp+1iBMG50//fkGWBx3KE48XFW"
+            + "GGsiSzHoWB+Tsic4qNw4MyK7ZXgdoiTpWCEvyK1zUfoBCg1Kq3SLvCN034Cyy+rC2YiLuZbm"
+            + "zBQU59mjBT+zWCnewkOv35XBSYUEod+1QVLJ0NJT4VN0F29p0M4An3KwdM+6+ncns9Q01fCQ"
+            + "JT82IImYZ0gIFSHXWBZ27ImmHCFlUENOdcWSEWuw2rHu27Oz53luh2tiA3VaNUpkEFrLteq5"
+            + "LSOVZBSG7sX5mc8SGOhXlfNdgOWBRfucyryplhVYktvzdyMezvtIxI2qndnxKW7bnK9kj4fR"
+            + "SnKXCHheynmnRFpOzsBuYaNMMze4fhMGf1fcUf4l8lDV5q4Tza29a4K25ezUoGNhUQGs5cNM"
+            + "B7zL2SY7wjP/7buw3N+WLXatZ/5JbSheCGkJXanmVnDKs8rGZmG6XMyPSUGKjj91MB3+4dW2"
+            + "WefWuFSgZ9BL2ayLL5O6/qFdWfU7e2ieCtC/jiS6Y6vq+WUnuDs3A5RZ5hloeBzaZKMI9Z/1"
+            + "Um6/M4DmAMPOtOkG6J5Fes24DdqdJBNUtc7YGytzc04SRI0Bco27pm7J8356QT9VgtIT7i1p"
+            + "GT/oTThHfIjccsm6VN8XWAhHP3SkUilKrL1jLIvppudIIdVP1p6CkEwbcyynSysXzPMyzxGa"
+            + "hMXMWuLYXa9VB0NrKULJmgxqNKSFmFhK8xqf90Uu2JcADdLn0McDoiWA++MJWez0WAVlOqUC"
+            + "YuY+zOwGSv1l7KMLu+mGnlT23DXZddAN7KQ/5kIsuQFRaLS2qX4pijZ75aY/Pjq+oCkgNAA/"
+            + "VRxMNPyt+jfPDXC0mrp3NaqzVv3uPKueKuxPpZchJ1nyOHdKWp5Ir1PfLSROcIx5cfQs0QrM"
+            + "EvQ1jEeRHl0xyivlk09+AkFTofTjp/36j2roP44QXQW6CMmcL33wvxgrTLs6giAA9dTE1pFt"
+            + "plw8VG3N+jdraeVphUt8ng3nN45bV/oCpyQRktR/xVT75tmNebwbGkuuKAzBGgthzEWkuDK8"
+            + "A1PEGY8frsTRTu746NrLGerreXlV4lg8Q554cT6amU1OD21rS7vxIC8G64bSVGsIAYd9sf/+"
+            + "cTkCS67Ai9NPRpjt0nnYLvFhXxs76kezlakpE/gtoA+eBrr619MlT3gcxjIv5OEtt2wLdXth"
+            + "u9lvaSjBzwyM37x4+Q/R/OmmMCsmDzCvDWRY/OiDEIDm3I8XNf7Bn++JRAagc49QGMh557a3"
+            + "UOEKrjRuHOCpOfpIEWC5JFuAVmL1hh0v8xOSYAwodafemI8sNEV/fyt/TIlY9LiYmN1uq/yx"
+            + "q3f0CR13g8sZfRGTPyYaNcwB5vvWVr66NdPMcWohX92cn9HDt2x9TgNkZ5fTj956UyVfFypL"
+            + "oLAk8v55tiakL0G+ALGzBOMWCrdzUO4yUhn4whwiXWYL8e/0VUZjL6YqZdUhclJ8XeyxU2H2"
+            + "uksBBEeNjyOralg6Vtc4jf8LTkXZ05mP6r/eXkvdOfHyGvA4Xa5rvYIzhzQuTxBwVxu6A04D"
+            + "PzyjwLcGJUbpnY0a3PbMFGDM557koEFZ+W7GnujLAr7lSZkcjJW1dl21+LyDBVws3IJi90Fz"
+            + "/pxHAIesJD44CxCD4MbUiUJci/UJDCV+FJzmth8YsJ7AzSCwWUyylBvscWIL7kGhYuYsPN3O"
+            + "25YfWgZAqJ+K3zxu5V26d09cprQ1DltNlphgpsAYs3T5xbAsU8WF6kOJdqEtyBSRzFo/+1j6"
+            + "pvkSoJBJBA0Y41Dt+6T8VfTK/Ra5RYPulbjGAp1emcc2pW1ddNf+Lfmipb3JlEdLNK7+FKON"
+            + "euj6qJyKmCExn6fXtKrDYDFycl1cLFxTrMn/85NxCPl8EsQ2jGZgAmpDciKWz8z8XiMPCMcX"
+            + "x9oLvAO32NB6cKFx2RLD1vI+CRPOMrhRZHQ9T677c5UJBNOovdfvHj27GjcpUKok2LaH5MNq"
+            + "cV4HJ32vD/mFYBbSd8PVftbi1Mk79liup8C4g6pP6ZfoDFVtvP6hHGjMSKF5AR/O38LHG0Ht"
+            + "kmsL4YEAmh5+9+oz6lEKp6BZZkvNEI44HKY+IvYmk/+hBIOmcbcuaYRY1DElkVIOCYbz84si"
+            + "UkIE+UJziDwW5n8cr6+bomv9TuktGtOqLQmuHt4Gy9pUH9zn75RrDghhFkerAAvxWhksJ+xK"
+            + "P2ANuPxpolU5wruFY3jPfXk6TNQVt7SoTSQ/erjPPOAZ16U0rPwuIt2DTE8oTcM9g+LmlmKR"
+            + "6zyhVwtqHoQVRDo2FzTV/0OYRM+Y0s+KpI3i2huTw+OEMn5Mibbukuwt7nYWdU1v4bI30KrC"
+            + "lQnioXdAmRj+Xn+83pAGnE2anX1ogJ32JgEaj3MCicEbudJhYY/9gshuT7Ip9yrvMmyOEFFl"
+            + "veuGmEzdAlRWoLgwOxxP0Hy6p1/kk0YXGAcFu0WftgP254dQz/4D/tGXnUDHc1bO7bpiAvTW"
+            + "TF4D1/yb4FhU2cBN1Red4QVgeY2fPgMwLI8fO5SxYbCl+8HuANi08X4DlzdjQPRP2SLA7kwd"
+            + "+KNdLqteQD6ex0XzFZS57ML6o++WBlEWc79Fi8UidYkrQSVdhFTQ4m52Wm9PgqpUcj/Io2xg"
+            + "jvn6bKXc0w+AQX7aUp365QYaUEvqj7LnHWwPOCnVc8BXPKyfLFFo/amQHl6o2atrg+ntmuEF"
+            + "JTQokdH4r5OxjEyMMtJ5xo/+zgCoueH+8rVfSjke+ud0capK36vdS/mNIbI1zJYQsyTCLbj9"
+            + "6A1srElDHauetYWORi7jUHNX5BetoiC62nHkriU1+s81M9gQ7tD2OLRv7Czsmp1KHQ1Dartq"
+            + "BBFFNEfoUMauR5N99YOKLf44q1i9Bb0+oHmUlgC2FWloj30a0enLp7SiTCzVls8QHfvIJrb0"
+            + "wvjVomgJygRIdSY8bk5JixAtI7EyNY0llBm57eW2cXUm2UCJFDRVYZB4brCZO8pB5yNMrlWa"
+            + "+3CSQ0fGxeXz295Z/W4mppEuWTnTt/lfzLp7j+3o5bukDpRdUnnivYxP4n2W1zrhGJLNAO5A"
+            + "PYLPhfNv7c2a0/JBsxenJHP+clsOw1f+hRau0HnQrG8ycDOKYlKa/ktyQp+Gv6KaFf5bkmyb"
+            + "fw/rvaj61/KNdKFa34/X2LTU7w+FMUGXNTe7wzpw+er4sBgNIr01XPImibnumbkYbLjxqfz+"
+            + "BwGt1xlz8ccMyFk5HqV90osQYjHO3SFEPlWl1l3DahZBy0QgcdsBA6i5wPG32etbdZETSB0J"
+            + "BvxEhrbLsyQUSyfDm6AXkwZckCD/HwX8b7xgtyfEhFbx03mO0Ni0MthA504QYqnDwMJDAHkN"
+            + "aOvBnF0vaaHt+ZGKcE09xMmMQ8OITts05E1eLQ6WGMuMaAhPXpcFudk7jNgA6OYbAMdDYxhJ"
+            + "v/93WHgyCiAQd0kxdJbwGb0FVKFgE8S2YRgdiAFfXYwu9POSXvoESlTg5xJpwZjYTH8ao+UE"
+            + "RXVWPxM51Y0t9sVh9UF6IKYDh9BAdigjrjzstHjZ9wMA+K/k6I0nXcGC5wSNV5U2P0Yw/K7y"
+            + "DBtjpJElJpJ8EMvzoCmTNzTqb8+7lAqVbGfj0T6myyEU/9d+2BYsdkqOO4Q4sub5iykeKeiv"
+            + "YYDvh/6imrmkBiCUfvxfYeBGZLppJWBIrfTtAGew+kbglfBGBMOnddTKcorp7/QXdemaUq9q"
+            + "JyUUiHjYllICOsoxDBcYrng2ZwAnNWlj7K2bxk3HMHNAp5KHbnMtSRrmcMimUGdgh2SfE7la"
+            + "iVXvdeUru54iP4hY+g+QPbVm81mTd3GY/r5BvKNBKabMrOWAWSLNCYkRvXuvfXRTiboKswi1"
+            + "m/moNBLeEvV/mXU3OwMZcpn+oGhOZzggCpImHuxiW1suzS2unTbU9ccjOuUuoKx2F3QyLCr9"
+            + "AIdwdAYICbqC2Bjso1Cd6F8MwnHxXVsHPyep5qdqU03ZFXy/dzvttcS+t3cKsD4po9vYUxuF"
+            + "xj5jMlWP0ckq0G/yOFibXSVH/RQZ4ZVEsR7xEk9qIQ/egawnZ0J2rXPt+z7Cbx4HWRUYyA02"
+            + "H0wZCFiIYWTPsyd6k0rmD25CVl2V7dgqEkre9ggutz6ZdhcHXcelkj73RzdifCKyzkx6+gEL"
+            + "XBKsudPANwvhcVY8fLO5fqmAqM+nrxPoqAE7Qmsdxx83jbvwJhGCPsFCbcO4fpbKrWlV3S2O"
+            + "846ILrroPljaizxz2ntFE4mV59kzrEH9CvN06BgTx0Ec6S62nPcG7dH8lpbrYiBJwFCTbQ4w"
+            + "XbgtjB5hSn7WtFa96MXnt+XXQs1mRu4Mrp/P9Gqc6lWtzYg08t3VP0Ow2ARNYjW6Q/gOX4sG"
+            + "brd3rd7216MWtInHMqiteTS0Or90ku+5PmzwHKR2aGSaJCrkxa7te1c76AcdC5l70k76fxoF"
+            + "a4GZrxTeJxoHwRQWBK4CL26Vhj0YIH95SAz7CFs3viVoNiOdNLRhOS9OJdk1qzhnFu7gJmot"
+            + "MWpLHW1+fBWMBpRDV0gOhWnLnM5CbZoC8mH79ifhktFMHj5+tPNWBDOyQQvVPGRkDfk1QNeU"
+            + "Ncpb/1bKFfmMHVzGcDzQWJ4QiKgRCFbt3yWC2iJd2gC6NN5FSSEvvH9Ch2g2WbYvznPMCx7Q"
+            + "c3MZpot112A+N+QtKY60zBBApockZBbGwEkEtyfIHgHFbf2o9xnBgBD/l6oam5ThsCwZKdrh"
+            + "Hv9JhzY1aVKaJjMM4HigcmgD22+jZZzz/G0UHyTMyw/9MGlb2jkXDm2givfzftRdmDVTyOzF"
+            + "6pSXIbAq4gVHRQHuLDZvxhpDJObIIa1gbnLdRXZZRgXqN4CLH0LhWz5Y4hs+LM4jTNYf2SDt"
+            + "JovifYxBATEZ8NzccVWH3LGK0znpjquqsWTHOeW2D+vmVUEr8nc+IhbvQgR2QBkf3haKEX4Y"
+            + "A5l8vW6OvBtE0Hv0rxxfoMLwxS46tva7XnzdUmn/Bdtn6cB7AeiP/dQKZSKkrFhNhxFVOaj5"
+            + "IVXR7ChWmRORWeNadgeMop3150MhM0/GBCaFDQ18JjDCsw0JkLGEyJ+TT3Dm+jj6Q/4A8BLA"
+            + "XSvUUlEQpEOn4MdFEqjAYVxsROc+tL/08qy92gE5TFZMTeGrIqzAmZwXR13qtVuZ2nYKGikn"
+            + "q8Wl6DxQ8SUlk8o0B9fcAspOp2XB0NfMrw1uBz+9BB3aih+kQegzYPl4KqFmSH3YHfVdJdvq"
+            + "y/pAV31rmhxKvP504re8GdHJC5kdYIP7agw5yMXoBYgtK/ZuE/nx06wG84vI4srRxQmF4535"
+            + "Mk8NEacTYxnUl1+Ft5k+R289otw4Vj7iT1Y7lfgde1Zzyiim6jA64I5rdLikbPGxQulDA/CZ"
+            + "d5e7nmdz89faydmic6ow+aU83WVBdKIjH7dNM/IU0bEv0gl+TEEj54/prP6LcPgcfzxGznDQ"
+            + "4/TcjFSvmZXlm9jhgDOUvLbNxTPLWbel3XNZCTvqY6QFd4kosILgF3xfQm4JbGlDzCH+gGpx"
+            + "MTfP3BgehyMBgfhZAJX38F4n2VmrQ9tW4pp/n2PMU9vUhJDPvsuoiJ0HoRSEPlIIV1mGUFjZ"
+            + "AmoVKNpBM+VsV/bCIgWowFaPYS/g+ScD+NNqOtZXZKWrCxjQFrDqaM+KoNH4Zq8m92AfEJMj"
+            + "XW+U2kYy9V8ry8jodwcaKI2Uoooh+GtE7fVtwRZi2b1cga5khj4UCNvPCt2W/ofItmpKuVZF"
+            + "vRWONK+wUIyGfn7WyjVOuNrdvAe+wGgp3IVLP9IeLfJKHVGVOx7yqmVjhbhyHr1NRhaqSnUP"
+            + "atgeYWlFXU0EWWkNqTJAL7LwoKmgoxqT+ZyHtPIxM9F9yRxnaOQZxJot3LZ28Fd/MdKrlgN6"
+            + "YEkI/jBa7HUIvL4OkpG/RZR6HaFAT24e2sAUrMMGhaF4VQ4MSSY/rfTBG4m9jELM4BgeGzRK"
+            + "6AepYJM/05+qkkG0TKdBbyPw/A9Vr5DzabNXI/yw+2XLxCHaZno9EQolDJfe9aBRJvwdW62r"
+            + "w+h2astwFpD06ohJzbO4yNut3FqvDx8tsbPP79GSiidoI00m2MICv/CAIZe2DSJbYUTZqWJQ"
+            + "QOO7C2rvtZXmrgaO2WYK1E4EWXnDEPg6nOrQDTeiWFJnkncDJbf9qwgo+doPTNOytznok2+k"
+            + "PqPbeKMXdcckxl8UPHSvkHDncLKC1D/6SUDzwVEF1zRk8Lxb7I7wCuwuZAuV3zKq3edE2ReW"
+            + "Rh/p8vsSHY//mZxlCkd0o6hbVNchPwPS6XkXow/aHEFLww4bqjPhSXVsgcuRp7dkRwgH3BE0"
+            + "bYycYRI9lC1jYeSocS5WTha5+Yr43Y9jfakObzLN69vlScgeFBIROrDxpAL/GyvrHM8OM5gE"
+            + "tMJH0/hpuVe6A5wRbJ5VeN7WRxxrmGWb3VeHuavPB25msI+Cm96KoAmZ+ComHcb53ZYYa+dN"
+            + "QbpDItUKJYFvGDnoQVP3lbxtDa72aYo1mJnimUc1eeJ2vlaSB2yLtOkwFbGfqlgmxUzJhx8T"
+            + "OKiU/A1BP8QQmRby73jKR5Nx1vNC5XAoCVQI+y2PH3HRB8ElNuMrPpMylDwqJpCWLYJ5QS6V"
+            + "FxNlNDJc+YKorQXYjBCt7o14H085GP674ops7+RTOmeak8L6rf6U8kAbOFYDN1Zu4Gck7YgA"
+            + "OVRpYTRI7GwpeeUFpLc5h70SgCbDAIr9qo5Z7bkq9cjN1Xtg6L27cKdE4UupOPoCZYWuvleS"
+            + "t5qZR2y8O5oxYdZN+tH8PI141YVHR1f7Md3SfK9nrq8g2+1Vs1uiAWc73baBOXxgBpkzrvSn"
+            + "v3TuF59jasQcleGtZegyhxtoaAvZzef6QPFfcqdF7d8r6LYtzEE4Ss/VKhGYLFx7MNyQO8kH"
+            + "lGtNxY/cTvkO0YW0Ffh2UdrdWRfgJNVHtAXM4WT1VRc278Pt8/QB/BCwf2Aels4gq3NvIOln"
+            + "CduoHoX2py0tCgUBmCNbJKy7U5ULiZV04DEBMVA7rIHgYZ4UCI7jRCJEbtav51hNs/VuYOWs"
+            + "0we9iYCcBoij3BV/2AQ7Eaq71t/V0361CAZ+s5+UcsaQO/1GLBXgVTUIWgV1Hsk6lheR2Smv"
+            + "Ay4fNCSJLE1yL5smXyerZHfj1XZTX6FtejHnjrq+OTKhaPgJJkDGQvptaq2lo8g/CT51XO2n"
+            + "DiuJNOgZK0wlLf4/pHuV2zeBNjEYIru0PCJShEEm2vNQ3RZ6L/64IVUVQNEfy5bhGgP38dLZ"
+            + "zjWQJHRoDzzjVK5LeAq7nb/0GyS4vSLDT9ZgSj8SCwCv7/+baTIs/O3HXTDCTDRYDqYLF+2H"
+            + "FBD6pk1O5Rf/apTLho1vknRv2xOfl9gDo2kE5cu5Ljy5ZU4DATl+pIsRoQyBEgfJEbiOoHaK"
+            + "g0xjrzhvKOEtI/ZG+7HDY6C7VLyzavLApzhW4B+5yyjtRW7FWfOnJOxSPweDUAN2J4hkCVon"
+            + "H7pVkyudF564i743hBupx66pxwt2OvE63xVjnHs/8AY4HnuWw6naav4M9oFLK/XZWfPTsK8O"
+            + "KEiwYeD90iEFvCCuxwHvLKTmvV6IBH3Pmvxi7nTEL193+9aSc7m6OkMs"
+;
+
+    private static final String FB_3 =
+        "htEi4LPOGq0n+gvacy/mRykVVKND7ioBFecZ+LB0/MBz0LfpVRRLTf1MNnWokyRJ4etC4C4Q"
+            + "4e1h2YRR3uOcZGMECian5qLtAa2JehLpb/H/fdmwsfy1dW5RyZInwcvW8kEfRFjF7fgYadVD"
+            + "/RpASztBD7hn59Rc3aLfaFQm4MV3NPwP7650q0/suf2YZ+IaNsN5YD27e+U/BkKYuThyWpBP"
+            + "4doXYWT/bK+KbCg7bdlhuCKxAufzGA1dl3SInKWYjLdx6UoMDKLO/67tDZtzBH4cddKlKrAq"
+            + "ozpbKrCyUQy7+jBj7HqFG3TLSYpaEUqjUZVPfYuzZyj2P0PBU+R6rqpHCiLnKTPJB4KfhsfD"
+            + "39n8ajvU37UQuTnBX1ZKq6sIpPXRD1ECwoLvz+o92k4CAf2ZZvIrvhrw/+a1E6HUOTpFodnS"
+            + "sQd87n6s/D/+lZrxKqVgux5u+dRoB6rlNZE39YB80AbYFLoqZbWNJ+aVhnAGOhUoJcBEhO9S"
+            + "AaM3mfCSp2Jua24qAc2P6QGSBE/1PJb79j0/SyYgAS+HsnrXbhLDNZg8LZiEORpsvX/73eIW"
+            + "feWzeaBowQA2GRwhQx86Y8xlJp10Aibt5apiU5N6ZbzCWYQDKlxc2k5/lC034dH9q+lNQCfo"
+            + "PfBoBjWSnVKKluAS69pQVS6EYRIyJqHRHGDfLWxPiGojqRnjxSSHprqUQJO38mGkXLTXeI50"
+            + "474juBpeDuq5csZZ4Bb8fdVAc969DVc8D8+3+o1LjJPTKLwLG2EvQNXv/wofFQBnqMn1+mwl"
+            + "ox4v0dj/N0/oFpSM1nhvi8hp67wPVMokUOYTb6YZOCqVB94nHizIlW9SkFO2NZM+mYmR3QKU"
+            + "qqlcW84EC2LwGkMg2iOmqDHk+Fn01IRD1/FZrcHaxGk2A3M4ZsGOzL0O+M7yeiMfFgxy1XET"
+            + "GU+te8V0NaYMbX4Mmu6QZAZkZM4JZFc7QEt7NKIjv5vW0pY2hCJc9WjnCi1fDuusdfFTzHNh"
+            + "KnFisVLLhVLHiNOdRQxPRdOawdOaj+SrBbTIP1/wRNoq+h34mWOsOV4RRUoU0jt6eEIdDehH"
+            + "aUq5sG6UnHw+uXAFgSWno5Esr+2jATevNrFU3F5aVaFDm1/pZNmB+8Og87VvY085mPL4Wtl5"
+            + "zEdbhHZJkhztdkqN23xb40/pZQXQ2Tr8+BiYh8iB9RQbaZmS4HiUM8zZZwx+iDQOSFLc86hN"
+            + "mBXJ1GKqz/iCBmt7fDlFHuEgWzXzT1sVqRGTywSc0Mkp4TrGNGugppGj0Vb7Faaz9TyMzMpD"
+            + "PGtBw8B/Q2C6/0GbHVvlr5DdrS1PTbC7W6+0pHTE1e25o3mzIB+Rg3gemZAFtpt5HA7qpnjV"
+            + "29W4jZ1KrMiCUwbmPli5LTLWLGL0PUDwhXJg8eebZx8W2L5QfnXym3XdldjsBsiwBtMNagxZ"
+            + "0lbvqyZKFsPlCcWHZ326ZbXVmoUzmVWRLZ1O1eNwG+1TT2a9dbOtjC03WFcWcWlqc2zP5W2U"
+            + "RFq42nm4KOhKO4By95+lX8oU16Zwshqi1POpVDakfjmDk0tyRgcV0AbAGYoa182LDefUs2LI"
+            + "Kpc+4RclV/p1kaG5E4dpdM8Z/1dSJF5QOstImZMf1w+uU5L2sRJ9D7+tg9AG6AzOiRSCmxCs"
+            + "Wj9E/icJvx0WuhU4FqHD+/24QZQ+f0jufXdrJ79UsooxEti+he4VphLfNzYt0LEO944PgdBR"
+            + "z+lgeBrIkApmbygEgtqdn2NtA7ssfnUCw5qmV/hVhANkyrwBvY/zU8t3v8aKRki3LbkuOrD0"
+            + "HYab5MP7c+25N+vGAOpmzvpk5uDKlbpq9ytLmejtoQmiEpUsoK+g+jNC5ox0a56X/5n822cT"
+            + "6LAjau+Qw9/qdQbpHhPy/lcS0tXHwBgt/Id84qPHyXRiyRqcNkQrtle1pCyM5kmu6rEcAZ2c"
+            + "JNUDDLduLY76//XGT8ciHMdnySL7mu8ywFnyPS5ueQGqwnt0Cf5SltMINUXZ8GrX9Wa5na1G"
+            + "I2+lKu3YgQ4j6brT0xHTB8wS5GTxnPjMcKTytoW3fqmFMpZ7lq7oj0MNBGOWn+wb4kmy7gjS"
+            + "YX5V+UIYDZyglRQFlFx9XcC1UVaOGjOC73mJaXk1sAFmpgA13LCRXkTqRYRB7fRAZj9l3/ku"
+            + "HnxuCjl83O8cqvTSp5wUy2tdzr6E7W3iFLPAr032qvFJnX0ns8f8irknIgnrkV7aQGySPsdd"
+            + "hxSOH+EwiIT/dY/k46+0vWcnf7w8JWj2QXWuH3Ux8qJp6FBpka80tVT/PfixA0VgepNohc76"
+            + "bIS3Mi+8Qs3iskcqlCAM+ZmhOQw/sFQr61+ABX+JENed1cN/5MQZwW7qXH1fmUK2wu/TzG+7"
+            + "PUS5W31C5sSyZpgF1rKQVnQqzCa6LpkPsXsNSMMCil9Irxxwir8SRyNO/oimLLKDspx8b0MB"
+            + "otqw2dySyn800x7FVp9jEq/haZ1LVvxJP+AE6djHdDom9D40wGeBjsR/+HjA3F1QxvEtqgTy"
+            + "EMaEi/lABBy+wetJLMZ4CKv+ybv8yn3lOGBv20zQG/ILA/kN0aL9mdv+0dUqONVo0pz5/vfO"
+            + "1YWuZ0C/pkDYMWXaExEWqOzbYC/JWvE7X0oTRVVzOjuc3S5SMKyZl6zYdJur/AyC6pmKDzKW"
+            + "8cKgmABEPFRZe/HZP7oAGt2M2InaH748PGvxfBppcdpSQTX3wWRaBNVSGyRFe6J5EYriiV6o"
+            + "WkkNGoO4a5zdpmkqvO2pNZrAgELvGcJuhXXrGqTlqeW9LU94AXffMfzFyhsoV0B+qSFYIGy7"
+            + "RxA8c2RTKjReG31sIfCiM2O4vXvgEEJFH1UQ9ho2oCc1SsembJ8kvfwabt9E15o++mM8NClj"
+            + "K7n8MjvO2uSdfFByvcedYAnplqY0+AW9IUrv7RaOZaHpxOXr0RWUx3jaLS87OJUxV9Eadb2L"
+            + "AH0zsUwAhvMTgWvlEIyrZjKEQyH0NmyIx+gKr5+V/G/621IhkpywOU9osibyRkcnxsJ57dYd"
+            + "F95DyVx7j7Ny8/jnBvTYaQcAc87dNpkGWzkJqp24XlpsSR6rVWXzaRHNnbAeKtNIM6LHAeYd"
+            + "q055nMnKeBmjBXLXhMWLnymWKxwSbSA07uTJdMSxfxI/6gIAgf0lP5OaqmHWQsG6M46fO8ec"
+            + "mT7Zw+oRwQsjE/3mB276lBe7VOD3fputRgEMbr32S5eKauDy9bZdfecruUwBeFcV3vPApxa6"
+            + "ft0hLd8ICk41vUAKHZQODE1Xj2juKwuMyvmZ9k5lKuNDkycCTDPqpBmbAVNFTszC2Tp+EuAG"
+            + "kQG0Uq2PoE0/kg4UV2OvCmCF+M0NoLM56MK/DBnXJf+0+pVlez/ITxvvU8yseuFoGawYRK9s"
+            + "jZ90zPpGS0AEkZ8jTDFDE6AJJzgdpE2j1EuUUR8FMbkzrHwIRr5X67l8mwGgujVNWLPRuQkv"
+            + "+VTKxXNxmu+n37hqhgBWfcy1l18as1ZmBj1bUxWNLEW4fuJ4EicRbx2CWFQKYKIOiXxzRiAU"
+            + "EvvAmsim/Lzoq+q8fK8B7jpPisg/+/Gf/qCNLwcE7kGe7ZTh494e+udl7gfH092pGjuiiz2j"
+            + "FUje630TDVNiJLA6jFyJCCN/oXGQbzYwxXqtXFwsZfqhxWL/goMKCVDrM1yK006kOtJVYZ7S"
+            + "9LxyJS8sjGMCVyHABZ4mY4s8IQyzskzYEJWBgK648FgnJHd63l5WzcuUDcwPgcFnqz3WtXyL"
+            + "cTBxEhxux43uoXDjC9ujJ1KYHt/GlmRMP9TeqEnS/lnRUMvufpRWvn4y9fXp3Erg2CFfZHUu"
+            + "aEhlArdHG5ZGd5LfjhSrApRh85Ok4ahWO4jY25UFIj5JXfqatIJtcfyJ9IW/l9WCa+m6Pjf/"
+            + "Yif7B+rFr0DVIqb+S3rGkGSx98EiO9XQWHdz4ascjdZFu9f/5RbqJXqlmLkek/R8pNsSmd3k"
+            + "NRQhl21Jr/O79qqeG49PLH1upNKTO3rFlxn16q+jPiQyoHdcr7L+3JsBng2p/FUQG75fb/iV"
+            + "EhKhttBYyUsgKYP9wTN3E4dPEn1+FkE9IkLxIvXnKLSQRLYa+xJ/w6fEWDipUd+jaF8cLr8O"
+            + "HeA2eeeH7VL0QIdb6wYkCWQumSjxYU2N3yhqOWia9fyVcwCBbxdG5+UdKukCHGkxQBXeKGu0"
+            + "/FlYU8OPwy9+FCmR42Ttw1bIWfXHA2g0SHVMmGxftfLBgoPXiHZbFAFPVUiNZCg9rJxL3Oi1"
+            + "S4onoq/GdwzEG3IBE+y8ABxjy9e6efCVysaQ7dqLQ7uxroGrmlH6a3+xQVpIeJSkWYTVHHa8"
+            + "JSitmDZtGBi3SjAg4IAUgXTeT+8J3k17quvzF0wMKAr2wDNkIyviVgFayNjj8ZE8tiTrblbc"
+            + "fQjrjE+Yq+TUMPMF7e17DN2uT+R1lV8SKH/txkYnSgjn1YU5VuhjMuqUT8c/+6LNIgx8xn5+"
+            + "LYbjqNRVhZyPjwDk/4h6WO9ZBuIhyWEvfp7PonPlvnTI63eXyys/X/8D2UJV1k7NSxxGZrkn"
+            + "mYIYYcPdJLr7EXOS48kos73ELWRcEKSesbv3ylRoBCQrOywK0TdhNaxUe0tbyO+2zuIZdleH"
+            + "dZJ+wYYZG89cOcVvl2rEyU5wQM9+eHOqS/TiWL41Pzfv+HzHYWhT0aPNdtFfYpHiDXQDJUKE"
+            + "cLxoS5Q+yu5+spZvA2IJcGB0ZZISzWoBWCYl7omsBfTpeRX+yCMGZ1AQA68lOZStuz+s8hcB"
+            + "qc07RDKJLI/7h3fTiXhrXMdbLc8aSFY5tgH4y3D3N2vNiy5EEo2PTp2/j1EP6197q3mCpCoB"
+            + "nz9ICSz590KQnA5zW5RHvlG8kLQ9c7Aei8pi/Yhx8o077xq6b/ZUPQq1R1CbQwE/Zc49UGBM"
+            + "lZb6I5ZlZyFAlW/JjDuRhCwa+HmNLmA+PMvwWz0It9jTLqgkfkER/2YcNRO0WzAwdvRg89bi"
+            + "IG/zDuGBKo1+bocBWN03ONFCRvEXbqRJfMLmyLd3IwO3/2bcLI8UIFWnX4m+i61Fxow552NE"
+            + "0M2VDzF7h9uaVnVlvLgWlhKIxWiJkpxzveNBJHabt9dGjtrXTYPH51fXdKkPJaNZOiknUgWg"
+            + "/dG9NHrbPPaBgkR+DurtGbwezu5hFEHFreRBbLjjDZMjAbTmwl/MgzjvUfjNBrwne22xHUos"
+            + "N5+8Vjp9QtCUejOZMVq1m0PO16Vk0vGUSXa0wiRh2ht5UoJnVdEMW/LUpga1CT2Dmq0AFj94"
+            + "u9e9kTP1+qu1c0nMuZAM3WzsIF6b5tcFvSeWs2C8zSRZDqZ3TVFJotNwZaNPH6ZaWiNiLWAC"
+            + "VUm9/54PpNvlcXCFJzmEDjCCcgtb5g01v0ufvR47ynTc4UmYdH8UmVOHnd/nyYBlEoM0tc3H"
+            + "RY45YJu1IE+Bc9MtOY7qxd53CrCMnBCiqahXSU8fqK5uBczOAI3lmeeweMmNGms6D2gJPHq/"
+            + "2E9L3eP811o5Yb4iSH/0T8uZDKsfZk+T/OtsbW8sawo8Wu/eLfx8xmk35/ElUefMWXB/wtqu"
+            + "99y+5+U7aEHTlUSMIaEW1uxFhtlrfAxeIT+yLKA+pO0eBraz2JouLw+KVpinN2w78rftlubp"
+            + "i+gBbt0cdZMSqm049hMXgHu6lHO2+LHdqCsC2Wc0PzJ4AWGGrZZ2GsfWKkOeqNkqTAziepZE"
+            + "IVJpeg/ps2odW5jLEDeQdnQJ4AvdGvL17aZawXijvwVJRe70T6/9k7G/TyzXN+DpS9EqHszc"
+            + "ljVmK6QwDRdFSiIWBsweJrl1zOKMq4p4lCcFkuc3Fh1O4W/VbnoP0wOAXFmm3BeL0Eb+MLXC"
+            + "78it87leAxz6Uc9qVJBxhO08keccvNykN4i5veekAzaasHMWZvUayeIqtg0ptMHaxTevdSSE"
+            + "k3fBwg++3HOfLXRxsfdrLD4m5j2OLYhDtL/6sCDrnRYzEM5WoaxVTDun1pDvs0nAZS/79zqD"
+            + "l0VJo3jNp4BTZ03XJU7CIcFOZLerBrcAbDMgOXUfm3qv3gL+ccJcCF/bn5kCNWziLak8L3ht"
+            + "my23T4tiqfKxDYc6ft+OK0gOWYXzWUtOP0vA/2h3NssI7vFF/zoct4laQ1hCq+aYP32cyMMl"
+            + "XU7SQYjzffwmxUnfdGmlgqdG3tBI4SrgeTl2NOLARAblrlcMECIAVjtOS15xEE4MSXeBVNWr"
+            + "pxQrB/UWUc2lhlnSGSl4m2Cwkg7rdE4Px50LILFiPz68Jj/ESma4Db8fcbev/JBTREo8DxBE"
+            + "yyXhaRGRcX0ajAvmDGY4U7y69P1or2YnRtvVVpb6QWoh+bAD2i5A4q8EQQ8fXOmXiWtjaqYy"
+            + "mR8v2E1jXF8BmJy2T7yzPTJUq+R0lidofRXgksK0hgwp/cGFH2ty7t8SU9DQ7BetaZHXqrAU"
+            + "CGAJqabUyy0/dWT69PCuDhBIE5MHgZUiSTPt5NVwl9bs3ZaY3mev/z8U+O+Nz3MZ5KpWVGsN"
+            + "WPkF+sfyb9qcLS9BxBm2XAfPqDFxcc3giTAb5c2wyxhjC2yqOetm7reqNRKUIoF+WHYeEoCx"
+            + "UE1R2dk7EWo608Nld+M/+QUBZuflmllKuWNn2G6mcO+oOSocM1UD+Umx+PpImRWhD+nB21yT"
+            + "IfEJrp76OsYgT1vvfXS575Xf83Mrgp6TPyDiEc95H30NQY5dioS1n/CccUqXUAoRb3EzNC8W"
+            + "eXTLW7IM1t4AYDRBPfNvhtAUo7IV7pDEeo5IlH65ucrwQxwvUklenZr2ftcpcKGMpL2zsTqN"
+            + "rbqbAu2OhUeZdh+TLNgW0oumWuJ6nom5B7OwA8SzI/zSj5t3QetBu1oAvTYhEgliRYE1Qwrk"
+            + "Gzw66SfklqON5u08xJaQrcpKb9wIMQHCi817Ee83kgYUuPLWncAa3Bs78OKzbWagZ8aOQke/"
+            + "oeLqxue+xGwf1KR4VkBJlFT1BLufMIhzm9j+qMKl2nVCRsZGpj42UWbo0CFGO2Jgg8mx8S+r"
+            + "8+GLVBOlwIKd60e8IMgZRYaDPetR4FsG2g6FVglIyPRY6hvQC7dq/G5UuMoG750W3mOR1gNb"
+            + "+tgitvRTjRksc3dzZexHHbX+9ASvyP6Xv8v2/ZVqsB0rTBvIl7f6JfPAfF/jmN41SS6NgE/8"
+            + "f8vsaZpAbJHyw3tXAQlO/UsBVW3aiBcX/qmhpfUX7OUfBKEroRD+0mZNGCEvi1lEQuGb7g07"
+            + "sEEBijvCJ+iAiQVC+s/v7FElx51x9tsbcp9VLNOSObOPXgGAdcxGYqfVA2Uj0VsC+L9uhSs0"
+            + "JCQfCbhkfLN6Tcw/YFlYR076o4Vh7cBAl5cJkIKdkq0in2ISLIqhmN52zWjr23MDg/8cITeL"
+            + "hdH+bsVe4SwHQiZGKihjKAayRlYri9SItzsHN8gi0V9fzEMmfoizL7/NMYWI1rLs65Ae5bMw"
+            + "WPB4vvAY/PZEk2Q1+ogyELUUqcD0gqDz4Myve6PlJRWDmOhCiSWw3gc3F0OtrO/8VJI8v1AP"
+            + "KdEuqAQJtSCdCPzqTySy8pJtYy/qitTz9LYYdQnvHv1sf7Pht3eNkhn8wWBb7zP9YaGPShba"
+            + "PzBC3rvjT8hUvutUeEEagfpdgx9g+MJ2JR1noYg0TcwAfRrOFjmxuLZ+wVNik2giW7f9lEFZ"
+            + "hNYO/uwjY7Xfjzodc+sSbIinDHaTjrjRFeOyMGFaduZMK3D4BYoLzlBfINlvmJes59UL/Y2O"
+            + "yji9xs0E/x+P438rNy01iKtELqJWZm2rWnkY64GWUWgG+XvEXhS1Com8Ujtfig8CsRa8OTEI"
+            + "yfjGdE4PIHfuW4kb7tHxp71gWS3vPR5uuMxMGT4wVgMrZKYL/BjsT30coGms744E6f7LhwI1"
+            + "H+eLKRbP7psX4upA8lmwBOxnSo+VT4wHctDe7aJmnAlxIScsU/vsvDLE1swkd4ta7DvyYMUJ"
+            + "+FeoWITH31De3QQo8EchJ2PvltOsL+lcrunw3lRAzsabiA6MZ3sorIj9TPpU6p7wkEF1v+5o"
+            + "INVDu4qShFsoPChJ5L2g7mVFGKHS6tBjMn81s44aQTO+T2INhV4au74oNJq2yrCKyUSt5kJe"
+            + "NXUc1IYKG8tBfeCSqgsvb02kBlvmDAam9vNtPm3TWYOsMPS0bSJ4Z2veFae8was31VNmDeBN"
+            + "g1ld3ZrhvFBqPH3LZcdJfHgRsgyW6wcuPtj9EXDqQE+92Z4Oj/OxIV17W4eNxyd2cqDtbB3c"
+            + "coLMX1jJ4C/CCVCXZdimomJdTFwV2sOrM/j6RcG6XfQhJMwJgEisVE0xiu1buhlVqnz3vQUi"
+            + "pgFKw89XdE0HZ3l+ZmwrP61YxSqtrQcNKG6VMyCSfvLkuAGNyGvDvXDP9eOom2gzPECuUso5"
+            + "OQ/NAGncgWSWd8oQJbDxUk3mY3SjfCmWuOO4jA+dWI1J0RZfUSesW1AJUBlarRhbcNhyiOGa"
+            + "9KYqtjsLpHOMcbTZ/xB7tgwVoJVavBg1E0Vc3wcYcWsT5DUljag+XT44DftL+CkaTM1eSRQ0"
+            + "4MwpYoAZssNNy/vPHY4ywUDxe/F5lhs9wbHNh8rBkwapreHjMPgGxaK55ONdO4NCR8pLaPbI"
+            + "v6r3Iu0C528Wr1bZ3sdu8GA9uo1gYHr1Q9kRmBxcNbacNx/3Rxqw01DRM8VbGqaCWoArBkjs"
+            + "t/BoblmrDxSfGofEg/rR+FqH5AhlDSMQeU0M0JclAob7yvfAOSRK6RwlB+Yp2Nnz8s0mynIh"
+            + "GlbwXuHJ8YYqc98F5pC0heYC+sOP+deuXBU+NX2d5On5xwXD5LcB9xHYj+DM1MASEzR+os1A"
+            + "jd6FYo1zaB6zuhqxuMzxW8laNlGNfcOgLnCByaihJ0cw2L7Eb6hJTl1q38/iRQ0htV2UPidC"
+            + "KXhPGvBo/1Bw/5tUF6Yy13rNduDQCh5MH1Yh0FXZuqb5qa/4xDk4l29r6aUSRa+jFxjYIz4U"
+            + "S3QldH0jTrayS2W28cwF1w4JAzkX8zQlreNLLPIExGQ/JiHKKQeYbCHjgAO/3bh0CwXQpaRK"
+            + "rN8gQwEASagn8vVFy9BgdvAZeEUfNoBOgr/8O+JAo0Uj1PxAGAy8LcZ+upm5A3G0ei800EEg"
+            + "fc5YQy0IoB8gWQ0O0HtTsG+9ef4Jv/S56hZhNd1Cm25dYs6gex21DzbkLkAK5enTl3a1dsus"
+            + "fPJRXcueQ3q7Ru6zP9p7cV7uB6Pk+pp8G4iO6H/BQ1jwHjBIEl3ZooBd5i0lKgNtofpz+YuN"
+            + "a//zeFg6KwVySPwCcKDtI5X58BF+GzfLDVEBxjSVxsp4AnIv/R7nrHRi+y1rV7LGzI2ej8dC"
+            + "WOts2h2VUyu2oTc1rRYQ+vzcAtAYecIY3Qb0itENtZDCu68RgJJlQMSM5C4FKKrR1Vz4zljD"
+            + "c4Rh4P8KhSUK8q8uX8vn1TdxdAi/jJNH0bN46ZZjlQyPiL9dU3HA7dv8DxR4KPPE3ehVF8v9"
+            + "OqsxJdK+XwOs+O1uC+17P8drueEq/izszKfI+EPa7TauBxcwdherPZ2mOQUdmelTS8SpeIlK"
+            + "LevIoUxN+B/EkwCE3xSk+d+ouKYmgR2P3LIHcksaYh7yjlfyzB4055I5UlmHrWwlSN4wRM0+"
+            + "rdBfwfMPfQwu1iFLL4sjLBQBhcZmEqIlekIO6RY6Ut30efVdRchHFdzgdzJBXm+EgKV6Bjyt"
+            + "cqjKj0JXnKo5PHPPG4WR52PG0vkZn8XvJj+O2HqH70qZUeYitHHZZIZBqiXf3TX2S0Yf5zkH"
+            + "+lkWkHZOzyUcR7SQPFBz1TmzjgsLoNVuYYhQRixsME/xD4ETbnwtl9jHtZZYXb0uvlZEynzk"
+            + "61ZQlTeE0OIvX3I7EtwKEE2ypdGJbF2PgJRSIiyPOl/r1x0iwYXaeoVrDmFONSAciX9JgW+0"
+            + "SC34cH5pPRDJRd2aFYWgIrGP2RWPxhm7T4vgLy5TXqQ6OPpENlFUEzx6Du8FOdJJT1pEyTVT"
+            + "JGXOMu0gy5dhuLx0LfDYzy2Z4Y49eKfrd3ZhQMxxIrlhT92y4UIlWQSVG9yM2Wf0eOrx+J5n"
+            + "I4AfUDiDP6E5umCeybkNoemM+mwtQE/EQQAcrgeBKIIPLLsRBmwZLJ2cDpiTV58rmoIPBMsx"
+            + "kmudoTuoj5z3+WFFDQxjuUzvK0x8hlnWEVLshMQc+wzqtwkWuIj0aZi3K4e/y4RyFbvQV96Y"
+            + "Xn6MHnTX80Bo8YHRtlpXRMuYdolxPiJSMycFV4sPHaHM4ib3tVThdBkLC5gFD8x1Ewz0/XoR"
+            + "kX+abgVeNcbftJ5zzXXN5tdwXll0OgQ4pu2CrjYa8uAccxOq49SPIZpCNqfuMAx+X0kGJZdo"
+            + "p2v33/WBOgeqnKeQuNA/tSTAqnvThiPgonesxNFCELpbPtw0ulOiRdHfzXOYWYPnawksP378"
+            + "05KkKHv00LtNkETrOGKnbEakuURyjnrwOzfbeZ4NJXbfK794Kh3LLM7XKeU0l8Bx/MP7EvH+"
+            + "ZoLkQb8edCTn2DsZkN1BuvasOyl9raz9QY5JFqWh4mOEKPO/JR/r+NaQS1kCavjVtPoGppSk"
+            + "q910d6fWES2A1FZhfdIFyyfe+3EDapn/hrgh/hEw2fDZw/tW57eh2564zXNttUsE0afWejIA"
+            + "msPCiCFyW/77fFEXpRx70J+rXmCrUM/S1J3OZJ9vY16wsKHwXLjbbEa7+OImR3l7o9u9ybbY"
+            + "iGTkFKlaOG1xb4OWMJ5EiBvF2OU637e9v0rx9y2EHX0Gb2lnRjH3u/M91TEJkDSdNIJ5Y82W"
+            + "VzLhHb5BGOvgucRGLq5M+TM2dsCLHsLXGS1xqFwOgP/cLoegJbCoZd3X9eUHWPYDY5rT0+EV"
+            + "eT8tJrqqeGrgP+otfCdOCVI8IePmYT6Yh1I5SnwdLCGoRwOoD7ExHUvYl/gYoPMFwUEu5Q3U"
+            + "BAxzREUdSSqqVcVLKUJk25wNBLsqkSiX+YzaOMUaRXsf1DXDC1tArJvsf1uJEVU7UaFEWxv/"
+            + "d14igZceZQtVc79Xa42/l9jNlVGmA9Waxzmk10eD3Iib9V9jGZXbChZG9rGwgNRFokhDiPVk"
+            + "QNAOm8XHnkyplemro+XWAD7vpieI1wM/a3VlFwFU2SCFIo4cI6I09SM2g2z+0zRzd9Hi5SQe"
+            + "odIqTBcUhOWurTNFjHexoNY8UL5eWtENDgwPzoasxKB2QtlwRYRhdY/9zjTeQuXMJzQE69A/"
+            + "ynfYRxvXz7TtPFwTsv4mdsmDMXe40HHPoBMxzDVftqBeNyNRsiMPHK/nQhRQPdhy8ia22t1g"
+            + "EMx9iVvqVAfO8T47KiPuVx2P9g9rZuDH47JNtWwO3uv7XW7KsMXm0qFb9Vb6KAg8gr+14hke"
+            + "a6xvofIn4cj4Ob0906VixfeT0KD2W5tP1wwS82w5vpDg+ASe5o79I06k2uuhjaJrb+35sCoB"
+            + "SQRI+TC3CA6pzyotf/ik6pT8hrOimAxHgC/zWnxdxgsM9EQ9Y7RHge1yWO51VLTpIGUp+Gq5"
+            + "dzz4/ZyhEQGEsGUfe3AvQ1GlD1ofvk9Ji5u6/ThTT4m80hP9TSRgwJRuQm2+JQTNjQpjBGmr"
+            + "+/eHpohdYuBtIJ5QtJtGDpAa+dLiN5LFTl2mRutpyuZDS4uiJD4K3EgBWGgKfbQPFwavBKG0"
+            + "V+o22bqf7R+K6BsvZYR/U+4/M4vW6Bcr34gQ3ZLLIjDXca/YANiFF7Lr"
+;
+
+    private static final String FB_4 =
+        "qVycxt80VrQGc20kVQxMte8cBoE1OiYLouVuuCX2Wb/KjviVZr5N11CuuqjlcplZ5csAiz7x"
+            + "AERyicuRgRvinGEcORhyK6FjJ8Bgylfc+YmLbTDBb7IHOLjpv5rRKL0arP5hovXMf+fYwB5A"
+            + "A3PuBdlrXPWQ/tXl8052kdnwVutUvkvuaME14W9QQFeVGZFTulhKRwLV94dq8HnDIQL555iM"
+            + "7OwHms/f/cMC3oDprZw7sy952yr4Saiu4uBAKKsijmzWOVcrT14C1bGyFNiCgObjadzfwZ/i"
+            + "yYgYiBWSNky15YjMF6mG4eS8W9SKgP5Rd/z7Et/JSY37lGRLc1EItCDYoCtlaeG45Y9uZwoE"
+            + "F9q+yudXaxHByPijdahmN3MnzY669TGU5nqOm5TJNyRQcj4mVFrTh1mFK3+jkV8LcYhdq5jl"
+            + "gM0vXEJzQEZqoP76EZWsjnVOVj5yE1YdU4OQe5j4yztYgQ+lzq+hFATWjZofOHTEwf2agiP8"
+            + "SbMUeQPj5axDfO8enFjU7rriMJav0utBY82KqjALY8zfg6SxyCHYRhiYunFkUYaDU+mtd7Ya"
+            + "55aEYDYmbn7mEv6EuwFF639LNnH4FJYZGNcaPwAFrz1oJAyU/PgRJ/Q+ba/cE7GRVCiEvluH"
+            + "fZOZLfW05KiBzm06mHID6qjiTERd7vDdF54PR7xdTc91H/0k5i9bd0D82JGtUnwKDWDgcXJL"
+            + "RImz3wCzZQGoUTc0GlCd/N7bJJ7lf9QZkg9ryp9au/2DqUihtA9lNX9vyx5V8dO9Ngvid3sP"
+            + "i6k5T/Cjda9EfkoT9oHo3poD44Nh2/ctMWWHDqeZnOGH9cpjfrhCfT/5Ff5gNeAonP+WDu5I"
+            + "09Lnratrk2/w8Nr7ME9C+cnhMMr3zh3aexb8HJW0F/CAxgWGtQV2FtzhYCBgZ36xkYItioex"
+            + "uPJ7KSZ1ZIIZ1SUaMBntyjOrPvYEHAmXs8Hpr6KgNJvCvgfzyvz9MUhsO3mkHv7sf+LLMe+K"
+            + "WlAs8fcc/JvRWQG6rtxvAr+Saab/NFLS1fNQcMdSmxI8CoEsryvhMWCWbG1oBDwvST51OuVW"
+            + "+bBKj39HCeszBJqdzM5mvFcqlqGGoMcfye+/wivbSgHBhN8/Rz/mofXxE6/l+o36L9bbhG1R"
+            + "1BDLH9PabVGfYM/VRDhXzBAIbf4aU1bKahupblzsMuJjaUk0EwI7B+3BIDKECScUU3aB3IQC"
+            + "kDFi5XiJusMiv8K/fHT8nrjtN4XsY2zuuO2U8YCdZ8phNZdrNN2amiv4X/yWTZNhIMqHH5X8"
+            + "Go5wp1dJOSgOg0OK+HqVSvigr48HvPCK/5GJ2YphON70FXqV8ScCTp1+Q+zCt9vcf1p0dPOQ"
+            + "R9B+TCdnyJ7+nrK4XkJO2s9t9/zjt1kbzNR70WE878WSrZpntAzixWX7J+KrBhZ0HgYQHUfl"
+            + "8vZC6mWwARt8s98BEa7u9kU21noNX9lL1SU4lRl9rXG1mui20yu5hK1mPgP/NA+hrJzttKvc"
+            + "UljvyN/q2m+lpJm9yLl8RvZ+B+fPZBAabSFyjxSv1hhFLZU3rGuxQ+H6jKMGujv7UNLRnXn6"
+            + "Un8yhHhMdnNGPXW71r55cZ4slndyXgOhuE+Dl0Op+xKWinBEFjIERUYzK3YARoREEP4F22B5"
+            + "CHe8GzOWgkh2maCqBXmIMA7kC+y3VovBc2PbbhCEftwphooJHnbp0jq9u63JRLTZE1wEcfZE"
+            + "UjXbDFj3z5VMNwFLbdTXyAgLp+/ByvW7f263Pn1n2MzSUoEbXKYXFMKk5kgtr9Rui+I2QZLE"
+            + "S59D9ZW35U07OUnmgl3gareUS0vrg2rbeyIpDCE8RtNXyaF/fBWAFsC2NNnBAJlqQfq2SrGZ"
+            + "HNrn7q9joxx343kEciRLFJhkRekDlSkkr8HuGTLiRtg071/ZkhY/Co1/AS9iln7H7Q7YtmdL"
+            + "qMvmOijn6f0DDd4i8WVN2shhDCVKqcWaa3XioS5c6n8S7piCKPQZ1+mDNEdTK0CMhADQvwxf"
+            + "qB3r8lbb2xuUyVgzvpMo25eBQRUWMROaO/yaQwwwU73QqNmbmF1GE9lejdkqLeZhyaMtmEeZ"
+            + "KyXMLFcxYEYsotsgjdVTBdQFKcryOAYZPW9rXC9rM3uJmvEDYqpXbauBanne8TRoVqI11bWj"
+            + "1R2vvAqj3e0vgWlFKLD6ywTHaPi1DBPG1Eki64AXbf+XGesRLV0AZpdnB7c5mameBJV9D0yl"
+            + "w1Wr5RRBffQPHpieYhTsC6kZYqRokTNeZtq++p3YXhh2cf0xn5PQHGWC5DBTDExvz3TCPocX"
+            + "dG9pk2ZJZ+MxF6nmuD4KoiuyQZlqVXPlzKNH17PLN4moWGSF40RdmShcO8jE6IZOtvSlbkQ9"
+            + "9Nuvyvg4EGx7w8VT2QKhi2q0n94h6hTS4h39rtZAg9q66SzOsHNnzTVc/8nMoc47I/nRxBf+"
+            + "HPlxsbQF96Xd6p4Zbw3C7m5WupwPR4pqlJV6hcNc1UtXr4NaEYTIkrOOOUdd7iuW02jebS7h"
+            + "FM7DkG4OTAmfr1qGBbJmtkGJUavgABOtE/c/fk19RDWMwkph0excQDgQZY5bd+huM5fU+HQy"
+            + "ypMPSqB8erAXzZZtsBYceZakLGrc4DTDTz8aqmGN3qaWt7Uy6ILfiCGGnzzZibzOpiEaG0yx"
+            + "wber+MSQzav7nuj7n8+pwFAZAPkEJ+QISWdMqUU8q7EWnjrafmtsZpM2Pvov46kYgEgl2LMT"
+            + "Dpp2klD9HV8TezewI1BY8bBZcqYPi3mtG7a7+qhcWDLXVMwxtWyMTGCHfaoAvds+LLmnSXd0"
+            + "J89PMctksIP6z0fu2PtaOgJU/v7JadZbLpiKbtQIAsO6Pit1TMiWjEh67M3ngDN22Sg9/FfP"
+            + "uaz0mvbemEDrWltIx1bMQZrE5B0sorb9o56ZDAisE5pzZq8WNuo4NAkrEujpR4P/ziUyLn33"
+            + "w9hElbQBPFZnHCJ3N3+vsQDhSTFcYylI38muYYGsit0TIUxQRu9KbLzLQy0MxT2+4Sobi9bp"
+            + "f5xHhDVakh2viCg1QP0arT2Pw6lkh06naIB4vxS7VUVuxjXIPyIIToS80IbB9IrEf9XESJiH"
+            + "mu8MeprVhC7ZgxRIx6Aszm39RqFmuVdHEExTmKYQmxhVuNnUdNehwTH/+VfefWwQics2x/Pp"
+            + "OyjS8CvvCvlMIClVt+63J+AygtFqk/PpZQbBL9P9uJ2wYI0FiCcecOPWl8ZiO8+yuncSL4Ae"
+            + "zQbnYMCEoSanKp4EoQhBya2cZBV6DdJMQxWecfYsto4wpDBBmWGtu9Y19Y3Wqmv10EDgHh83"
+            + "i2QoiKMx5sCuYl8OiLVvlw373HWwsFYYrrw/3UL1qJqzH1UdidnglQsFAk26jvaLpB3o5dhs"
+            + "xMwBM8nFJ0DJc6LCiMc3Z0creqTm+oyHDOa7vsn4yLmpF4NvpCTGxPAzMVjmRuaYVZzohiBo"
+            + "gf3LiSCLhXl9TkmpDUUZVjjCW4lVv41DTZ1vGXG59e4x1goB6mKe/4vsFAFsnbqonl7kj4rS"
+            + "owXNIn2QZKd00l+o0DkcLL1RX2xDhCSfMnigjLZSRuwoD/wyGMB2bQl1EHcrVXkL+0R0SZhU"
+            + "zCwJDlCbx8HWM3osHusUdED+g2x7W22nHmc9hzHa8PLVcBSiHheWFrPaqFAEt7ujTpPKBfm+"
+            + "zE8SCq0Gg2tizIvksmJ2rQtKTR8Ig1flZrmbozJ9CYvBRKQouQMum8QbgMjNakzuA2wwYQBW"
+            + "5rMcYDvhvybIQZYSpDOp0Z5fCQIjlWGrd2ngitPI0aYjSpmBlTrY+nnGn2SIV/we9sYDCJEP"
+            + "5+wGlOrj1OMBO2KxR4t4dMjg1RKp49ZhxcEsNGA3OXZ2ZZmkbY2BQDHZUIVTSCzR7dgnYf+G"
+            + "LMK2b8PvOI9fgGe40RKlyqhLb/1oQEsYIQEVVGv37o6qJRrGvnBXAgw9xrHH2tpGl2knjy2H"
+            + "r78QD9ffxvrj6FE7hu6pmcw5t5vtbKmbwtCiGUgzn1VITvXl420yYFetPuvb6K6kCfl/iM9e"
+            + "5BIgkKiuVqdoMsEt/7UxTWiJ00ayfH7aR9MRfCahYHfXBmHWdhcCmM9n0DghEBeZd3yz4okE"
+            + "QXWXnZqC/YmOPwUh9Dl6Qzj/vv5bNfMHQznTvtEAs0eXj1zae17Y4yI6wC/b3C3v81Auyw2S"
+            + "PK8og5kUfsj0Pjhu02CwZl/Us0JTvFg8EiCF1KmM0+gLkbcPRkZXTLBC60fuBXKr+318cJln"
+            + "ZgXAi1SQMnpDqa0p7cYZwIoCgFgQuC88xVCcbSUkDYk6LBr+hkn9nQ3pJTqQyoywr32JAh3t"
+            + "doHYXXarhHLyolTEPohhXAYPVtOjrqK811yCUq9wZtQodsLkhN+YGbdFXuj4JSeaivA0v7t+"
+            + "VAtr2NUCfY6ia4N1nDQoop2k1ZXyUocI6KzhFXe2tA8Ux0qdNwqiqMemu1xlOOKuGZBNbWDK"
+            + "s2wwVMu4OQTJgWaWu7zOF/EXdzuN/EEApQK1jniKEaxiFLlLamLiLtBYMY8DqK2RAOiFoevX"
+            + "v7DPnqvgDPwSerEM+d70PByHEbt7KIe7YyKjapoZWFMg3Z9XJCPUhkYRryZGb/lOstZi6C4Z"
+            + "n8Mjehd6b1w+rRjnUYjZVTQD9pZoivZS9jUxWwkK7r0K8tyTrcDtK7l7+A0PC3i9QoSSY1YN"
+            + "R+uWHgZNQo62t/ymGZHYr3bKCQsYxH4bgFl4qFN1AmTQs1Fok5y8N6LlRLODG+AQ0bOiSODx"
+            + "0nOhjK9o5C4ZPhiRcmK7gY8yA1fwPuDTW371q266O8v63YQOyBt5lJi2DzJWRIVHqdMRMsNr"
+            + "gl48AhZFBojE0NgzT+CF90Vg9tEulFR55YjMp7obAARNSU5HHFg3WvD05ie93ptrPPwJYWLv"
+            + "eeXhzpe7wFayO/GAecA9pW6PCZu4xmjBF4faUeLG5ARjGFFlsoF2pYmabgUpIzQc6PmEZHE/"
+            + "UQYurWS6psACrm89dj9gVLYvdvciHELsjAncAri8oVk/4EDxvBxdJeu/JYCIYoeDwWxO78Rn"
+            + "s90pw3YJDm8AUvwHO/Avj3XaflPg1v0bMwlscILULXtUeVFc8Sm5RBPwjH1EeMPed4+ajn5e"
+            + "ivYeZwOTFoN3GC/JV1Ybf/ujLuXp6DAfCNImg49fRUEog6r/K371q0LwWMCoWlVIKxIoQ7xv"
+            + "OpQxPsG+jHNPCUCxJe6gVKMsbYuGtnBohmJeAoBrw9F7KMWK2ly/nvudBJCMkHUkR6Y8wsho"
+            + "7fLv5zktBMCSoPsgYI4tO+E1/mtJI0VSwWOvu3HvVf1aqnlqYEtVEoF8siD1+xs9PL1NWEE9"
+            + "t4Lt2cUGRA9p11sytmO0rhsFsTzhBh891cwbuqgLOjhMCW7VgzGJDZK/aXWAIsyjJpR4sOAH"
+            + "BrPDH2qnZ3ZWCHJ206oo6puGIElkeXHqBSb1Tm1pELwzftZwOd3s9kDyolvYpTRRPHZuAGcn"
+            + "Y5rS0+6d1sHBXp3rDgdZjzIU8KhrlscVZ06Tc32gmB+Ucoh1RWiqwZHG3VmaIN5fi99+3YvF"
+            + "VLwSmoPr8Fakz/xfoyztaROJDohQkFx1HgmKTnjk4zPDh53qNvT6dbujwVYbN9TCQge0/dl6"
+            + "wB3TjRMdSw3IAVyQ1vYcejq5ATXwipDp2AvNOB44NptAY8nPmS156QpLwCyhlFr60XXEjhQS"
+            + "THNp2S5U19St43exoua+8lGr/DvnX5FJmbqhR+CR2FaA3qSgAjPvaegp3M2QBYoPcmetcEOS"
+            + "hDGcaNs5Lq4BLtaUKI99sYHuJpiQzm9q3UnQmkF+9f8sDiOXpLfGVvUB3/GMIF1P9AV37Ose"
+            + "eY+ePcjKiTI0Vewn92QQYJH0FDi/cN35dJg5W1jAQgBWGcOgDq9VxqvHgHjccDXD3BeEJDWl"
+            + "wnXin6DjmCycOwXbOlXVBZBlcvehyriupiyqbxGkhmkYG6fD1Vn6q6sqf5aR2pN+2+S/cLTe"
+            + "TEcg+sQ1ALhIWnrbF/h7iY39LZwgyHSJRmSAwNBE0fxX1GTTHxefgLbxpISSW1zCF27g/pyv"
+            + "8wrbh60ksy7rRoSAl3BN2LVAd08xTiZjRtTWKPjGwy25eH6Wk5De2N5vyPiZ/MdM0bntG3qg"
+            + "FSBMe0dRnty1BhU1Xm+iVFNW3oSMw3mbYuNwAIZ2f1g42JzSTnHRp9PY0F+WS6yQMtAY3rMn"
+            + "MZvr/NzmINh5kZ+1G1kp/+NxrGeBWF8G9bwcfD99WwD9KXJvstUgzy33xqfw1CqR3NLWrWe6"
+            + "K6IFJDFV3iiQEh9rrCas9fOzgU4fKxVj9LdBSWiAohAzvs40fnTBtHreOVcoAzZdqfeqRDOU"
+            + "H0nfZttrwMN2DxegtfeMU2JvFpVjaofWqucjeFSgW0Kp+FHahVTYggT+3iQtn5iaoWSG8QJI"
+            + "WVJAwflE+ZwcKimaTgAOtWUdbf69NBIP6g94SxICFnpfVSLLA2/IU8GQ6K7nXQwHeZFbO2NP"
+            + "2grGJs6K+fpTlMAxcxP7FQjAh+nTOX6Zt96zV+ibAIYscZmtHEr1cRMWtvjSN/ALmxDl7Evg"
+            + "WRbGWK3KSyHHkhweMHP/43dR7D8sZyLDb+x0XfdJMDi4xvz4TDY4oXXkPJ0CTz023Ef7QlJq"
+            + "2mTcmUAVyRr2qycCFyTV0vKsxjlfNQyxx/+ZRf7HtMDRtZV1fqEr7Ht6mG4z5AweMsqwuBlH"
+            + "dYTIi/GqgE6VKEkYvFni5Yq2w7FbPKitEq5F6tKRRdJepNoI0dYAJcEy29zotVzazCWcj5vD"
+            + "S6lOPPh58nTXyh4aLVqmj4YIzPQP4Gtw1G0FNGmTgWEcD2H8rkKsQYGMta8XPDEfGoRkB5CN"
+            + "f403rBHruRJYJ2bwwUgjg688sr0MBRVR617vJ7c/gw7t3hcC0N056+nQmNYo38x2x3tKZOkR"
+            + "nIJGvNaQEMHg4IPGNnbspB3pNzMgKDcz9bTrfUGOXv7XcD/+NzAamEj72Hrcr6ECMxOYSvq0"
+            + "u8IwcnOLsznhmqy3JHSQvbcqANOdouBc+WJS8PWGLsqd65W6IL9fCj27N6R4fmPJD4pGX5Eo"
+            + "xSsT3RBRaDxDaCudL57BGMigjhVBXWWysuBeleKu4t+2zs3qHpAP/XanKzaT90untDDAoHwQ"
+            + "cKl0rsNEVd+6cNUCFO2MK+6s0vtEwHkrShFmuPXCMNuVlJHBO0tCnhHjKU8nnND7riP/klnQ"
+            + "jvdgGHoOYuFQwKyBTxMkVXyURpR2svC9C2eQkEJQKANcq+AMklh18yt2ZN+2CJSu6jPvYQpV"
+            + "yZl9SAS3GYVtYgrQtvHQJKu9IsMOx9iTt/PcEnjlCGujAPBroTkcc+NpzO/ZHGwPadJLH1qP"
+            + "QVo876JCbTAYK7Y6VdjSOIBoYbtN3Kyd7e00dZ5b6Uut2VEXMtLNyE7UaEc8xCbNeZpt1PJr"
+            + "F99JGSzCuh1+2e/jRexLE5/k8ZWvy15Jys7SgzGNV6n4jjwC2ajYUrNl34SGcs5qG+g4ZpdL"
+            + "O8PLYj7X6+kweTrqcnESZgypIk+Eq/QNve+8PNS3J3WwxyMFCEIzGSywnPzjnVtWvW0iX8Ic"
+            + "5x6WAJE0JCQ4rmcOPxkyzan3vwgGg9nIJ7WvB6rRtaJBG0suAiZ9GECVjVXMeNUZEDGJ5TF/"
+            + "UUFllbU7UEkrzY4rAoDDyApUII1mlHNwSPKgoGCuK+L2FLyAzdiP9jxxc5ml13D+mz2Xe2al"
+            + "tAHeBXDyl6FGBPEJhKCD1V0FtF9GzZqFyFTN/H2rH+hvUFg3aMhrx7mbt2CtFmqXdMowlyN7"
+            + "7ICU46q8inuXAhE+oX9dqMsappW+Z10+oiDcvATmHv7uxFAFQ9lss7mHWlPVMJVCb8cu0i//"
+            + "79L8SxHvFrdjyL7n9LHh/9mrhvj+ofRjhk3BTOPUexp+mopZPGXRs/4+SooGIbkHffSOmyam"
+            + "TYJ/tgGjygiaaraRKDqkMXIX/BxTKTu6+XAMQwL2FIp+D6hbYx1z2AbAlT9tu1Tw0MUKw1Jw"
+            + "mutDSQq56ooRWES5DAznLydUldrS5rm2k6wqPbwMCaGYSfmsB6FUme2K7+RgU72cLpN4qmh/"
+            + "n1kJnoDIIX2z4QN2fB28oXzR+AHFVMEaTF/CR5w2i1GfWZHI/pX8BLaOj0NOaLoV6osNuR9o"
+            + "q/UMnH9EK8Jz60P55VJhZtSErkagDXbxfWtvejx3K5VsddyGCJt04uHlCEMi14T34us3KmwU"
+            + "KIuiQrZZtHR86R9WCHHilleAoM0FknrOr315lbxSr5gqVEWZfTHrLZ8kj+PojHQP5Sx+LvyV"
+            + "F0bCO48kjLPu0EngG55oOXrsqGg0xVYgOv2pDp9ESnT2kbbDzz6tzcILWLDhekpkBwwub3BL"
+            + "gZGEeWb6kdXQg47sepa4Lta/406CdGOx9JiLvil38wYgcrU6AvdUKmtpO+g5/nBcIFVUVpFW"
+            + "6ApF4cdgDWbIJWa2dGaT3nmcGQrqTGPqT6bo+Ug/gdRznGxiQ4vCW16xtHjpBQCx4ZPFOAmJ"
+            + "5nzEna6ScbGX/38Oy2TgEFqBaE0DJX64F0Rm4/hCiHvsZhC/PHKGGmnwaoXHclH6I97jD5df"
+            + "uz/VE2ajvYxfCXFiUgZO7KJJ1+tH8YNDF5Kbui5T5KeW6g5L2RrOFDjOwDVnE5V2G/VfKl37"
+            + "Mtp7/AAItvws1FtJ9RfpY2USmm1LpDDgFYSbryBbcMHjbo3pTELRDFQSwnDQqvUcBnNvCUbY"
+            + "nXNiIaKseSdYut5KFXImjCBdq6ToYN4dmXe+oQUR1HA+4HrScNqp94Mv6hMAuyboqoFr0iyp"
+            + "Ezu5zKVSz3WePhq8EvdMglnTabkgAp1Pdz4QGmXX7FUKOPp5t+CYniZuHCyWUwNVlGJ/V5ht"
+            + "jAOcCrtr55/pfvoveCUZXopqoz1BwK96wbU+hE0kbPhspwtauN5rZ3QH45vvyVQUMFBdGtwH"
+            + "XumRDsCz3y8cOzbLbOv5gwqNd1JmftQ0HFsRCnN2TULg92qVOH1LHATpsqvnd3y8fHgHRkLh"
+            + "DymnIiqyd8LA5hnLvBtLHcqrLpEOIJ9ZOLl9dgJKkXtnJTdoGlXymVWdIK4o4XLIfynKeABc"
+            + "Me9d3Ll8TBFBM9d8qZE5TLnPCFKyf+V7RiP9ZUivQopy1dOlXdbPF8/Kd6Xck04ASlHTTy8K"
+            + "FkeU0n3M7cGvtIY/26wuVWHQZ6Hwa8RAs2Vznr2e+Zu09W5uqRXl610RGKhw3uzxFHl7A/gP"
+            + "z6W8N7aVmR5SGS2W+9B7kn+TArZ/Oq1zklhghzohl3k9bEB0ZRPs9iORV90Z8qOMP+QZ/Iar"
+            + "tz1EokmWbOJQI4sIhXPs4KfUCRZAjYwWC4zQytMNLFS3j0nqj7o+NdBQxAt2SBrea+kUGHP4"
+            + "weTMZsTbNyuTkTFqoSXTzgBQU5Mk9GdO/DWiDTRrMmdtIyZgDEGsEI765OEbBsq9fllk9sud"
+            + "XA58ZaxD5TTeOJb3En3WlEUOAvqSY1yiETotfgeesCAf8f48UF38vcrNW646i9MwXGoddsyk"
+            + "YBEkhZGv/t2N8njfp88jUeE9334tc3pbFZXWnqf17T50Ub/u64eJNlCNfWD6/MfLVk2gmock"
+            + "4tqKOnny1UPzx5t7bS/LN7k0JnPXfzRXcjoQjIjsDiNg4TINin9eQH+M6iJSK2o6QRupvyjI"
+            + "l604G0DvpbBzjbvDEKW6igdbw+CCdho+ze1G/NReD3PApeXZ8iGSXO+RRyqPI4RuD/FaKOJV"
+            + "GZbucEEkP6XOt46aJhW8Ze4Hsptpg2zpKmBNYJHBEgtStd/EJjv+/ltHiUMa/SMiCx/uF0PI"
+            + "dJedyIQkbU8PHk4Kq1l8VNgyUlIyuDPFXhLxYvH2VvRi5OiEKJB5PE0yAPhR5RFEhjgVuthq"
+            + "zxa7+uBeHnqWuNpsjD2NT+pDSsyJsElR2z1Ld+eus+RHBed9sHS6Nrj6XpO5m8A0rGRXhCNB"
+            + "6SqrpEVGTfjP/GKu4K1IkmhVz1OGo2r5UFrV/U+TLOG9LRLcsMin8e3UjEBKwsZR33kFy2QB"
+            + "rZyDJnmzyqoeI/fGT4Z1tdoriOT+ARzMcPokDCQl9Bu/FkPhByCNREL43oG1np6YG/RUWgdm"
+            + "lFa1URrKAcVAULDqhgMtd8dAwCrOaDJj+zkzGQHFqDw63CtuP+KOEYq5CMMiUgofj+ERjXRL"
+            + "qowrsAax1NJrzHASHIRkbFVNfo049EbaZ123ENSbbeJB0FWNFuQB2EUA/JzHu63FAc6NrKw1"
+            + "2feTOea13o+eNdoVjRkQYx2g2PK3npzqogL4NeWczfu187PlH/bCfhuMjCDpLhhCCv1hkykk"
+            + "C3l14j/LQzdvb9G2oA/+uE/OWtu5I8BGRBVH/OJckD4PmfelbAv8FSRc/LzHZAD88HMDqlpN"
+            + "BfGRxHoDzUdvXbENWbZ4sq6zqljINN2D1DEZEoGKDE5ucM60WNsnqaGMmKBfrXWZx2ZPZZRv"
+            + "CuvTOYP6bagg32gKoWFWGTZeYOLo+4a2QZFdG9OyXZwE+ageg3KY98sURV0nm6MCqHvPWhQG"
+            + "X/1ykrOTYYsQZBfmWfnjVVmy+u3/iP9KH8KZm00rZdaZbJjrjwmvc53hrwR3FxFCmFBpc7Gj"
+            + "AjWeQ4AYM5Te//M9n5kvUVY/Kewe14Le54U7KecmRHwDrg45UDmcAG0ntfYWDmLO4hBXXWog"
+            + "IcvoOUeOEVszdHXcI0KBYVxMURqlf3UvRQPL4DTVBBoBn6xqO8GFxekHOgVOfXvllhvAsqCE"
+            + "v8K/NiiOqWidrCjV6EU23wejSnWWzpX5b+N8O58miZ+ILhWfFrEKLi3ClP6PiCvgkVbMPk/6"
+            + "DYrZbURO1iWhsIPDfYw+8+C+Gs8VNarYi8VAc/KDlj6MyTMg4IoWghAMTanfvYBopR3aUscj"
+            + "Xuz8v8X7iVjyKIkkpZMsd9kINq+PfWELKZc3mI5tfjNFWiqtq4Mi5qpxMS/SYSDEaDMADHV3"
+            + "x9S06qe7uhu8ckXWT4z/ZHxu7+SyOJ/Qrst/5hg5cBV9S68gSjLTenSFQF3C0WkOS9HLRdA1"
+            + "UPFc0FWndPzsBQoVBNpN2mkL3uA8a/p4rTSaRQBOqB3zp2U3FamSe8aktUGcDIFjAc1wtA2U"
+            + "nvBVUlm93YBeQw3+/h6kiDgCqZoEXnixgUnLsj8Qd95L2Q+ivAMz0m/D5ChoQ/qXIgPz+wLQ"
+            + "2T3/w2Y1OSLsf7C/KKAM6n6Hpaq+i833aksAPJJ9/ZhazFk8/TSyUwhqofClUPvesTa0DXVQ"
+            + "X066rQtFCglL3AxXHYfm351ZZrqmM49fs+sxvckI6HY3vhGeiyK0l9brANvtdOZQq1hOXtQV"
+            + "+rTQbTsoC/XGjztW3XBtIb5aNxglxyHJUnAN0s5wvNwxUdRYT0UZhSNY34pUMJRJ+Mv0eAZk"
+            + "gcLJItEgzY8crZhr+XRh1Nc8qKY74Tq3B53GRGUQm71mEMcDtXR/x7Y06K51onCQAv6wr4+d"
+            + "F2tNjyCLOpw7ozHaXrP8RoLm/630hgPVfUBrrkg/fP0uLJb2trjfskX2VGT1ReTyhCRV1yaX"
+            + "Y5pjUyMjBItk+2qvuGsR7RqHg9iDTf4pq9gwIZJcQDErzEDF2ceQRHYIaLgSUE8k0IULMIMu"
+            + "L5M76+o+HbXE4yaZ0B6k38kDMwRA/H7jgF9eegmf9zOemIvsXluVuA/M"
+;
+
+    private static final String FB_5 =
+        "CT4YcseaSwGskgCbm4uLkJzyv8qQegLC6n/wvIORjyOzDNghY+NTxAlb+lbGBG3MBpuq0aIH"
+            + "PZ2QBAXQdBUJP0hK1CRs3DgTIQluwy8bZ3G4YCaqPi7LxgI4ZEBKIKLOye91RnU0zZKdOiaX"
+            + "PpGQOj9s2ZJxpILLjuHOqxxHZFKMXjhQwQabLYENO7AHq6e5G4oO21llxaZolkzfDQuKV4pa"
+            + "QNeIXNWiDuvtdzqBmQdZO4ftJmYuqlMkcXBW2t5dTNb2aZeRWUhntaRyECpVxlLBHaCXmbge"
+            + "MstIz1XG4SWRdZNZz5Btfh7giMSnwbmjo3CY//mo8yjn90qK0yTR6spXCzf6thhe55tm53Xy"
+            + "TwJZw9bJKhPZGxwLlQoyJxp2+SrFodubcVVQp3VeRgTPrFN4qRUXsiPep2rzkgsYSh2uIchk"
+            + "9Jw6Fl8LJ1Wq4nFXohp3es8Ejdk7w3oAcPc3PQQ5qjlLGm6phji2ZJq8njXBuN4jLSctJoaY"
+            + "2OsnhGH7jreMPsulvxDrdYcv0SUs/oX4CE7n/pb+VqWkrNWZVEpdcDO1MD7Sr+shCez2jj61"
+            + "3ktHYpEiuJN8FBazaLg6f8EQPWjjofAOxzCwR4EuTaVMInH+W+WprrVqhKKa+f7MusOyWVMK"
+            + "QM9dPIWy4Rh1hXW5dWJ5eZ4R4j1+6q9Z5ICGAnNpAwb/09En4sj7un5REV+ewpFoCW4DE2Z2"
+            + "nkT/PZwWcKmkFsTqU9Q12jJOwhMlGIp7rTacEvfT47UP6yugdBfxcJGadQmLQf6ItdkgSVh0"
+            + "r0kLEcDSyzt6BN4DZovNLFGYlVUJQgdAoSB7KIZG75LRHb2Sn3XUXGXIrrVKpeEtLuL5PP3F"
+            + "OAg7nj6PBq4J0TjhIfSCbRR6+ckxJmhC/S5gLnbv/Upa5Ga7km0H1JZjfC+mUUH/TjxGxTMM"
+            + "6Bp+ktl/2q0J8Jp85zMTubtyjm+GQsz5yecYRBnynLteOOGE2EQ044+T6pGEWVHq6ObAtUN/"
+            + "D6FUP7mCw8eOMzo3eS0yhC+5oHXsx2Fstd6xn96nj4lMCv/zVfzCZujXMcm4LuiFJG9W0kCw"
+            + "r/1pzv9JuIF5tnRmpE2oO+E0fhP5H50RbP1eBiowpZQbZWn7AyhQYuF8YiQcg7ompZS9RxHU"
+            + "1AmrkpoTVU7HN736objm6DsXfITRJypyF2XLoMIjNeGXGOIpGFK8Am+Ij6vL0qwoOtXBhdqn"
+            + "d2z3FHh/nXnAD8BhZN/jwc0PxxiExWhFAmMXB+9V4o6EEKES0nH9LLlQNZ7CySfsrX+4hgsD"
+            + "7o0XcDBN37nr07Tf1ENmgsTtrCpAjsnScP6a+po9Z/5x2u3siCkGnhTGgBB+5nhPwQ5MTnf4"
+            + "xu6utuszdQlF9Ju9MAuTMQOQzwsdrT+kSkgU+LhHsYhHTX5g8GTzsYKST1Lobd21jh1CvhHh"
+            + "ftR91sKsT438qfjYgcLAXKAkXxpZRtNwssmopVOr5pEbJzwKyFbhD6iuFrKj0K9AXXJYaWWQ"
+            + "01z61m+HRcrADA4+ZRwX1c9Q3iWJ41vlZnKDYs7WUETrdoUafqsuVG0/QUQ1wEofv0EjjPyZ"
+            + "hM7Ed3rDhWg747F4eD8EMOD5yad4uQPWzitvSZFABkWglhM96WCky33G8PZt5dBfQrB74DSs"
+            + "qJchWUMArVzxtgmjiSYspWSRCmHoD2xNPlYwC1qaUeXdPVyNlwf0YeorXgtggT2qVdG8awxe"
+            + "IW0bTakxSExvueCjaWkGuTR9zjOAfXmJBSa7jK+95WuPrl5R/RA7QDz2uMdOMbFOW8ejzM77"
+            + "4gxM9f8VEq3PSOajvpDG5C7tizXLlKwWp+xFjcIXa3IzQwIy0DUGxOtjZprt+XW59lP/4LPb"
+            + "q+Xgajuk/1hZ7TEtPba/HWu26eR297rN4mc9CNgx37RwMHDToXxfOWo5qbIHWZvwMitsJ7rt"
+            + "2EFS5/7xJzBmYCUPPyGm+t31+SsqaWc+u5rMhaBYY6FDJm/zEApcmMfJ+TgXAjBwgpguncv3"
+            + "6vmpFSUhgM8NKdeos3lmwQPQef0S8VSo+WjQ/KcHazvZBx9T30RTgbelTVVMHPT3IMOGkLIt"
+            + "Oa8jJceXxqsAFASKolRN4/kaT1BGaaQS/17b6XScC6mi4eGKM63lwN1vR1sE1Q3IDLntmPa4"
+            + "NN1G4zVKkrpRZjiwVCaa1YKGXvYItW5QbjlBfYYpMM9Qt3H7udhFNHHUpexOLmNm9yRjtsQ+"
+            + "V/WbeG0qv/DCk9sL9L9F+aSKQXB69zYQ6XmTW/X2cof4+uQVMmYVON3pCTVmxSajuoR8Qlcw"
+            + "XjDnBcapBkxGfkIud1CbyBBPTaiYRGqH5A8S1V8uF5NKZQRAipUfNB7uLu3k0iRUJH2+jy9C"
+            + "f70VwErM+IF3rUlCkvzHWzpzZ2NkhCZ+b1u2OGq09Ng3zBFldmM9Fdn6qn/pj6AHxG2n+QhR"
+            + "VzFh13rK8W6wmWm6XtIWAIDBwxWCWY5CSFes1/eWlrmfHAoT74WRMUnGLndIZxpqkJCsCf30"
+            + "twyukdLUmK3mfaEH+iturxzblb1SzdfydJIcqHz+wvdcApveMGWW9/NENGg9oKuT8ATRcHzd"
+            + "ZoO46TgO28KrPlXBW+4jLZUirZF/GcNq2SqvG+2Rr0b0Hs1ZcBecBMOZX0ARr/8ciAIO+Ygn"
+            + "keq9D1jBsArebML+SYiaAIzvVLzXFglcc7X0J8Out7WgSf0mTI0JJAhAITZLkzaatAPT4hbH"
+            + "cSf520jLNV9pH8lKdPKldBA2dYLIaWretjkytjKbfQIjRu1RTtWogEYsXrKbUJa/bj+yPLRD"
+            + "tod3cYIotu2eKs9zqbGxUjZxTjZz7bVUSV2vGjwxxSPonuCSCtKfzxkuer7Fv/Dm8Hs4GDzB"
+            + "18yod6nLvSpGBNNbk5P/G4xqX5n7Q5NymT7n+0LfUWx7WOYU7vlFARoeJRJQDGSvWUutwUHd"
+            + "SNMReHXFabTW20f7E3M6suie9+Q8pHHe93Z0Uk82fjjlB8ujI9BgiMM2UfPhAIMsD5W6QtZS"
+            + "Q7Z1DSRq+4FPUnQEnXzYg+ZXejPIHyPO701r6Ot7MiA6Q5TZoH1SlZkgeSu3YkKqtAVDCzRm"
+            + "vvEDWktCS+AW2A9Bp+H83bqfs+oSJUBaM6BVSG3dm5puj3hlHDNK8nZ/j75Wp9PM74vIQCdY"
+            + "Dd7JP5mcUozbTVBSAQ/iX9M6uUGzm/Mv2uvOkIqmrOapoYGHwvztHWLYC6nR7UVekJWPN5kZ"
+            + "rIEDcPaYQXhSymTVR5sIv0ilmMDjHB10nyYyS0yUubKv6SdsqaPRmMpgiQmyZvru8YByAy6i"
+            + "sOWWKEaLX/C9MgpcY5lV6Zug28+6cOeUD4InHbptwL6OJ8Q3vZFmN5xgvgoqssWsH6YggHmU"
+            + "E3aBLbhElCP/s1gRsHOdPTkpw1fu5i0fwxXGQb/TuQyEAGjs4alRCt30tMTuj+Cf6c8BcBF/"
+            + "Py0X7qMfVq8Ny1kobQnk7rXEQFJkeXwN8+3BuMvz9pND73n7LON/3e8ZAjaW8CaF5+kEsJYK"
+            + "6JhcNHp9cNzDGqvPEPZ6Z2465pzLZ+kDX0FveFp+hM5xwkqZmBMFYqdTAnNG35vdVzystizG"
+            + "QhZt6loxZnwFXFFklgbhmubvQUkYDzV5OxYwXx6tRrpf7KgjftkfVsleoCyriJOp8LYKSRds"
+            + "7UGxV7CpPecxpg17D0r6JHWGzUour9MGD5vSj7RTRZ08FIHbIk2qT5TiNcbpKlTt50v/znan"
+            + "aYeYAjFZFfF+gf+MR/rKnxetLZqZn0lZYVI/3dwE2JCpnB0165af2KatkrC5LkynRA7MIIpH"
+            + "IqsX/oaIwluJxlkKaA61DXpwHeyT/0yHtGyqwJnQD7ef3K5rKW5kYa6HTtwnsPsUPR3N9/O5"
+            + "hSqQv81/rvIFYGVZzwmP79jI7jK0DULi0hHZhVIDsrlqOO5TRhKE1TmcKsWFuFf4Sp35+m/l"
+            + "EQpEFtDj/CHFMWZHbEUGrQo/yLF+2P4byJ3ouS1bMRyKxNgmYnXAppxBdoIvAfXO8uXR/4d1"
+            + "hDpQvL+qkKmf/xx7JfMgefGJH7jjP9pxRTuOitWof6js6m4OaH4w8yHl4ZjA/T2xO+Bedyq+"
+            + "4qxFZbVLgbcMBbSJRYZXfbxEWnWJAAYG5axCV4Rnrhvt5E7D3ZE9sbw3GdQWIsnRSPMx17ae"
+            + "dqoZKqSUHU57VawdaFZsGP3K/fWATyrI3ONmEjczqzCcWp+UoiINakQuFwleq4ZvQ+058tK5"
+            + "Z1zI5IEMWBBJFAYLuDkYL9wWplGft0YBd8ksqf/MIX8TypHIUMsoOBJR9ejSAQDVt5Setl3t"
+            + "jGoax8l8pqjsAdYtzjztil3lYV4HBU4+pPoDGE0hTzzc5WdqJVzAhO+4lbwbfUtGMoZZ0HKX"
+            + "ylWhS5iro82f2O1KYyuJwc+JH4Q+IBItLPypLHgn9uodA6D5tnM7zGUE13TtlseRehVQRivH"
+            + "pyUKeaeHrsN/pa1gZcIsoiKPIhWekis1EsSesfOUCsm6D0deMK8hY86MEmT7QDYabH+sQ5XF"
+            + "SQadIuMPTPx2/y5iKBbSgXUEvwn1Tyq4TrL/ylGg/BqEZkC+2cierOfwNZtqCOObm08UBgDp"
+            + "hifnKIu8KydZkJzF8qKXJmcTnBHV42Al09XjsxTEAkYCOtwMGPxx+uuBekC0UByw/EOFs7LF"
+            + "Ig1iVBhEHLkRgneZ0YFeTCR7pe8cN2VH6nzF1ozeImIye4eawkJuWsu9SCpvlhEbmNkcl6/y"
+            + "asgudnay3sD8Ezo7UFGrz7JEdI4c2PCRlEftEL0WgmbrcKALQ8qDqnK7L/mo/MqY514eeEd7"
+            + "cW5cKFRa05P5vFbOkvxlCD2rF4fILYIxjc05G+eJQrx8b2ZwFa3J8H/YGS0rzJCdGcIbSJPi"
+            + "Mbn1HayN5CjEyt6/d5CsYOonP2zC1QbqkE9R/B7nQ/ks7ZcrhGyzSu0vBlPDX9n7J8Ntg2cM"
+            + "OeKiye/OmDUCeQ5p0qFOyy/jbpWzRqQOvk9MginMMifDRomCgn6RSuWFrwwDpZ7ugqRnEVBI"
+            + "VLTar0AN7vhhaDlRbSYn8UIK7/M+g8l86k36pA7c4UvAdXOnDV5UYqezlFTV38g8LTZUIoF6"
+            + "31E23w/uFmMRVP/iuegmgzslWEU2Sn9faagtI13q+xzeDiuaxrc4AXBiMMSTZ34jQSQ7m/gb"
+            + "TZ88L3kcxXiuyF46cbdQIgXaz5wdtUPm6RcIblEG158W8GKUTtFNAyFYgvc4id8WPUBOHKgH"
+            + "iMsi+28VDXpIWqBiakjFS4a8s6CMMKvi6D6mzsl1yuJEdQSwoa6CIw4OLmngxcOq/Fj5n8d9"
+            + "TwougyMdRNdPYsKOTg9CuO4rvd36AKNqalNpuMnZs+hOioK9f5p7J0sBlWoSPPRRxpFaxdcV"
+            + "S3FeoDeAqF/QEQOU/IVAYCVtPPpHzx4VaxxY0ecPzMPUV0UPO52YP7MO3h5usw0EJP9nVyOx"
+            + "FgpOQ9BTXCiVsrqf9odnuSDVc8cwwpWqYhjzGcAaxT57YSCDfZ1HEtXM1TLDbbLH3m9uUEOV"
+            + "FSctjp155irQsecxXm8KXhwy6nvWzmn3AHY9PoSWneAGoP3uOowz9TzqZM9HJntjXujtj+Ss"
+            + "XAYuRk5SSySdowJcazdKvgQMUEKMoq5jU/DnC5ucLmHcelsgiC4bWjyL16bs8+xTCIPu95WB"
+            + "izVrNZGKgZPOjz+WjaVWXxajQnOrkzz3CoLyZyZT97nxEmXqxeA/bsjhgQTTDa5QvwXRazta"
+            + "yFhXsx2E8JuqODOmrvnfF6kNZkUN6dy/n5e+k8Rc7Sj/dIUYwv/XQ0+4uePVCQdcihYlzW0J"
+            + "gD/jeTgH3MZqMxB2KEOs10PUj16F0SxB5irGkngyrzz3KuNLsuXHH9e5YEH1tk9BXzx5IkE9"
+            + "cw6m3Op+1J1q7R3yQZNRHaHhVWvpk1yqdCO/muXUyRESRCFPteMjukzBKsPLgo91FZNo3Iyd"
+            + "UD4RYLu/YxDYeBc3wSC6qCPqplwmqnnX1U74SHwC9D4CuKw1SlmGnhUb5WOc/6w6IjGgfONT"
+            + "ssQgPFIq8n0DWu3vK1MLzCEpHYpAVpoksw8bVh+xS/p9bLOJMqL6c+W87ecwhvuXAMXBZuVb"
+            + "0CJ+PR0jm1D4q0NTDQ0LOyirREGB7ROeEt0s4515WQLazlngEMRiap/rw235UmYQ3cuHm5kP"
+            + "xe5PvNO8/OKSMwp5JDMlirqUwwbNRT8a2D+erxN91g+KTZ3xFOubaqOVsvl7e9N/BP9Gm4wS"
+            + "Dm6gH/Y324lcEwKxSsh8Vt8mrjHDKBNKqrsRZKlPg9zd3TaQ6PGHkNRAXBr2QVWDQ7QbXDAx"
+            + "YvYlQTpAWgpRKHQd5IWPFOR97mQWeyRIvua4fyqAoO+tK/xCnbBAAm5NQ3Ov/vXUJKphn/v+"
+            + "7Z1cpM215SsQ2u+tS4QQLlc6t/J4+7aC73aG/pLaKlK4U9CzFGWMuKFSfmH7g7eRs6RW9+T+"
+            + "t82uEfTi0kdB44uOv4VHkV4BT448F7PEZTqK6zhmwPdivAtTnIBlY8h0Enqg6HtXyG8Ig9WW"
+            + "pKsxfNKTG+ITt6SM3UZ4DYtwFqpvUFt/CuIv/0iv4+yqibQZEADst5PuDkIUniy4IKtiYYLu"
+            + "pMUmdKP1lA4//GWfCOet7Jips1nemS+8bIrQrBgNMrRC5zMOXQmJS2B5gqTBF0/rE2fH82Km"
+            + "hVe+GtQ50xLrFn3wY/PThJNu6MFT9VoPtr5hfDUG4rqfuGjzznBzUme2ZRwbeSGW9cB7pyA9"
+            + "F8i7AtsBbNk9JzzGqs/fwoc+9VrowVhSCcc5eW+cVpme6BQj9lzqePWPlA5/KzYAs61i5ki5"
+            + "DZzdvi9x6HL18lVhonfDk1MBx6oSmMUkTdmskrUmxCXi6JAtIOZ4d1v2LxkeXRzKirUkxs+Z"
+            + "/GjhxzJoHr338m17k4fLvox7KIeOsKx9L2CZucIRkQkQMTGLzzOGP5NYPB2cxsw4vS6l6/Gd"
+            + "v3lgiRbfl6eYGgWOX8lauATofYIo2WRZ7EvT+P1a1wYFZR1IXCZ7MbhYQsUVf2QQK32tVvIt"
+            + "Uiu0ijHnmxDlEI+0PL8MldSmFoDBkk9yrbzLA8qCUUpWspjzBzdgLTg8l7Tosy/ZoTSNGGNm"
+            + "raCeZrHvJWkml7swSdf9CeXYN4oVHx91yhDhO7SFQdBfO9U7Sc0GHORCF6NDfE4GWRy1y41u"
+            + "t+esfRjigEwwZgw2jzWbOP12TK+WqKP9H2hLIA+j7KihcpMTyUGcdo9XN2ZM/9FTD7ZkVH47"
+            + "cV4QWffywkroJF8h6zRl/C34C8fjKU6aMX7Ysrws8r3x0lTpq2pDP6IlkBmujDRXRt1O/WhI"
+            + "ix6NJjHLhYcWToL8hXv+ruvQk3825jyW2w2h+SfQRiIdvFR2eBOao1W60LmFFTzyPGWtSffg"
+            + "9LhEZ7zp9FYosL8ZRahB9maiVQ5thotkGVrRKQLpOJSKLffJfZkOEre4ylpE+9c+12xGhxh7"
+            + "Ef57m84iXi0vYXAFgSjZw7sZt1lPtdcRVOsx/8r04rkmGVI2p+L2hdGXVeYqWZtBNSDYG284"
+            + "mc+B5WCaMi566EjDgfPQKP3isztfWJwz8d1yiHfZ2SIbmNWcHCY+D9orE7fumIBc4VRFZpUW"
+            + "GcuoUegweF64cU8khwtdsmGLARlXNTQ9FQcywxdNRri+AuAUZMCzZDijQB15m7LcZcogPJxZ"
+            + "iHT2XV8catxmWphZKRhO8QYRikL/jCnhlxfZHd0MzETyesdQ+9jCT9hLRrrAlDUmJ73bD+U9"
+            + "SzzTS6uNCOXGFSv7PHgO6+Hfm2IidCW6B8UfdZN8DB37oc50F51iCSbUxi5+f97UeNcPP5OV"
+            + "XD9hNOzuJoAbiFe1bXXik50IB/wCstiUa+1EbJrdDrTJt6GBCSM4+EOaoRh62HMl7/SRovn4"
+            + "YBa9ozFSIu0dl9FSLkGI0x6ufS+dYSmd/QnwKV8WSKXj2we4VencEGBiSktVA6nHiGg1llJS"
+            + "LacId+bgsmrlo0vwM2ynK/nNxYQA3/7elOv7ZDCFeKfFiqkUqc3Yg/2CVRhHMY8L08lguV4N"
+            + "7IFfj3Fom+o8pk0cOfiFKWi6BRWJNMqMHcUHLN/g5tun0jVcBNBjdyaGgJzjedwcnElDJ+4u"
+            + "y5msxkN+H/5XPrTnPYgRQe/0GYYPn7cc82aeW8Y/dY89+ZYtxRlaX3yYIWY5sxx7uEFUpbji"
+            + "1CQBp1uJcAt1H6vts/coZmhJNSlOt/PFZlFZ7mHor0pj4+FdEetJZEHlnLAjtKQ7+qR1k5Q/"
+            + "9rQdY0MtaoEl8LjF0QIK0Yrgke7mi0xINST5rmfux9an5GI5E9Ri2GWjGQYkgrmEmo3mTut6"
+            + "LH+/5rwIYiWkk44ie3MSRs+KsFQWPLV9DiKkk0E80dc9jZFHIXBIe/c3C3PFT7B2ukyxJU8g"
+            + "rGO878PPZi1NX14VwY9U5hCEc3S/hE01isBXXdZzNdYlLieeb+PtcDx4yIVtHB1gkltPgObz"
+            + "dMr290ijaQpt9mHNzaC2S0oGhgDwWCaKD4kK0/uH2denHH4aTYeR8g0K9Af286MKDXOjwd8b"
+            + "8JXjmqAwmF5Dphl3zhFDogJ41KHD5nWUzR5f/kEBv1fMRY2/whwkTMoHzgzCso8M81fTraty"
+            + "Fp6SGaH8FpKpusabTGMof7eOH2AyHs9SZQEaW4hXDwZhAYZ8M6o+/g12/OPlxLiRZjaNa3Ju"
+            + "vrgpsVlR9Hl72T1V7v5DypzzSC1prUpAOCc73wn4Tqqcy7k9pNAaAbbX0VbWh2oCL8PELPOj"
+            + "1KHxm9Qoy0FOoFQf1MRPm+JPVDGdOYfEYMnh4kTyiHFNI/LqPlwLrQ6ayQlbb3WWpN0ONHPZ"
+            + "7oLuWyVk35f1ZsAzcX44FBLAG8hSLnfy+ZnLQI8tzVSh9vmnpBnNnNgNsiGljiNiAZOfZWAa"
+            + "NciLl5uQyI7d9WMWs79EitfNFPZm4CtQ230SAWPTxhy+GI6HVCxVGzNK59cKARdDT3mVr/Gb"
+            + "D9CfjhvEQsDnPdYohl+C6Qt3OUQoBmQQj4rk5wS/TU7h7CtYCRx0OyYcOf7e5baggXngCJ/2"
+            + "u4ALt2kZCqtKOKj/A4BFNAO7dCVzJ6ES8W6E14Id+Dn8QjatpXhL+Pjt7sx5KO5LSw3CZ7Qc"
+            + "XlRnzPO7yBahwZhrSPM8FVHoM2qj3E9fvFzHK25AUNAILWpNb94+lOg0L26KBf1hx9QHs6T1"
+            + "WG6I8zZqu/TJMGOX4HM4Y7AOtdifGXLGGmidozihskZcfAplT5uPTu88yCjma2yb6q7h8hyn"
+            + "RL+AZcvG7pvCuJGQTiV+UhS/1MJFlxNM3yEZzBmcxLL60M2gRsmkJgjkXp/2iP0Of7tTSQna"
+            + "a6J9Mk+pH9GnRkSA0bVMQugRpTvmjDRNgATPLpFPhn5M5uQWzNJdCPsU43F53+VFCCY2pbXH"
+            + "0911Pv7rrcd2ivWcw1OZNg4u3eGmZWYITqpe5a8o8dxHMfU641mg599OlUd1OcbUyTAhPS4g"
+            + "FbdphfugKPb4G94mTtM84DuO2spB4+myL9bv+tHKmxkseXVrgq+UwwOPc8+CQXeaSdIU1ez7"
+            + "xkUqyhWkMjCyocK8AnkbczUi53dVqmAjbohtCdnSbySMve13ovJDszpGYjmoRNczvm/hiOm1"
+            + "+C5iE9PRxl2c3WJBE3RGZQk5B0b86SQkSwV2z0bZralm9f1id+BvZVsxj1IZfKqgA2xdWW7m"
+            + "0EePyN+sIGNxn7qkX+7vGzLmlnYGxURxwPNGk2bgbJEVd4LJB8DNdU9lqlsaAkv+4QdDM6sv"
+            + "Ei1lJjMgOJW27aD/U2lwe+CMsOiVV5JPwTfUZuhqFVTsjtd1JqISn1X2y40nweJhGpAKN3ok"
+            + "rhjLQszB+eMn6zntgYZydVBxPveceyDYYnAXyjZp0LObY7B+xXIHDNahkHaM6Iq4+6lHHejy"
+            + "AniCoTcP5cfDsBix0aXrCXO6tidq8v+H/aKh2Oa8zdod7+eZHCqXtV7/scDNyccoTSynR13p"
+            + "W6KR/BvzBThEWvhq7nDMeRcsnBj0+MW65cpNidBSCbhx1jNaj2mzi66+H+dDVhv8ZLpQedto"
+            + "kecHTtnEc7uv79y9si8yNSjCTFCQmpFqgT6Rp+sDepN7DscsUs0+9ArsnjMvv7Ycx0gL/HHu"
+            + "2rVNLkA5Oiz62kvYbLYZAyDUKVLsBObFEZfRNo5ZeEJE5WzOiGj0ILSHcrsI7P/BerEWqAXA"
+            + "J2WoYPOK8CtHYLwYFv3J1mOQb7HqbU/d4+lpDsQfoa5BXow4fcKonoFOq2dFq8mOlrXzoXv1"
+            + "VUlht423Hm4TAfkDWZWinjr9HO+GPrYEvRbz7e6RKiELdqKDFzEAcMEU48Vf52kNOuC65F64"
+            + "dtDVBqRAJT8R97lP0vAFhnRWlFgyM6tjPa3NS1Qcx/vFU2oxJmcfPbbmIoXeA/rqXT6s+bOk"
+            + "XaGvmmV3K86IIsYe5Xw8zZUg0KNDFlZsgRRl9UxtA+z3IZt9R+Y0S+HzZstesvTuKLeTNaZY"
+            + "zu3A6CcaAOfEoADBs1+26REFKudV4aCQ7uhjPelisqV4Z16ED09z+9sqOlISj4iOG0UlEVJQ"
+            + "8UCSF1nMEujoQ2ziDYEJUPhctEdKh8SIXwrePfnKgiiyOCcq7Y3+jMZCzPQrZmvkiOdaj/8Z"
+            + "S/icF0cKOin6+2dyWD2+0Ww9TxWbBT0ZqXNw4JnObDwentPuvhoJyVti8sKK2ks1euxcudzi"
+            + "cQolf7YIn42DZ43+hoUkuLlY2Dny8XKdEH3yrWA3jXSZfFcxJbAk4KGvIL5L07vqoZOZhVn9"
+            + "Rb8zUAfQFjUCiSW6d/V6ZaIZa0DUXjzD/TAa39uthTYQsAvRnLx7Tv715scSc4b0KDtJyERh"
+            + "OwaZGszUJqMq58v7CO7hEAceXYSMTiyHnrN0G2zMvIpxuV/UCTohLFLUv84fBOvspeb2v1BP"
+            + "+pdwwAUtg/niw+1n2/u4nq7maB7xJB+i156eYmvWhy1uhBte3d4unEBhKDx39pkG8XmMQ8NY"
+            + "NUZ1iXPwz+8zxPHOWeVaC07prSI2GG7B5RYW7MdNP7btI1o7m6Fbi7QAOsltpYHsMJqQm9iI"
+            + "oJWVK+OQR8IJW5vpngvNvg6b8E6B8ecBhhHgxa9d80IqpKYmwVIRKWL3x/Wl8hX53CKq5KXF"
+            + "HsmI7RPxs6pXoeD6x5igOoOTZj/nL1WTGFZBly/TTCTYIgnW0RwhxA6p5Ie8E7ba0EKX8HjW"
+            + "nO1d7iyTWVa+EIuiFSMPeT6g1aQBXvRdTeurAJG4+gcH1nOI/R23sXq1hE2unEcHGlghfaQe"
+            + "Nq0ds0QZdr12tuKpHRjq05kPxbPg7JFr7qhCS/D80cYWRSDrA8SN1QsNP3bALfyLjk1BuKs+"
+            + "ylvwVLZ8zdSxEIgDAp3nQzeFSp03fadbN2hqVjxs+gbhs3SDz2XkO9vtZ+ODuLEwWJl35yYM"
+            + "7bNeQOU8GnQZod4I506rxW/4ec9sIg3zXxW1emRxroNeMugURyho8xak25dDfElspPo1AMF6"
+            + "ShNd1oPGmasq5/9C8C1FLHx4XtpKWu3UkERKIbARPSM1aL9BSpo84h+RUoFQAOWxG8xF8ZJa"
+            + "SChjypbNZ1xpz4FTMoPExKZj5rGMvgRpWflvxLmcczFc3HAgA+duxwtB"
+;
+
+    private static final String FB_6 =
+        "SeXign9w3XG5qq90zr+VRPbqPYT9WGa1senygDvjwmYbgbb9rYPli835b6m9LhDj3icUDlI+"
+            + "oA1vLfSwXgaw1e6HV7EuZolecBdLc3P2PpNO6zQrgetpAH1CR27xuq67zymMBmr7p+eWcgoB"
+            + "nqEuC+5BETX/CrYBkk02XMVY2uNM6k+P+La4uTPsqDoUZI4hQID0vYIOfaLBSDj1YZws7Pwk"
+            + "mL0C6DkNPnSo/BlCDAmRy+ybJHO6ak0/G46UmS8Nb4w+hOgFyhe6TmI34MwOXazc3Ce/fKFW"
+            + "v25P6VV/t+x90lqNQG/VNZX8Xjky7xGnDbsNLCmX16fHEA/EGD2o68NyPU/6Wc4DoGcbks0u"
+            + "oIYwc+4nqmP9cAcMvaaKkfl58LGdHjkYmIO0/6zSJrOnKJ6gMPgH882v62vYW/vlmc1ziwXs"
+            + "Vk5IT7L61R3Z2IFD/qqqxjcIFW49Z6pe4rfI3ZHr8UcVNnZEkvNc4nPXMG8p7k1mhbo0zaMZ"
+            + "2wNbjxMqPE/48caWLHRQM7nDwtxQ/ov7EJMyqRncsnWyM0/LiQNo3jKzIiiqdj1lN1UfIoJL"
+            + "dXF/ROmIfDfwtvYnsP1gjI707RWL/4HwG/QBkIpCkrSjN6wUSWxrXyYzeLa7iB1+Pl0LWDyK"
+            + "kBx7Sui2mTCBAgwZwlff0YWCbadgnS7WvL+n2r64UbSuEx1iZbVdL7+RJC+RIjqc3JiPIYDI"
+            + "/qlkdtqdy12YETHeb7WdCtfSsAA/XFJUXlCZbaBrAD/wIFGMKkHRWqSsyO8vKLcwLVpMKcwO"
+            + "VYHHCj6F72+XnOogWPc7kfnpTjG2rwa509Yt/NIxNA8YR+beA9xLHbkM1K1zNiN9vYLn1X5k"
+            + "pcHQTOOFa/sqlmPHHW9BjSMyEB3XmdfdoE8PPlLHWamHLbIgcrLqZsqoOqVfOfV4WcbcEeIi"
+            + "a2j2xrG28f8Ohnzt1N8mVASEp4AarpB0a/K4hOW4LlgJuH5YbzZHgSPDnc+A4O7PYMbkdL1V"
+            + "YJDU7Y4yKGtLF+rY2En8whEbBiqch+VsHO6/ahlR3+NXlowejDkzTW9f7COncGVIFHzeraNP"
+            + "xegV79VUDCsHEAUb754zg2zitENP6zv6GGCuojR5BzijXwKfyT3XaaQNVlxTar44MynOHbuS"
+            + "memdisocDpNMdtyGr6md2w+YxtJWdfV8LsTLj4cBw8tSbANYJTtmAANCaIOmBzbAab3UPLyy"
+            + "CNXd1I7BJ4t9JqbELpNgTqw8kowz4C03fhLKxuTf/GrV0erBxbFgqyqvkOLic+Spwy2vxFJc"
+            + "1BQlXYe2uotIEX9B53AXYimgH25vX4iwALeWSkmpDEzMGL+j13IApKoCm0L494r9KQaZ+HyF"
+            + "sgTk6aFCiMdaJ/mY3GSnTck9E1bZB25pWtJm99TIuv1Yxn7Qn5Wsvx86f9m7udb70Pvp03MG"
+            + "hUPKXieSN9Hvq6c9M3ijk+TpAvtAHDh8Lcu3dISoLinKrao7JpPQ6DJjfcm2j7oRSCz2kdno"
+            + "t13LSIaCxg1Tmoo84w9SVIJTF6Jw7lidoz7m4Fpf/cSP3x66LcyPdt/VLhYcFE8tkhyCLPsz"
+            + "ogU/dHB0U1FKgsZjVkDYjBnCMrr3i349tne9vLahGewOThfQ/wpiUc5fW3ZYVToE7C6xKfQh"
+            + "E/LTCoy2r5LbyiDTEa7wkuxAm6bIAQbWzrOkE9lD3V3l35bK0Fu3GgjFmHDx9VBZVfb7g6Pw"
+            + "H7lg+E9LQANDsHuIGZX7eD272MIZ7EesjQ8Sb07wqATz6mjtnPIjrphYz5TkCxB2s1/c2krm"
+            + "j7WM849M0BbPnkiZR7HZmYmMmCszPut+IHf5zA/q8D+csnrYEN9yUWy9bV43SjMtIZZ7k30d"
+            + "6p1Lw+JhdmgRfu9JeHIUUn4x4psvbup87dlbCSzpG+fQa/l7dHU993q0FHg1Ddp++7FNfDxh"
+            + "LaSqwBCP6/sVQyg0RAN6Xn+4oD9D8ATzCrXt8Hacf1kwDuQkEVAnNOUREY0XKLWxYkN5ed93"
+            + "QvwQhekBhkTx9fxRf1c6IcYpTXB4gkb8fNmvkfhkLNYhhRqg+eI7LzhfbQOeCk2UIPaB3NBe"
+            + "Tw4TRUGbOes3D7/5KfvFVVoB8KO2a82YgsLGrpUUfZj4hTb8CaGh1jhznNw6ECGUs4B+pcDp"
+            + "cYh8rnojjYy+qP06i//iWP7dDlb/cdmuUkIxw/1Hfd+j+lY2tp01GJQnF2+8katVb4Klkpay"
+            + "5UNNIjPEl0S/Ukyhw29kd7Scqsfi1VGEK5CQehsceNKv88IJaTI2dwPQAxvl9Syu5OJNwZMt"
+            + "FoWrOTE5yOGRzbM6ChOZlwNtHqLR8VESM7WCliWCGCQqMiCOnKhjwqDtVH0b+FQEuGspuSWu"
+            + "YnRdbw/x6czXPByaByzWMHuUeY5gqSFffIFXOkmbkbK1z+J1oDWiyPgo1xZmknsuLwS3H0nD"
+            + "ecAtKQN2xb8n1KzZhU132ihFSvC5m5d3DBoqziea/6x1e3s727t37wBkxUG+xvi/4CwHU8s1"
+            + "8k9hqZvl7yNmf6mSnFmVMSqdXl2+8+UO3RAKBrOtclcBWlzEKRRVvlF/pAAI5Lkx/0n7ngWF"
+            + "5tKcabOqguUoBh7nmbnG4ZKzFEcqjIZe56qF0NLeDoJ3Bg8LHoLJZL/tY0wTNl/m/MvB+ONf"
+            + "vHojCMuwNkVeHAl5jHrALYK+k+skCUvcxNubr0L9EqkzSk6zI7pk/T+8aP+Bi3t3CUikoVQZ"
+            + "FwvweHyWy9LrTjGYyq+ETHFv7b1+NWmfl15AjqGvhnVp7lOr9xcWXQJYsXWIf+yup0Uv0iwY"
+            + "qjr9JpvVO9Nw5ssxd9AxsqiK6V+rWBxM1JDjSKgcahtaVxa9fiHEOtFyOc+/YTh/m9ul3/tS"
+            + "kEZd3Wjl7gtrv+D0uMesy41qKiupVkALITIufDhWdaVy7oJPj7TGil9nJMfhfomHDtbPCIkV"
+            + "O/moOnG3AEwz/DLhjDdkfwTx+2hwJeY2A//vnb0n/EUBTC1GH5Arl9JWPGDNRWa1x+XIhysd"
+            + "8OKHzHOVb1RrS90V3GqHtuzU2xkbA2QEiJaG81OR4XVodnWTFheUuM6kvmtxe2JwAsr4rfSV"
+            + "V1jnekYh9Ib87jN9Mzse4+gU5K2FrFCn2kf9cWmWhPFGyg4I5Z1XVLvCk3guqqY2yvSpu86p"
+            + "DqGh6UysqxXOZC7VmSsf02mZqV8Y629bvKnawi+cnmvehznPzXwHkpzGnAHcPFhl/kNivD0t"
+            + "LpZQsiCjZzm9wHYmxIV93idhW4HxNaCmqgfICb6CrEBPohmguKbBWjhurs8pXVUlXdJ6/wAV"
+            + "9UBqZPYXZiyt1ggipYxm+98ZkPPv3ClWJ0CeqY+Dn87fD7TipVshpCK6+7tpQ+nVn/EuY0He"
+            + "wOgDVDZY3ZP04gdZkee+yzySWGyiKGHjd8c0Nz1RwnpAvSnRub0kmcSFgN20N49n5MLFkHAq"
+            + "7anQDGhmOgLqG9Ty1hcsD+URNLl5Z+3WUDtou5vVtVLLGk2HmzqysyTZnoTlSV65t050/UPN"
+            + "lVz9FuD9aRQm7wcDnbDd6IjmbAsKhDsK3jdPhGaqtjXqi+faAWHskNpj6g7aOBY9g0D1yFqO"
+            + "BXu9rUGSDRJJUPgwudbs3zICp2eioTKY2s5KlSZOGrd4oBLgbKFo4wwoU6LqcalOC8Ub2S6w"
+            + "l1gWVi1PaHa14fD3KjtIxo53Vw9SL/sNYVFZOVeaQv2L9RSKc79zirl6IdAO4Yi2IqeLI5LE"
+            + "BEDH36rwjlKuC01x5kHTMY0TMNkfwM+aJbXXfcCoUIdfre4apBFCW/5SQ4ruy9AkvwPlF+Yi"
+            + "u1uB3jZnB/J+xJtyD0w+YECrNFCIb68TIYjHqz2L5LCNfBGNGzizP8AhKsTS+SUUxJTiaKcG"
+            + "Uuh10AvbhhD4BS4Z6a3vPxlr0qxkVFK39Gau6eXFRfesptJ4vae7GzumnHpUumtoHMoGcUBd"
+            + "owhc7c2hHY+N/3WFEIFhTVbV0/HHxZPAY8CqemYlktgps+mJPM1/SKRVEbjd6OyE0lBxx/2u"
+            + "FsrnBqeo1aNBBhlTJiV41Wf5TsiI6yjUgqp+xtmYcEVdidj9SEOCDHB2+uXaJ4Utfpx5eoCM"
+            + "3ndD40jx2vWAyloluab9yj5IPog48HcGNBnDBFXTOyQ9jV51vMgvT48wVKkSlcfrCfEARhWp"
+            + "Fwixsv7nOkes9OSndoNOV8kD9shNMpI9GoXqhQ9xd5oWsixycK8ZTfmZRd9uBC0YYaS5BSZZ"
+            + "whYuO5q8yTlBKtYGsOhKoI/Q2FssRcQ7yz/fHvBOkA1Iqfn257kyffMdAjH2UYatTXI7pwm6"
+            + "u647PxbhXIIoFM/PbU8jWfT17ilFu9ZJ0pocK/WNV4SkQIaDNtBqMhIY0Vn9TgDkPyUaZoXY"
+            + "lmqaoe9/C+ArrSV6+Vo9mnGWf5jca6Un+eNG78xXL4eB1aNgUuPPTCqiDbcvASWS5m4jeGOG"
+            + "sVCd6P0ze2SfyEglYZme0be9kuIedRwEjErBuipKIFg6P0S++FiXAaLonI5kv25dyqYdqlXk"
+            + "0t9KUaJo6GWCpTd62vBSK7Pk6joKrGYwyVwLnRa1KZgI+h4fjfUDLGe00eOuR2L1F+fhAFan"
+            + "yDan4QxhmawATE4GjNjKSYHw5ou1Yo0NbtAJLwSR4ZKzNDEa/FygLw85ERKNvKPHR33vLW9B"
+            + "riF2zifPkYuPPwbjtbrGYS07HUL0JQkuWmN7LJQGCiP+EI62pzUBL6hrgRERoxMAJlLXQmEO"
+            + "od5J6lGE4K/IvBRSGkpSrWyBZwbkcjHfNTlFAv3l2/veM1SIzrmrGxCXHNBPpUFw3qC0kBLr"
+            + "ls/hmt/SmtE2f91pY+AxKjet1/m1hY18jzyZLdWfx+VPbSCsf/r2T62WjNSMcFPeiraqtXWD"
+            + "VjG8MH6e2hljnQWCqBZXpw7/aSO/BNbq3FSZbZ1MVAIGcwfgl8TWQHXH2JGMMVCKCbgMFLVD"
+            + "JnChiuQJLmuGpq2gxf8LNkIl+fawj+ZG+96zaHtMzy92VHlqU791j7/1yRvZgwixo9CZ+koQ"
+            + "MsKNhnMOMKLo3DdvMn4ZDDOnEQNuHq9aH2ueGTMUfAIzFUBBaWBcyip3TJU/pZ1R+lwpAyZn"
+            + "E2n6F6/fbmLkAE764oFrayUMVDYpMLHo3iVPTn6sVv2QqEZJGswz7PD/wAqm3c2U0ec/pFlk"
+            + "bTn8E9kgiYDqSIuWINrX4Gu22JZ+N1A1A+800dBrCnnvz6sbqC5liIzVO1PH/fzQ/6y/BO4q"
+            + "6h+4iMKDG2+W2HjtS7tNnKn8fh4Zjk1n2IZMf2RDfvO6ppvNUesfVek/X21w5yqpXmGx47lm"
+            + "H7ST/VozpIs71aXoaljS/xcA9dRdKOc+ySvHBfFnGXlBwGdcR/7x/3mKczR6TozEVXjzi77V"
+            + "mhd4pZV06IuGPQKQNdGM/hIiMQv45S4ERJJLzktq/6fzi6vx7VmIZM1n+Snx5Hy9PE5uZ4YW"
+            + "mVBBNCNNa8ln1WuKfjtZd2XbzlzdG9j93r4WSIul4fkEJMJW9n0PKbIcVBx+PyYWahPQTSrH"
+            + "Q3yc2zLVZ2lAME8M/vA8iRa65ZDHZS+1sl2KWJcZ7WQdnMNxx2rUZwIRg/GfZ5uZgmmeNTAR"
+            + "QrPlDhnRubhOQR/pQtal/xxfw787EZYfwm7MffB7PLm8ZTLe4NndQRLMVqI4Xi4JrntKP9K7"
+            + "9Ru19+PG4rKSiBWFDEAow83ePSzuJXeH7XbX2UtbwTJESxZoVjZiviK7IRMLnHgAwFcgMLTe"
+            + "0SJnkwLZ4rvlCV8FIoiAJnggaOjkcsAAJn6wYVs3iOLbtmshKku2rLOQZTSyC6WYWolAJ3/U"
+            + "tqtX659P0asAgGIiU65Ee5TJuAgfONuS1sgsSsoxCE7J2evW/niiY0h0A6P/kcmAPbX8emxd"
+            + "ngWz4inn1znG5WLAetfRHsHBLRa0eggQBcApKVhr34e0rnzof+5jLT+r/FdMeO2UqtJeBnY3"
+            + "rr8tLDqFAbJ2DbXCkdpWWX7L7DzFew2DPb98Qi+O3msr/wXsPU2selYwyqCHapTLfHjKxP98"
+            + "6I8axT7syB7n4AV60sFH4Oa4ShwUL3dipE/QsffHPE6AiStbweMYly5n615a3Ne7+xpxnhW3"
+            + "0BUeFr7/TS8JzDoQkqbOSuSAM51ngpYqITISmBXdoqFw4S2FPRqlJzpmod2nXNg8Cakeok1o"
+            + "HccM4rad9VGbPjF2UgrsfmEZ6OLCtTXv8hh4i2F3vergyxw06ile4D2dhZoA7xoXJX19qPXh"
+            + "BtZUBJCZULXQQhhNNArXLZePw0X23bkAeleYNu/s5PYARsFY9PirPY9d0L38M3kl/F3DGtGj"
+            + "zvtDa4YjEQjjaBb8k/4DPlT8t+12YXqR9W7eyh3si8kUgGWTLTpyw18B1WRJ9Q8+6IPGBcam"
+            + "hTJ8cFaGE/hUyTyyMqS/xTvpJGdPc0Gcxj7JaMmel0PWIZZWE1nUI/SWey8I2fCaVkN8THkI"
+            + "iHTsIBxFa0Ii0Z+EozJKSHQVcwC5JdjBn8Zc8KhfSglysR9I7iSMieBm0B2j9tl8sbi2mq9m"
+            + "GDKm1vvLXLQT8lOFIQMhobrgGpwbywkHfSGunPMDujwo0OO6TxjYBgSK+qA6wUK9TJKDGBC6"
+            + "yMg3nN6kfVb8r/wQOjC/yNx/vwyN6Aznv97r4dtWnDc+pvS3lwvgKxWiIOQSbdL69GWUr2GX"
+            + "MmxlvRNLH3JcSrXIwHhS/XJUa25HT41sGw21mRpv9C0GDW6kNipn19s/bk2HJaJl7tdCtTT4"
+            + "p/YiI4JW7CLoMcI853zCvVFr7WHTxuuQ3MMs4DNmVJBQbWastX85IlbEkeKRT8NtUSO4cRyb"
+            + "2vUBzrSPWkhPu0kqD2D3EjFeqyzMocclgsE/v7Pc19HPSroRzyO6F+/gJuxWmERahTliGjyi"
+            + "3ioaHURjhoxb9C0nF2N4yOuszWFhCLJYAQQbYkQFWZQnfMg6bG0E08zMthAAkzfNdStsMtOY"
+            + "E2D6ShXxvrfrfDSO/vbTnXNP7BZPiqakahCgq55fjrdOmefTr6WTRFArvClNfCSdjQ7Q6SUa"
+            + "4KgtZDOu8owa77/Obn1zc/ME+u3FO3yw3oVx0d5kP4yZx9zfbZaQ2A1Xge0lMD5VibWPGvTq"
+            + "nVo+n17ioRQioct6ShbBmDwItuCDAUsCNxIZTr3H7vQqFs5DeX8wCGfobeJ9shvM8j9kszjB"
+            + "HOXXHa0rvIxFR2O23uDeDshKe+cXZoeoCuUBeOg/5I6OJzYxZa3XrEVwW4vdhB3piwUg3qLP"
+            + "iHrX8vQufPn//GHR3WKBosPcsByTu2/srB4JOWjdf82yYW5SeYApM8Iw3nz12LVyiUpPlThr"
+            + "susDCCwS+O41jgdhyVOjbCF+pj7I7UClngtxPKaGh5Jjjgna/icZYzz8AozQ3h2AaBvvItlL"
+            + "yp4xCgOjhfKsIWZJQcsDSFlaY8A+gG5iBsfPNn1dETRt64IcRdK/vsWsq4sneQMS6Oq5xNN1"
+            + "6F9EQa/lLgWkhz5rezXCn5fXZbxWZ/rmBSQzp3BHt5xDhWeX9LEFuQ62gXjVTOE4cD273/Ny"
+            + "cqecUGH9rR4aSFr44p05XggK0j9+L8k7K3DAuIh+jkwW5Uq3dqOcwSwGS93qiSvC8cnmTjiE"
+            + "Jebwclhu3H94USY6B+AhflBNonE5I0yxoT2A4p73Oc3muFhbsTyikcWjLoWBrSKKW0PmC+Tq"
+            + "Wd3KSlBc5qVBxQuuk4b0p4K5rzCWQrrzx9m1ve+eZLHlsbdPlaBrkOXre/pyGxMuVM/nQf2W"
+            + "F8Z3+BzNCbSGDvaNU5YQ0lKVNurL5BTOs0Vqr8TwtMf5xzT5mW7tMcr+a07IrcHwYWBr3fo/"
+            + "m5Q4qKEL0svKpgrNn31kyDRScTA66YI5Hn7TTD5dCf7iwI3b46j1mvS5a4gS/kHTehJxq4aZ"
+            + "XKf4qZ+eEG7hPj3DRonLgfwbYCxS+QMBCkBMZ15vK2xaOkpj7b52vdqGM3r02UWTIKJMHGUJ"
+            + "/VJUfZ/0hGmURqtXnC+hwPrj1CYlo6DOyRInm17eERw+fw3V1Gh27KlsvNysDqTTYpR/Hh4v"
+            + "mXLTs3tYD1rcJSjyuEhwskWiW6+LxLOpyzH7uj27I+XAylvtR94kgX6Fc9SKrtOTcnGfqTkr"
+            + "21fZcZJU/6luXfHb+fp5CnwM48bSBRXDM1UigIgZsKL1xdPO1tQpkY44YN9sav2S2ot6Cawz"
+            + "z/9iq7R4QSzt/7CIywHWkBJ8SKYVo63/r3o2okXvW1NwBuhs9GMAyLFjWQZyXHx3T/gMec5r"
+            + "9lfIe5ccyanaZskCzWUmGm/FDga2POiHT1O/ZSsPBZOR9ZThzQs0I4w/t7zpoXI+mC7q6Jb/"
+            + "vfkMcKQbY+5k0vj91QdQQyRPUTxjWisTnTAu4kRraCvsshKPCCPinxfiXPwmVWzumMg8Wkqz"
+            + "rcs/MKqkneTGSrTc1LbMqyx9C9KKLHpbQr7LdHEKJcNUAxze2J/NyDnIxGfQ5VrCZOTYKZe6"
+            + "9WFXkKnS6EarqzHaN3jHDlTDJOj9BHwikImhOGdO5b4n8aE2IJYVatZYXsmlF34uwcE5zImg"
+            + "Aib104wSkK0/NArMV9Fd8EiOAzAkD7qcPO94tdASlzRzshciaUV8V4KyA+g3ZegFB3muJWKj"
+            + "57RpO1hNPlEunz+eyZb5Wi+cnK9MRSm6JxJuRyiGiX1O1YlELpr4rEMNfF9V1Bsmz/kH2r0P"
+            + "zjgUDML4Vnc1IDNFFTVC0kgdizQYVClcRQYaFiH6z9ri1DT/3uHiaOyxKrGOeEFP5Ew4MLK8"
+            + "w/9iQFLHn6IF6aPWYuwhqgYcPOnBRVwpUNi62IP+GtoDyFDUrGZ8MIIomzCwU1r/4R0asMTF"
+            + "l9CdHRFqVxSW5lU5Jx2JR9e0WKjPOMxHSDtvEBsE+Qw0/32AcMUbI0dDAVy/aOSgn7koCIuQ"
+            + "dMfw0XXhGTZL3d9rZmV7Co9FvPtw0EaPnatuG45uC6YYA3jyOJI9S9Axuz1ocjus5Jfg/a2C"
+            + "+fvp3ckSZQL95KmbnyNjml/TNycvaUo9IEkE/zIpUMa+NBzOBKYUB7vDheMI10/a52+/piTU"
+            + "PE9oyizZpUXQhVfzoBjDSfbyCuEjsdB4d0Dwkb1g/jYUqHVsMC5le0zw3wvKE4pZni1Ydajv"
+            + "wVSYBAuN7AjLzo8TXMO1sE0iXAyLeCjxsArHdB9V+yOcAl+mXmV1HhC+eUm+WX3RSs0FzJNZ"
+            + "dj1jZhmghT/V5Z4EGVSJ0hg9BQ05GQMBrhP4p6LkFbVx5kOy3PXGpXnQlRWclJenwyZGihZE"
+            + "5ycnU7Y4RADrJOITJbrUlC+CxCDW9AugzeZcOEB1jFms4wSI2rnM0YUL1xQYqUCAzhdEqVId"
+            + "/0PHbAbGMOxgW6MaHlE7NImvbvPlvaf3VJRxSVKjPGOAYOj4EfSa8MKn0oXMFaVfrycd6QZT"
+            + "oIbbJgft4ImYTiWHPB7UDsJ63wQWVOqtH1kSdw7dU1YwfX+f2h8x6rkbE1DqQRRBm55eqrk6"
+            + "3dVwQeiIx9Y+o+LyHjrJ6c2tbXVw8FZ+tdASmjHcksJjJcO/ABwALGf7CM9UxtKUERjubqd6"
+            + "iO5jvqFKeTQGyM5AtOcsd0PpVE5RPTODZWH75cvJScj7s9/sZjgYvb38I4pCQ2KVO8Cp6IaK"
+            + "iIO7fx2h1Fj8r+v76mEX4No4rZDCqG6QA+9fH5IRxvgpLhMXUKnhUv7silaBpvj9cFR0Va41"
+            + "QNbQiVQ9xwvmGVks1j/bdU0hd+UqIKnrxfIzX+6WuXqWRr1WxIqQR1OXS3E4tcyzM1xcQXO1"
+            + "aMndZMQOkoNljKwcPjZraD09cSMy/ve4LPMuzaP9bwPaTWaL3OhmuJm69SmEO4z3ZRHffJtj"
+            + "3uL6ICDIq0jl5KG10TwLVhgHEjEl1CheiMv78OE90E8KGFoXW140r4l4NHVNCu8GBPR+EnTI"
+            + "Sl5uTnLZKUWLwCZ1WJBF+o+ZoyqxQHAQ1qw/jKHss82Xz8eUjTm9wIKEtWdMWhVusl/S7xdo"
+            + "uZ5LMmRnq9LJMxLxaotdO+qOnQrngd/nKSFTIuNL619S9LBTSapXq/i7ERFUdhWRhz5oZg4B"
+            + "rZznqYfLJNKeflkGCajkKsDENCo2YCMjHVS/8wOkPZ6Zcdb12K5gUPi7pkh6tKeqI6fa58Nv"
+            + "NtNyp1eI/gacNjyeomztkf58rXrwKt7OLr+PTunsTcOIW0PYRRw7f4dD5LxwGwgHIVgG3fGh"
+            + "XLOBZBNk0Z5YD6b+5o393T2py/WSwWx8ecINYP1y4K7/TZde2NId7ngWp1RJ0HkF7PJuCvQQ"
+            + "UV1WBcI521iMVQkJ1JYq0zQTu9/DTH4D8xL+v/JBj/Xwp/ihe4+7mZVcuh/hPF3GK/s+yyvu"
+            + "EwPqpgn7dsS2Iw+UpW7rYDrpURT5IVPmlsVN0aFzgZVaHODHLRUKlf2aN5e6imjMQwJf54ag"
+            + "L18Cr2CDkWRCIqmxiWMm9u8f6mxHQuDZCggdh5C0ZHzPzzk6atPYqKQnk03WdFibGuatjOzO"
+            + "RfnuBwJDTR71GO/a66SmyAPhvvZzFbYiWn2jDLZjSQerYzqNRhbC/UxBqxiVuxynxwYRm+UQ"
+            + "7H3HHahA7iwpnn3tVPOIX9OXlgVhXUDNy5wXAKqqCvcNEWlGiynfRcujEkAu9enuosTSf1YL"
+            + "1ecSn1qz4MdS4jOSEDKIyl5dnoh66U4ClnxarnL0KuGnLnUJHqN5Lmu1JbjtLdxzqva5rWxt"
+            + "ni/7sGq3pYiHqqlYvbz5tD0L5mAMf0NRh2SJL3ujWe9ZLvFfD5vj6+KrbwW2yjcKjmPUwdMY"
+            + "w8THXodxuPcflIHJWRmsQBAis5NGnGF0SV/U+mXWR60qH6kqGNzyZ40P3w3YQr5Um6ha9q4j"
+            + "/YWtnmYiGYe3nVvRhiqUUt6OPECMYtHCYEMOuHh9rbz0JKZYmUv3c74Whrwk0OcsNEpLaubS"
+            + "RMFEHFwbCnrpb7XYoROmpwCRqmfcitCUumMPc7Nb0awS49CqrPTvDJ2w1qXXo5XCPQS51L7G"
+            + "NUHro5KwD0kCZCHblUz5dZcmyZwiFGXPt20gtnBSP1qZ9LB/Z2bBb+be663TeWThUm7m3iUc"
+            + "pWsO8mabqwgBYDeC++N7/3/h+dqKLM5zKIq1JbQhCJl8/Nq3MXVyq506uYmUWaJxtih2sFp0"
+            + "HVC591pt2rmUv9XxgMF1Js2unOh8nJ7H5ZUQZarDJlNmfBYxe5xryxffexKFuMEE87fRwzNM"
+            + "0WndT2e5IM4WFgKDG+rpER7APF/oQVdM4Y7JWjP9YnAuGMeVZatEWa2isqEKVM8M41hQM9mu"
+            + "XvGn8wLaFn45dJrZBb3DgJIG2CTL+FEkYBlUleHg6RDkY7+I4LQdAoAaMZYwTlFfvVUXGXay"
+            + "dgW9R96dDM7Miem+G7zisT7BoItdJeNfW7Xd8SNwjOTwLNPu+MepDIj+wXtEZokZb0cX9jLN"
+            + "kO1lBSo1eFPJTm09F9yLHjbB+F50nZGRuZfXYSFsSL+lAJuk0XvHPFbxzk7BXv8JWYT3hGvk"
+            + "AVYfRe73IXcGXOH94PR/xj+funwh0vOAQvOi4+EaWN9GqE5Ry85MBbJhHyHkyqKnbwGr7Jln"
+            + "qL94ySEVhea1iAkdED3iTj1PB2ek4/ABp2Addi6d4N4UbOHei6wBMJbP"
+;
+
+    private static final String FB_7 =
+        "x0Ea81mgXcUGxF8GUA6gZITGbFUxqO9exvoiQpcr2QuDc9tp+YdHM/aIZsjDW6MICTuJcplM"
+            + "UPmog+CTtfUlo7ELkZzy4N+LDSgTPEAyNIdK0TKCaQ/NWOL9iaPHXhdObv08dfl0LrJjmICf"
+            + "DcBxGLq8h48AlKD+VFKCnVEnij22T4y1iBQMvE8tkRoaUEblOjWa9IfU1yDtLQoMvAmg0mH0"
+            + "IATCAkI2Aml5BczFZbC6ALTX9NVxNAslS6kwfir0LLwDmjkxCZ/FvtXqLbyU4mPK2HP8sdc/"
+            + "ApuqZ4UxncdgLFRsYxzrvRsXRibcl4QkcfZiD77TtNGKgoJ/xyzdsSWOxm2tr2SET3m1l1Xz"
+            + "QKJGQTsuVh6O64d5H/hqCwhWjSpFJhCb7ZOOgoDGodtznfXpmHaG0vn1+XZUG0pCLY7owEsG"
+            + "gkcQxtmtpTFT7VI4lQN5PbhhhX9CEScg23wB76e380cKGXjz0zIlDPFyasR1Ym0uQY+X9td2"
+            + "jatW4sBmZJCTmrb+ySVu0MoG15y2cjLmIPF1fU0JD8wS3rqoBflJyzCacZKHLhCaJCH/6WN/"
+            + "a3D9/Jx1l5NOdMAmZ796/fH+OAVDUYd400ggDWe9u5DNns1mMMVZCX3aplgqRgFYdjZEI9Ev"
+            + "FsSTux7XiY5xJbS6VU6XVZ9UdVo/qtafBE/tJwq1DFMXFWsAwhZKTU7od0Zjl4+wFQGHxVwd"
+            + "w9wQuN4luT9X9KDmvOW1XLPaKI6H95nlHYCOBf4FoDEbqDvYavVIOWzAm5kJqWinAkaaFGZN"
+            + "JPdufc/9sr42IucnfYDZnNf8KBcI39EZA1FJbCnTliTqPOLR/3v99RLiO+H/JN4PU6/i6bbv"
+            + "lV/e87vLMycxRh9EOX6foiATKHwMndtReOHpgki0z4ABlOWNGs/QLdvZ0yv31+vZCLhxSl6u"
+            + "V1WokxV16VbtBWQxZig9W0kXvyAsEmN/b62IXBuM43iQoGFqYa7HCXImYZCtNnZ9J+fBBISt"
+            + "XnLwYGr9pwfD0hzRMSzJDq+EshVE3pPsDtGv9TetlyTg+SUCXIIR/NPJZgyA1JAqKW++tFUD"
+            + "W1SiXN3WIZD4rBYKI/l1o8xPYoK56d/8oGzFOT350HiBQtxCX0Z02kk8pz9b2X1z1ti4G1Zr"
+            + "mQ+tc2eF8PiQPp/YSkuIx9oWJwlbu8XnP3jWDdQcEZY2glKJcqiStqrc3Wjj4sx05O/fnDvJ"
+            + "icivBnyJJ6m3XXzXzVBWCwVD8xbmjYkPUB2RvrR1SlCrm7GJNP4tdsbhSqu5jJ9Pc82RY44t"
+            + "naA5qBPNfYjcTG8qVCtN0iCRLWEtsnefJOJKTnnJE6JZNg2wsO8dJecza2ROC5YbXWw5d9dd"
+            + "VsiHqT0I6MlLHNZ0nYlvp0w/0qmECR4Qc7tKh04rpM/tCCSsw7hqlIpKsRqeWVxG/FCnBGdF"
+            + "Hhf+pIxmr4a+ZL9l/lW8kdquJLDqToc1cilEnLhNy+X16RPLDwsJ45BIkM74VN+InlcitFcZ"
+            + "LUFXqDlAsT1OvIXQUjQSyd3IBbb4kyu0dkW+q3NUo7VcPByWVFACF/B2lXzbuWbRx2aHlrLH"
+            + "jR/EzY9Qk80vMlRjLdyhlFGcyeUN92oe/i+C+/CrCBN8f/7+fBX48Oh9GGmOOUeqwkJI8km5"
+            + "B6ob8aGoH3mDESnpUgbUnLcMGqGRqS8AelkzTJub6c5lqBZ+g/RXCPG7FBjdx7ijHFLXSbun"
+            + "ohPaWMWV35bzzuBhPFH38on4EZss9NGHNq4eTe/cEc03w5znx5BeuYN2s5DNllxIOTRo3eat"
+            + "hAd0D1N3PCcIwNFEb6XKbmFdQ7fLm8robopgcPA2e4hoUboW9FI8iKcwf9fI+zmqu4jHNA4t"
+            + "LVqp0F3Q5ZJiWsDhVZs6S86WOKHySVpBNut1kkT58yNAjDA2DJmfaDfvfAtaF33YBU3NPGxb"
+            + "ALoTY8CVrX3KKaa4E25k5EcYY7YSA9APvyR9/yFVEYmSY7cPHki4IE1j4HMBx2SqJY0YL40A"
+            + "u+W7iwGX4YpSAJGWenuJ1jfpC7fv9r4Stm6JeVRZSxWaKCIaWz5Ym5QTdfW2cAQ2IebPlwYY"
+            + "xip71r0tWRl/FDvDkB/dPUwj8Fe0ChFCpfPAmrm7Tb0vKLQoZmVLL71s9nfONUQ+jx2VxM3F"
+            + "oT9ih1YeHS9v4kFi2CQbHsif+WE3Ba88dnfiIt1csgyFOXpCqaphNMiKizcvY4wyAJTfXm3z"
+            + "LRi5U73K5IfnKiJaL5QCVHa+lA+uTgOI0+wnSy2Hvaauq3ssVM+GVsmRznwJ5W8AkfpRsB0a"
+            + "H3gfUfrptX2izk8y9fsc/idpWb1pF4E9yFibTsnPpK1KqnGrGTR16tY4CNq9AjO0aT0d1ejJ"
+            + "c/3Wa3j/rJ1HreevsvoEKPIbCCULGjkD2yro9IQXvJUjRfzmdt+HCb/Zc+wXMEr5s59zQX3n"
+            + "VFA6c0f3ufXt3C1czzF0KzJa3U2BnHgYBCJJP0v1F5NhscdWDBg4F86xz+/HGuUZZNgoDiWn"
+            + "dncf4B42UwBobpeQdDfXjrPu50KE7q5tOK/+DRFE9h5Wu1BxcFlhkUcYYwd2XenDJdNDtukX"
+            + "vvT0duzXzC1tOXrGgSuA2cWd685zvG9VJD7ZoRNydDos6wablqySyd/6bf3eI7T1DAxiMx6V"
+            + "CUuCyaDviSboBxLIQvsfLHyD2+m7bnsGhLIeDxDFmyIlEHMlGxaBkcWmXcotxXGYlFFKCmPe"
+            + "DADHnzmmN+cgZaiuWImlJshLr8Ji/S95b0uCSP93raHF8N4Pt+fj2DbnHnnfg62PeAqA0ROs"
+            + "YmRoAtvGaa+oxrBLGZY2h+vibqsx+pUNRMYWlD3g0w0+SNjgeNeLMb1S3K/2ofBzsly2WZ7U"
+            + "9/mP44i6HSFM11Jaz1wJBZbqjipBFR7bZKLBi4h09Sd/JvgacuDQilP+yt1h41AMhOmR8OoS"
+            + "ix7KPIFc87WtzN3nHzVVCiOp6s86AhGFmAyiF2kn4UC/cnw4YiBfuRV+ETtqgylF5pLcEGDF"
+            + "iFzhRxy5NKK6fErv/nCwnzj2UXo7HuCZwn6VWUD8kiQse/D0zdr/z1b/5SlZvdeAmbmAS1Yn"
+            + "DIVhlE0MztI+rnDaQpjxToRjK7p6CGlfLjn+T0aMQ6cg96uB1XC13ycWQuj72ypRG3nJaueZ"
+            + "hGulfIPs/3cLNPDAfAouJsLFDxCZ6bsiT2CPlANY0dUQYytOyfMTn2tTNp7jyGtFqXHXmk4E"
+            + "mI7gS7d8YBmy0uVbBJJ2pQmDpsp0YLGsaTnXfdgr2M05c9STsMA30nKzWnLANsq/MkoDHMDu"
+            + "lCR/KnZBb8S1R+1G7on7UWR0LWH//5ogJEBni75llksoGtDiU59FkgKpoLs6Xy3Csvi2nCUh"
+            + "T53an5CRJJB8d4TUGciqybc6xWkjVu6DFKcGh8Ip5vzfbXbME3/IyQD5XOLRp5pUNnAw4Ur8"
+            + "zgYBVIBBH9w+eIQrYBw15/UAYvvf9OEXBsSlSNZeNbLey9J7t+qJhUPTt7ahmkyxzi4H7g1y"
+            + "g9JcGAUXy1WPLkMIuGq6l4HQY9op+Jo1iVFjBNl4OxYMsakDDLNtb8Lxwl6uE1gkHioTJbwn"
+            + "oeb8KgLn0+ndxirRm6ZmlTaeHpTcpkVYd8Qqi52P26VQ9OHY7FpoFfUk4cB3DDtV0KTs08HQ"
+            + "hEbuEw76dnmCos5XmraEiODMDVeuHucMqrw9rZWSBuIyR+3BN+kluSaLFa6RVZNkm+wgdkfZ"
+            + "IIvS7G9BchF0/91t9/U+Pd5SRiJxn3SSY4jNhxoMR+NoQbj02zOQMXt/RWHYEOTSFvaLQcmc"
+            + "I1KJSt87G6v2MAeTProUeijvx7uVepaWYKp/A3RbIDsPFOrfBj5wgZAYbMS/lb0mlGpGM389"
+            + "CyETAeQVvmon0Z3GPmkRLrK7Z6vsV2uyYjEEtZQPC+zk83Gh0xZ2ODqi7F+tQknips9hqP+b"
+            + "433aIqxlXZrsbEvMOQkK5P175U4cNjeyBUQa7Sjm7095legfRXv2SH471GJymvote/RWZMQM"
+            + "NNe/4zbPNNSiG2fc4HBO+xKs1m8hbgo42hi+t48wx+8h9UU7jBTvyDQYSeJx0A0x57ALDxhU"
+            + "YCiswhArR7MRGocWAefkEX+0VOn10mVLMj0FYW8OaUdQ8w7ymnCQTfuGRXMqd0bnY+vuyMR6"
+            + "RQuaXcqqZ0IY6i4MpRjjsZrxV3+GLim47IEg0iz0g7kRej8zxORAu9bga66Ew/pYC2XlgQGp"
+            + "VxFwDQtq18QrYaKgLXMyaKAvsBRR651tRx24Ib6L9u8qUqDQYFiDSV7lLVdB//qdcy9l9OJE"
+            + "Mvdhc4BH+vRdqAMZDTsk6OAQwLmwsSEBnP3NkpkqAiyRVF3J3oOxjWeXaEeRJp0PTvB9+fwg"
+            + "AxPHMmZYeRjPP4QytBypBuh4nSSSXx+2pOMmT9N7/m9VLNKkS6NF8/6+0t3Kxpg5XzireyqZ"
+            + "VVV43iLHnN6cDF+tjnykGhjs+STB9GYqzXGThGKfPwIaZfT0eP0SkTrHABqz/KnRvngdPTls"
+            + "gFShRdkHiIAEI9a+MONXvvINt8mGaoICIjoenoFYQddVWG8xLxMWBznPYM17CfAXXX4dJiuD"
+            + "oRXk8KkMptrQzydX7w1N+At+eWl8Jmly2yKRiLNAdEu9lLQcUZSnpVY4rGdtYNuVgYcC+30z"
+            + "vuulPpnskQlVIYgqdryJ0/kgWMvwgg06ieuAiC8Hy8Mp2F5IcT/jndMT8m4q6/tKPcrh9410"
+            + "91p0oRVBUUQM7+OCZ4fCF/ZJQrWJQb5pQoHbfPp8oamp0qWQmQ2qwcUcF95jq+PobqHzPL+P"
+            + "q/deKdS5gwtVZFpeG9j0LvzseK40rk/JZVeQkVT57hwwm/fRaY27G1BEZtgehXZWKgTXj2Nq"
+            + "zxGksQjDw1qXm72dpO5we47XFlkdxjR1yPStUFxT00Ywxdg2fuzx5yoWJkQFyGBSejw/fXY9"
+            + "xrPtApDqeBwCnVcYwzB9YQJk/u26rgoRpl5d8vaFAjc6K5LTYwIxLr6PIKPkPK8BCsozVl+Y"
+            + "UmxvHLwtRKnqcI8L6PZj1Oeko0d72j0Q1kFmKsEWfU4MobfdFxSZqVELM6pVm1y+9uMe54KG"
+            + "+3Ya5KIjqGNWdXsFx/zl/e0g0h0nSicf06EU9hWaOZx/Gk3s3vuinQNHuOsGMF61sNGMUnAM"
+            + "LDVWaMjo1Vmx85fmQT4I56KMuykY6wn2tAfcFjAT9jSCl6XLn9fLhOE0Jsmo91xTQ69NHgWB"
+            + "0a9buCZblMJFVC7Evg6jKAkc/uiRON2ifnDSZ3iWcurTTjruleeKfspVWSTQLcEubX4eCWKo"
+            + "tkSCxUU+UkXasYVkuP8Cd3tQRcUt2ZjH5Vb5vRgONt+aSOqb5kjbtMd5tq/jZmUtI3CzGBlC"
+            + "lV+NVVQwCHGM4lV/ytS1DAEso3uZUcfBZg5zAAohydOE8xVlGeAFlJeunFgLj4Ebe1mgf82+"
+            + "sy7UasKe24g4VV+D2wqGL1C5Pk60RkRGUNvI9N7rEHDlhNqkBwBtUXfWSO6DVupQObOi7KMY"
+            + "Pur/p1VJ7MmiMtBSQp2MG5jx/ENkt7OI9lnpA0EY0T2Tb67RH2TM3aZ6N4eXZZRrKtSrkiCf"
+            + "8Ahq/LLzVuz45VSp8CiIiCU4GHSOb3hyOqliss5gTYnfnSKPm6ifHfplj1V5izJac7VzY2Xv"
+            + "MzFt+FYSTogHkqGtKEJzRF+EnTatScznNF2sWOPCpqahRBk3L0IHENyL5TxZqRleDqzCbf+h"
+            + "1O/abdWrV7XTHOSZ9sx48N5AKW4BsHzD9VuPHLeWoexuXQgtmmbFvHRvJNHPnld9UUviu4Dp"
+            + "jwB6n0mzmI0hpJKE1jCLozGyeMvhOC8krWEiD6ccoj5KBgNu0yJnLEpjHcgkvp4iK1sP/8HD"
+            + "N/84ud1qS6NE9Ryl+Vo4rTNrmJoYjIUW8XckR65Y7txTMqIe89lEvvqenVQxOFEmm/xTA341"
+            + "qTRnRc5Qevn7BIUVyntakBziStXDRkxVN8EsQpOY9dJ6IoROYGXf8SUDCTapzOQvGk8GZ0uK"
+            + "4q8ytph2A5RqOaPJ83UE9tOWxl+qRLpEXs8S2XJJZRo1gh3XrAyvFDpeQYv3r27bApXb0HMG"
+            + "VorA+bIwqBMwhacHP/ieokxso+tZN8Kt653JwxducZ+Kk7X1ldQ5jlAFfkeMRlt5cflzExSS"
+            + "ZjY6s1adlRCtUWgvukrqIqJm2qNnx1sUulHUoxd5cH679JQoai1LmgNdzm5qyPTFXxMz4V9P"
+            + "pvLVd1aqWObKx2KG6863YnDoQeJKmTnA8vEHM5DgQvR4OZHfElWRudnEzFIuwnoEYuHmTggH"
+            + "3xzH5ein9ThxRqtDUcLoo6H+JrJKzQqF702/mXxV/uXRsCxI4tW8H8ijZV7+d9CrgYmhLXWI"
+            + "9aE1HuawQJ1cozCC3tHj/WorAALhKyUzdCysW0AQEVj3c+9jiV9ws7V21q+pbh8aUQIbWjHU"
+            + "xeg8jpLaAwCEBTzmIptE9rGO/Gk/sxCVq6Fjkuhx6mmNnIsOW01FisUce8plUze2J4cJvuql"
+            + "1XW203j/otos3xVMKGsQfRDE1neHT8P4G3iLXf2Iy2Em+0MO0Yl7m0h0p1A7Ybrmk4AZOO23"
+            + "F2l179J0LKYuYULl9/tN933Gw6nktY800AQCbEY/p5g28evZ0m6+3skGpXAx/6YXQH+Clraq"
+            + "b23Zf6ZtguG0XkTCj4sjqb2lh/FLz28OqCE9iBeaj0a9vSYN9oZJwGHJrxFEyeNPRxTqy/4R"
+            + "OFS1zzylcnn1Q6j64k4b4VtOYVnp/KnPd9SB9/07/+BLpCLCOa/cdU+BKoOepITrPKHZgie6"
+            + "1+1wfAEKpUclxOErEuG19ccvb6xtjiLcRArT9N37b/f15x1vX3zCr+GwT7w7S7Tn/yw8N66a"
+            + "66U4kYdo7RksxHpM0br/Me8K5Da3lruFK7CfO8ZAQwB3jXsFmvIL/6mTegnjFLZI8wqrdBAL"
+            + "cIiitaf9nyz/Z1/k6CA8cRCufFlVIpd45B1ZhJdrZAeq8tGknQ6skTj774vy7Gcqd8fd5xfs"
+            + "jzaR2uJeh8ZWjLRXcgoxuAIVt5dM7mWkj74brzRyEyniVfNy0Spo3i8R+76fhJFxUj2PUxJX"
+            + "80QbkydmJWwCcmpyGGDuzIt55V/yGP9TtqDpGmgF1xE09b+pTOzIo+lReQn7bT3IJ5qCMIWH"
+            + "dORHT5FiU2OPAhY34ETpE2v0Nv8MmI3sC9D5ctImtntv0RTIQsbBhjH/xm5qO8NkED0oh/T+"
+            + "VQQ8q5ImXD3Cy7hthtv7IgGXZh9j16gT+ATnR4xzLq4sJMU+xycyJMGHP0zhkRapatuDB6eZ"
+            + "Gyf9PTI42lFqSGuBtF70wI6RVhZ/jsF+TSvtbRH9IT2sahCP5E6TSZ5u6ECnsLN3EMKX9a0y"
+            + "98WwHAO9wrHR7cvtyWeECHyXKzRr+q8dEf9vnYVrUJZ0nhMvMaaAkEi8bX2pwhTZeGtmbB/u"
+            + "D6xGt99BDOBdTZm4TCHOVawsVxcslRDjYVg9MO2ooCWIHZ/LKd9iZsfU+AKThkzrZXrISx8J"
+            + "56rX7cd5TfiNLKeaERLnaL8WJbJrKybxIOtJKbTuaDbd+R3JodkAedVrvlajf2m0vEBL7Z1d"
+            + "U6y8MiccdU7WJqx3O5Ryed++DWYk5S1BEZCuHunrSOmqOve8a65L3t4icuPG+OAQz/Kzwuen"
+            + "H4pO3FoVVjKq9AGn2QgQxeunDzLGGK8vj6jDeAtC2xabhJXurbyE1KHmokERF4c+1ZgKOz3S"
+            + "aVOmzIAAcnWseqzqvfYB2yUHRp9eqOrKOd3hqeKOh5Fe0IXuBoUWexzDsnr+enkvhZ8MAu6u"
+            + "GOHpdx/V3zjw85SjJEKDUOvN4FMU7g6JQ4VLB15Mac782MJDEp5QnMmjQpoYyOu6w26YkUsv"
+            + "+5Bu8HnkII54gCwx3MynyQxJl+poHJOM+ASAENO2Buj7Mls4tC04MzqE+LHdFgI7LQXm/YiT"
+            + "o7EL4L98Br40RJxzN4Y3CMkzJclj/8B6RldtgPOi/5C5geEPOiTGrFQmikmUEDhJq146GWSe"
+            + "TubJZQ5WaR+AumhsJrt9JANkjU4dg+ghAk/7cNeB/DG3IBLZf2FToHzg669+uKnvGy/ELOCO"
+            + "8pMCld1r/Uf5fCa+0NH7bQwtSIe7bDeqI0dH9b7Bte1TC7aeQvZcds5ezAbZsIzDT249Xbag"
+            + "RdbSvLPnYIua3ftWHfx5/Yr4519O+HaWgfPjlZW5MPhkxKjJ+YP3F+7A6P0aXp11/eQpZJlB"
+            + "v/UqZ9/VPHbb3+bNOdsgYNYZ3fJnJjFUcX328gTnBzvQoERlYNk3Ueb1RT/BTQK3J0O6YIum"
+            + "aRuru4IozpLc+FsJoXTjJ634fhIEcVLxEZlwZLnbaYF2M4aAEhh6tqDNY6ic2tZJHxN7+q/E"
+            + "a/N+GJ/3fREJoE1r+J88Wav6/b6QtP5EUFU97R1Lezn2U3ZPQIFKGCLd1TgDN8tR18pMgZoJ"
+            + "kafB7dUupzQQ+isodMZaFaaEJrKPYU2ReuEpAtO/FgI0Ea/6WSroljTkiZYzmvMkCGpN+hPg"
+            + "BURRq2NuYbyf2TG8dFgrF45eSpwvGiqR+AnJ2MZpLOninAlqfhTwW+Y0eJ9dqs+Rac+GQknE"
+            + "WBmPP9KQDEgcp0zRqlUjJAHTYyjHR4jbT2Ai7p+3XzsdeRrssbB3I/gnsyFIOgzimskNZzcU"
+            + "lzXlbMM5Q0/EIWxD70vkvQYtuhP2EC+P3JcKSsprcM4QACJGvceYRTm4vepn7gTWyUTZ6hGm"
+            + "/uhBBb4winWbrGoUDmHKzujgZh/yWob8ODDpMmfBJJN2a6D+nHvn8yEesL3HXgaeCENn888o"
+            + "u8CzxvH2C76KlmoNIh1/f24AoXMEOaUN/1CTAZKi7+81i00hs03lrWu5wI/6ZVlxOWUMZPaQ"
+            + "9SCSprvmzJAYlOMgsBb8rQrpsmAHAcyfFqfj/tOjzkdVpGCzicTlkMM7ZilRz/LX0hTnnbAL"
+            + "S8W36dSjlKvdrQZqCqu1DbiY8vnJd3WL5sPGryEvoekPLa6yCRzGmoaGCUJikPb3XaYV2bOq"
+            + "rxl+Gr4wZeaxk8dr6/vGhCD+4aVuLIQJZzKG1gO4h2MbyCPEqOOY+2KD92FWZUkqZ1KvFhSh"
+            + "VAcwO5x375mfnQCpv3fvf1eXOD1p8CGQ+E5LQsTywCXg/C/tLlnFHOQFIXwMOKZdyxf9iu6w"
+            + "IIeJxv5vLBErfvyhG4LGf7nH3i2KRh2O49m0J9cABIC+yZLAy7xprzm+WVv7fn8m6Cvzi+uZ"
+            + "HTV1iFUk1JQUou/wBtyHm5n/EsBpPAYVGvVu3xdxMR+UoJ1el/CiUqLpgf0aTPBx8AE/qD/5"
+            + "5F/e15r8nUXG5BK48KAGNg2ksqQJ3EfCDT+rYIE3dbCM/D49wXcSDLMh7YJm7npOOxwOW4P4"
+            + "uOG5E4RN5WD31HnY4t1bGZp0O59DElRiTB1y2itnFhUckyC1dFFxdj4/Fvk3HXyYZ/O0L4Eb"
+            + "Ghh9xxjp5Uy0AwH8YlqhXKROjUq5CztxcxPXbKbFiBK8EdbSZyzspP55zRxCr7EtsWolEouy"
+            + "UqVZzD7QWJO85CaH4AOj1xmYU5pqpUPoVlWnAkFwKs0jitJeiXz40PSGcu61Fl3xVAP9x3rf"
+            + "UTrwv2yd6pgB1ZhooZf5jOUwMmZe312Cs66nSr3xtF68e7e2vwHsYPWN7Hl4Cws8+gwf9E0+"
+            + "mgt5VsxLS0jQypy3xMEwO4amHYjsl+lVf1SAa0yJa/AJGtW3HoB4ocAiw02aBRUNTiH1n0CD"
+            + "pELYiAEaHRCAsyoyql/Gug6Jn8rJvAPc9McKiPHyeg7Q9mKIEr0FfJAtaT3I/d4Qek9QbuMP"
+            + "WiZkuIC5hJxCyyOPGNx5Xyzc8mwi2FUIrMiRvFiUt8ms+eq3u81+7trh3cXkxvlCm5nOr41R"
+            + "UqBbqhzokJBfcS8cER2HuE+yN17Cu0eK6m/fbBJbGp+SSdRJJd8/QCtAghmKKFbY2k14KBjC"
+            + "1OktwWyHW/eeCu6mYDZZD34QyqI42RQbkqiXvQikCk7ei9iJqZ1Nfra8jsict4cVElCvVQPF"
+            + "PkjJzdYjLjMv/sQLQh+f7U36Gn8DCrf0nkxf7V8VNHgdpDW8+ccND6w3LT+tk1KR/diUYRVD"
+            + "FBWfpbWRosVOYuHvmWPudEgJ3Fh/Alg/w414Gxi6yfYRC/y+7nI0BhEaiptguyK6rOcvOYWn"
+            + "nSMtQwZ3dnWyrm4mbN7Io80yWlzc3lqpVW9u9VtuPncwJxTIQlfEoOdJWqwkzkWeJKtiwQYx"
+            + "DwBeoNB/J7WoEOuapbQxiBJXha/A+e6OJUoOs4Kui4t72tvteuFAuLnFmSVAlQGLSsLypEmu"
+            + "wsOzQd9pETuB6lXBLgeQKP2lZ9wK2AA+FVTu7iHHJPIk6gJiDSnJxr7cKw0s8bmx9Ym+sjjE"
+            + "T+HoJLLILnU5XkTGNjjpePZrqVBQIqcpZ6su8Svwt3T1fyIK1mXsFcQgXJaSXuiJFwXZIyv8"
+            + "rPF6FOF4AHWiBlqWL5MCxjtfyqZyuPh7xyhXWeMR92JvQssHIIdgBrBkeN0lrirhksXVH6Yk"
+            + "XFliBWx8zoe20TYQ9cCUB9eW3G1rIrYnBzJ0qCGKc6oPqo94f/wy66ZIqGijkFIe/EeySy+C"
+            + "cyPe2Hwp/I5rfISDHX7ZNpmfcI1cddy4Oh7XUzJ9TmK8it6BvAniLkc2Ltuj2Rw98QVXCEbe"
+            + "gncvOkuTQ0Opzaw54F+FId0zf16dHCNnX9ePlBvq1v7Sox2r4+t1TvkAm7o7e2ShDNbtM1Lu"
+            + "hIuWfFrZrNI2S6V0bU3FPK6UqAdcBD/MprKTC+h0XwH/nzbQ0T0hBwnj5sYDrdCicXFiYTBW"
+            + "XOtNkzj1qAl86fI+jE/ZquGi4ASXVfTipxaPmJo/bu0OBb19GJ+z0Pk5xB5LhgxbM0LDqr/C"
+            + "K+Pbo6QkXHZt77pctqwnqrjlIv1UKmIBmKwM9284WU69oSGNYZNbC+FOv2G4V/5mccFcjzft"
+            + "annR63z9she3rc8HpNcfNQDwC5Q4Rr8bpUgYZZ063nOLBnaKVhmb74PMegfSHNnias8xZfy7"
+            + "t292Fm79FIHLLokkC9yMQjyPMYDt+iyXhwGdAjBOYhV+noBizxVgz7EWylwKOLD0g06a9bm9"
+            + "U43anphlyseP80aax2ZEiokUinESSdIz2cfQg3ELyngvPQ6ymXbuuGHJGa6GoXh6sAP2YHR7"
+            + "76i0iq5gBQUEstQpP0jtLT0g/KeqoTQE6TaN8mVM1cJK6xmN54vq1YvT/vEnzTM/lWR031mm"
+            + "rlEKnNuOY0tgMc3GQaZ012Vdts2WykpyE6gIKx+3pRx5+u0Eb4Fo2pFnkTu7+H3U9AfCl7u9"
+            + "qY5UB7Iwu/S50ZcZ2+shSGOpdFb3D82reXnxFgYoeOA4j8EcPvgei4eT33cMEzPdjTD9ZKk5"
+            + "kH/IpIxXrdGEDW3+YyE3Kyul9QSw18V1dQsYuhiUQKcVuUgwGrUz6IhOGPc4Nxi2vVVHYch0"
+            + "PewRCVt4KOZC7RTtd7Hx4ELiXog+uJZdEYyXoQatuDlETyjCs7gWVaFEfQtN9jcL+LTYLhPt"
+            + "UoCqwlQ/1gwzRS2dCSdtrXQ1ArDWbtREH95yWpJwRyItuJSsz+HUq8T/"
+;
+
+    private static final String[] FB_ALL = {FB_0, FB_1, FB_2, FB_3, FB_4, FB_5, FB_6, FB_7};
+
+    private static volatile String[] keys;
+    private static volatile String[][] vals;
+    private static final HashMap<String, Integer> IDX = new HashMap<>();
+
+    private static void ensure() {
+        if (vals != null) return;
+        synchronized (MeeroStrings.class) {
+            if (vals != null) return;
+            String tsv = null;
+            if (MeeroCore.ready()) {
+                try {
+                    tsv = MeeroCore.nStrTsv();
+                } catch (Throwable ignore) {}
+            }
+            if (tsv == null || tsv.isEmpty()) {
+                tsv = fallbackTsv();
+            }
+            parse(tsv);
+        }
     }
-        // ============================================================
-        // ✅ المفاتيح من strings_meerox.xml (موجودة هنا)
-        // ============================================================
-        
 
-    private static void put(String key, String en, String ar) {
-        MAP.put(key, new String[]{en, ar});
+    /** escaped key      english         arabic per line; ids == line positions. */
+    private static void parse(String tsv) {
+        String[] lines = tsv == null ? new String[0] : tsv.split("\n");
+        String[] k = new String[lines.length];
+        String[][] v = new String[lines.length][];
+        int n = 0;
+        for (String line : lines) {
+            if (line == null || line.isEmpty()) continue;
+            String[] f = line.split("\t", -1);
+            if (f.length < 3) continue;
+            k[n] = unesc(f[0]);
+            String en = unesc(f[1]);
+            String ar = unesc(f[2]);
+            v[n] = new String[]{en, ar.isEmpty() ? null : ar};
+            IDX.put(k[n], n);
+            n++;
+        }
+        if (n != lines.length) {
+            String[] kk = new String[n];
+            String[][] vv = new String[n][];
+            System.arraycopy(k, 0, kk, 0, n);
+            System.arraycopy(v, 0, vv, 0, n);
+            k = kk;
+            v = vv;
+        }
+        keys = k;
+        vals = v;
     }
 
-    // ============================================================
-    // ✅ تعريف الأرقام للمفاتيح (ID_TO_KEY)
-    // ============================================================
-    
-    private static final HashMap<Integer, String> ID_TO_KEY = new HashMap<>();
+    /** Inverts the native TSV escaping (%25 %09 %0A %0D) left to right. */
+    private static String unesc(String s) {
+        if (s == null || s.indexOf('%') < 0) return s == null ? "" : s;
+        StringBuilder out = new StringBuilder(s.length());
+        for (int i = 0; i < s.length();) {
+            char c = s.charAt(i);
+            if (c == '%' && i + 2 < s.length()) {
+                String h = s.substring(i + 1, i + 3);
+                if ("25".equals(h)) { out.append('%'); i += 3; continue; }
+                if ("09".equals(h)) { out.append('\t'); i += 3; continue; }
+                if ("0A".equalsIgnoreCase(h)) { out.append('\n'); i += 3; continue; }
+                if ("0D".equalsIgnoreCase(h)) { out.append('\r'); i += 3; continue; }
+            }
+            out.append(c);
+            i++;
+        }
+        return out.toString();
+    }
 
-    static {
-        ID_TO_KEY.put(0, "BackAnimationIos");
-        ID_TO_KEY.put(1, "JanitorDays14");
-        ID_TO_KEY.put(2, "JanitorDays30");
-        ID_TO_KEY.put(3, "JanitorDays7");
-        ID_TO_KEY.put(4, "JanitorModeDaily");
-        ID_TO_KEY.put(5, "JanitorModeLimit");
-        ID_TO_KEY.put(6, "JanitorModeWeekly");
-        ID_TO_KEY.put(7, "JanitorReport");
-        ID_TO_KEY.put(8, "MeeroAmoledBubblesInfo");
-        ID_TO_KEY.put(9, "MeeroAmoledStrokeInfo");
-        ID_TO_KEY.put(10, "MeeroAppEdition");
-        ID_TO_KEY.put(11, "MeeroAuditChat");
-        ID_TO_KEY.put(12, "MeeroAuditFailed");
-        ID_TO_KEY.put(13, "MeeroAuditSettings");
-        ID_TO_KEY.put(14, "MeeroAuditSuccess");
-        ID_TO_KEY.put(15, "MeeroAuditVault");
-        ID_TO_KEY.put(16, "MeeroAutoJanitorInfo");
-        ID_TO_KEY.put(17, "MeeroAutoRelock");
-        ID_TO_KEY.put(18, "MeeroAutoReplyBounds");
-        ID_TO_KEY.put(19, "MeeroAutoReplyCooldown");
-        ID_TO_KEY.put(20, "MeeroAutoReplyDefaultText");
-        ID_TO_KEY.put(21, "MeeroAutoReplyDelay");
-        ID_TO_KEY.put(22, "MeeroAutoReplyInfo");
-        ID_TO_KEY.put(23, "MeeroAutoReplySampleName");
-        ID_TO_KEY.put(24, "MeeroAutoReplyText");
-        ID_TO_KEY.put(25, "MeeroAutoReplyTextHint");
-        ID_TO_KEY.put(26, "MeeroAutoReplyTitle");
-        ID_TO_KEY.put(27, "MeeroAutoReplyUsage");
-        ID_TO_KEY.put(28, "MeeroAutoReplyWindowDays");
-        ID_TO_KEY.put(29, "MeeroAutoReplyWindowDaysAll");
-        ID_TO_KEY.put(30, "MeeroAutoReplyWindowDaysNone");
-        ID_TO_KEY.put(31, "MeeroAutoReplyWindowEnd");
-        ID_TO_KEY.put(32, "MeeroAutoReplyWindowInfo");
-        ID_TO_KEY.put(33, "MeeroAutoReplyWindowStart");
-        ID_TO_KEY.put(34, "MeeroAutoReplyWindowTitle");
-        ID_TO_KEY.put(35, "MeeroBubbleStyle");
-        ID_TO_KEY.put(36, "MeeroCardsInfo");
-        ID_TO_KEY.put(37, "MeeroChannel1");
-        ID_TO_KEY.put(38, "MeeroChannel2");
-        ID_TO_KEY.put(39, "MeeroChatLockAdd");
-        ID_TO_KEY.put(40, "MeeroChatLockChangeCode");
-        ID_TO_KEY.put(41, "MeeroChatLockCodeMismatch");
-        ID_TO_KEY.put(42, "MeeroChatLockCodeSaved");
-        ID_TO_KEY.put(43, "MeeroChatLockCodeWrong");
-        ID_TO_KEY.put(44, "MeeroChatLockConfirmCode");
-        ID_TO_KEY.put(45, "MeeroChatLockEmpty");
-        ID_TO_KEY.put(46, "MeeroChatLockEnterCode");
-        ID_TO_KEY.put(47, "MeeroChatLockEnterCodeHint");
-        ID_TO_KEY.put(48, "MeeroChatLockGateHint");
-        ID_TO_KEY.put(49, "MeeroChatLockGateSubtitle");
-        ID_TO_KEY.put(50, "MeeroChatLockGateTitle");
-        ID_TO_KEY.put(51, "MeeroChatLockHeader");
-        ID_TO_KEY.put(52, "MeeroChatLockInfo");
-        ID_TO_KEY.put(53, "MeeroChatLockInvalid");
-        ID_TO_KEY.put(54, "MeeroChatLockMaster");
-        ID_TO_KEY.put(55, "MeeroChatLockMethod");
-        ID_TO_KEY.put(56, "MeeroChatLockMethodCode");
-        ID_TO_KEY.put(57, "MeeroChatLockMethodSystem");
-        ID_TO_KEY.put(58, "MeeroChatLockNewMessage");
-        ID_TO_KEY.put(59, "MeeroChatLockRemove");
-        ID_TO_KEY.put(60, "MeeroChatLockRemoveConfirm");
-        ID_TO_KEY.put(61, "MeeroChatLockRowDetail");
-        ID_TO_KEY.put(62, "MeeroChatLockSetCode");
-        ID_TO_KEY.put(63, "MeeroChatLockSetCodeHint");
-        ID_TO_KEY.put(64, "MeeroChatLockTitle");
-        ID_TO_KEY.put(65, "MeeroChatsMenuFogInfo");
-        ID_TO_KEY.put(66, "MeeroCooldown10");
-        ID_TO_KEY.put(67, "MeeroCooldown30");
-        ID_TO_KEY.put(68, "MeeroCooldown5");
-        ID_TO_KEY.put(69, "MeeroCooldown60");
-        ID_TO_KEY.put(70, "MeeroCooldownEveryMessage");
-        ID_TO_KEY.put(71, "MeeroDayFri");
-        ID_TO_KEY.put(72, "MeeroDayMon");
-        ID_TO_KEY.put(73, "MeeroDaySat");
-        ID_TO_KEY.put(74, "MeeroDaySun");
-        ID_TO_KEY.put(75, "MeeroDayThu");
-        ID_TO_KEY.put(76, "MeeroDayTue");
-        ID_TO_KEY.put(77, "MeeroDayWed");
-        ID_TO_KEY.put(78, "MeeroDelay10");
-        ID_TO_KEY.put(79, "MeeroDelay3");
-        ID_TO_KEY.put(80, "MeeroDelay5");
-        ID_TO_KEY.put(81, "MeeroDelayInstant");
-        ID_TO_KEY.put(82, "MeeroDeveloper");
-        ID_TO_KEY.put(83, "MeeroDialogsStyleInfo");
-        ID_TO_KEY.put(84, "MeeroExclusionsAdd");
-        ID_TO_KEY.put(85, "MeeroExclusionsInfo");
-        ID_TO_KEY.put(86, "MeeroExclusionsNone");
-        ID_TO_KEY.put(87, "MeeroExclusionsRemove");
-        ID_TO_KEY.put(88, "MeeroExclusionsRowDetail");
-        ID_TO_KEY.put(89, "MeeroExclusionsTitle");
-        ID_TO_KEY.put(90, "MeeroExclusionsWordMany");
-        ID_TO_KEY.put(91, "MeeroExclusionsWordOne");
-        ID_TO_KEY.put(92, "MeeroFlexWidthInfo");
-        ID_TO_KEY.put(93, "MeeroFontAdd");
-        ID_TO_KEY.put(94, "MeeroFontBadFormat");
-        ID_TO_KEY.put(95, "MeeroFontDeleteConfirm");
-        ID_TO_KEY.put(96, "MeeroFontPick");
-        ID_TO_KEY.put(97, "MeeroFontSection");
-        ID_TO_KEY.put(98, "MeeroGateCodeHint");
-        ID_TO_KEY.put(99, "MeeroGhostSwipeReadInfo");
-        ID_TO_KEY.put(100, "MeeroGhostSwipeReadNeedRead");
-        ID_TO_KEY.put(101, "MeeroGlassBordersInfo");
-        ID_TO_KEY.put(102, "MeeroGlassSettingsInfo");
-        ID_TO_KEY.put(103, "MeeroGlassSwitchesInfo");
-        ID_TO_KEY.put(104, "MeeroGroupAppearance");
-        ID_TO_KEY.put(105, "MeeroGroupChat");
-        ID_TO_KEY.put(106, "MeeroGroupMotion");
-        ID_TO_KEY.put(107, "MeeroGroupNavigation");
-        ID_TO_KEY.put(108, "MeeroGroupSound");
-        ID_TO_KEY.put(109, "MeeroGroupStorage");
-        ID_TO_KEY.put(110, "MeeroHeaderEdit");
-        ID_TO_KEY.put(111, "MeeroHeroMsg1");
-        ID_TO_KEY.put(112, "MeeroHeroMsg2");
-        ID_TO_KEY.put(113, "MeeroHeroMsg3");
-        ID_TO_KEY.put(114, "MeeroHiddenChats");
-        ID_TO_KEY.put(115, "MeeroHunterClearConfirm");
-        ID_TO_KEY.put(116, "MeeroHunterDeleteConfirm");
-        ID_TO_KEY.put(117, "MeeroHunterDeletedMsg");
-        ID_TO_KEY.put(118, "MeeroHunterEditedMsg");
-        ID_TO_KEY.put(119, "MeeroHunterEmpty");
-        ID_TO_KEY.put(120, "MeeroHunterInfo");
-        ID_TO_KEY.put(121, "MeeroHunterLogHeader");
-        ID_TO_KEY.put(122, "MeeroHunterMaster");
-        ID_TO_KEY.put(123, "MeeroHunterMedia");
-        ID_TO_KEY.put(124, "MeeroHunterNothingSelected");
-        ID_TO_KEY.put(125, "MeeroHunterSelectAll");
-        ID_TO_KEY.put(126, "MeeroHunterSelectedCount");
-        ID_TO_KEY.put(127, "MeeroHunterSomeone");
-        ID_TO_KEY.put(128, "MeeroHunterTitle");
-        ID_TO_KEY.put(129, "MeeroIconAlt");
-        ID_TO_KEY.put(130, "MeeroIconStyle2");
-        ID_TO_KEY.put(131, "MeeroIosAlertsInfo");
-        ID_TO_KEY.put(132, "MeeroIosAnimInfo");
-        ID_TO_KEY.put(133, "MeeroIosCallInfo");
-        ID_TO_KEY.put(134, "MeeroIosCodeInfo");
-        ID_TO_KEY.put(135, "MeeroIosFastScrollInfo");
-        ID_TO_KEY.put(136, "MeeroIosHapticsInfo");
-        ID_TO_KEY.put(137, "MeeroIosIconsInfo");
-        ID_TO_KEY.put(138, "MeeroIosInputPillInfo");
-        ID_TO_KEY.put(139, "MeeroIosIntroInfo");
-        ID_TO_KEY.put(140, "MeeroIosLoadingInfo");
-        ID_TO_KEY.put(141, "MeeroIosMainMenuInfo");
-        ID_TO_KEY.put(142, "MeeroIosMediaGridInfo");
-        ID_TO_KEY.put(143, "MeeroIosMenuAnimInfo");
-        ID_TO_KEY.put(144, "MeeroIosMsgMenuInfo");
-        ID_TO_KEY.put(145, "MeeroIosPopupMenuInfo");
-        ID_TO_KEY.put(146, "MeeroIosRowInfo");
-        ID_TO_KEY.put(147, "MeeroIosSearchInfo");
-        ID_TO_KEY.put(148, "MeeroIosSelectionInfo");
-        ID_TO_KEY.put(149, "MeeroIosShadowsInfo");
-        ID_TO_KEY.put(150, "MeeroIosSoundsInfo");
-        ID_TO_KEY.put(151, "MeeroIosStoriesInfo");
-        ID_TO_KEY.put(152, "MeeroIosWaveformInfo");
-        ID_TO_KEY.put(153, "MeeroKeywordAdd");
-        ID_TO_KEY.put(154, "MeeroKeywordAddAll");
-        ID_TO_KEY.put(155, "MeeroKeywordAddChat");
-        ID_TO_KEY.put(156, "MeeroKeywordAll");
-        ID_TO_KEY.put(157, "MeeroKeywordEdit");
-        ID_TO_KEY.put(158, "MeeroKeywordEmpty");
-        ID_TO_KEY.put(159, "MeeroKeywordHeader");
-        ID_TO_KEY.put(160, "MeeroKeywordInfo");
-        ID_TO_KEY.put(161, "MeeroKeywordMaster");
-        ID_TO_KEY.put(162, "MeeroKeywordTitle");
-        ID_TO_KEY.put(163, "MeeroKeywordWordsHint");
-        ID_TO_KEY.put(164, "MeeroLockAudit");
-        ID_TO_KEY.put(165, "MeeroLockAuditClear");
-        ID_TO_KEY.put(166, "MeeroLockAuditClearConfirm");
-        ID_TO_KEY.put(167, "MeeroLockAuditCleared");
-        ID_TO_KEY.put(168, "MeeroLockAuditEmpty");
-        ID_TO_KEY.put(169, "MeeroLockAuditInfo");
-        ID_TO_KEY.put(170, "MeeroMenuBlurInfo");
-        ID_TO_KEY.put(171, "MeeroNightText");
-        ID_TO_KEY.put(172, "MeeroNightTextEmpty");
-        ID_TO_KEY.put(173, "MeeroNightTextHint");
-        ID_TO_KEY.put(174, "MeeroNightTextOn");
-        ID_TO_KEY.put(175, "MeeroOnceConsentAccept");
-        ID_TO_KEY.put(176, "MeeroOnceConsentDecline");
-        ID_TO_KEY.put(177, "MeeroOnceConsentText");
-        ID_TO_KEY.put(178, "MeeroOnceConsentTitle");
-        ID_TO_KEY.put(179, "MeeroOnceCount");
-        ID_TO_KEY.put(180, "MeeroOnceCountHeader");
-        ID_TO_KEY.put(181, "MeeroOnceInfo");
-        ID_TO_KEY.put(182, "MeeroOnceKindPhoto");
-        ID_TO_KEY.put(183, "MeeroOnceKindVideo");
-        ID_TO_KEY.put(184, "MeeroOnceMaster");
-        ID_TO_KEY.put(185, "MeeroOnceSavedNotif");
-        ID_TO_KEY.put(186, "MeeroOnceTitle");
-        ID_TO_KEY.put(187, "MeeroPickerCardMsg");
-        ID_TO_KEY.put(188, "MeeroPickerLiveHint");
-        ID_TO_KEY.put(189, "MeeroPickerRowTitle");
-        ID_TO_KEY.put(190, "MeeroPickerSwipeHint");
-        ID_TO_KEY.put(191, "MeeroPickerTabBubbles");
-        ID_TO_KEY.put(192, "MeeroPickerTabTicks");
-        ID_TO_KEY.put(193, "MeeroPoolAdd");
-        ID_TO_KEY.put(194, "MeeroPoolDelete");
-        ID_TO_KEY.put(195, "MeeroPoolEdit");
-        ID_TO_KEY.put(196, "MeeroPoolInfo");
-        ID_TO_KEY.put(197, "MeeroPoolMaster");
-        ID_TO_KEY.put(198, "MeeroPoolNone");
-        ID_TO_KEY.put(199, "MeeroPoolTitle");
-        ID_TO_KEY.put(200, "MeeroPoolWordMany");
-        ID_TO_KEY.put(201, "MeeroPoolWordOne");
-        ID_TO_KEY.put(202, "MeeroPrivacyAccept");
-        ID_TO_KEY.put(203, "MeeroPrivacyBody");
-        ID_TO_KEY.put(204, "MeeroPrivacyTitle");
-        ID_TO_KEY.put(205, "MeeroRandomEmoji");
-        ID_TO_KEY.put(206, "MeeroReadAllChats");
-        ID_TO_KEY.put(207, "MeeroReadAllConfirm");
-        ID_TO_KEY.put(208, "MeeroRelockAfter5Min");
-        ID_TO_KEY.put(209, "MeeroRelockAfterMin");
-        ID_TO_KEY.put(210, "MeeroRelockDelay");
-        ID_TO_KEY.put(211, "MeeroRelockNow");
-        ID_TO_KEY.put(212, "MeeroRulesAdd");
-        ID_TO_KEY.put(213, "MeeroRulesChatFallback");
-        ID_TO_KEY.put(214, "MeeroRulesContentHeader");
-        ID_TO_KEY.put(215, "MeeroRulesDelete");
-        ID_TO_KEY.put(216, "MeeroRulesEdit");
-        ID_TO_KEY.put(217, "MeeroRulesInfo");
-        ID_TO_KEY.put(218, "MeeroRulesNone");
-        ID_TO_KEY.put(219, "MeeroRulesPickPrivate");
-        ID_TO_KEY.put(220, "MeeroRulesTimingHeader");
-        ID_TO_KEY.put(221, "MeeroRulesTitle");
-        ID_TO_KEY.put(222, "MeeroRulesWordMany");
-        ID_TO_KEY.put(223, "MeeroRulesWordOne");
-        ID_TO_KEY.put(224, "MeeroSearchHint");
-        ID_TO_KEY.put(225, "MeeroSectionCategories");
-        ID_TO_KEY.put(226, "MeeroSectionData");
-        ID_TO_KEY.put(227, "MeeroSectionInfo");
-        ID_TO_KEY.put(228, "MeeroSepFadeInfo");
-        ID_TO_KEY.put(229, "MeeroSettingsInfo");
-        ID_TO_KEY.put(230, "MeeroSettingsTitle");
-        ID_TO_KEY.put(231, "MeeroSigContinue");
-        ID_TO_KEY.put(232, "MeeroSigExit");
-        ID_TO_KEY.put(233, "MeeroSigWarningText");
-        ID_TO_KEY.put(234, "MeeroSigWarningTitle");
-        ID_TO_KEY.put(235, "MeeroSmoothPassInfo");
-        ID_TO_KEY.put(236, "MeeroStatsChartInfo");
-        ID_TO_KEY.put(237, "MeeroStatsDryDays");
-        ID_TO_KEY.put(238, "MeeroStatsDryHeader");
-        ID_TO_KEY.put(239, "MeeroStatsDryInfo");
-        ID_TO_KEY.put(240, "MeeroStatsDryToday");
-        ID_TO_KEY.put(241, "MeeroStatsDryWord");
-        ID_TO_KEY.put(242, "MeeroStatsDryYesterday");
-        ID_TO_KEY.put(243, "MeeroStatsExport");
-        ID_TO_KEY.put(244, "MeeroStatsFrom");
-        ID_TO_KEY.put(245, "MeeroStatsHoursHeader");
-        ID_TO_KEY.put(246, "MeeroStatsInfo");
-        ID_TO_KEY.put(247, "MeeroStatsLoading");
-        ID_TO_KEY.put(248, "MeeroStatsMonth");
-        ID_TO_KEY.put(249, "MeeroStatsMsgWord");
-        ID_TO_KEY.put(250, "MeeroStatsOpens");
-        ID_TO_KEY.put(251, "MeeroStatsOverview");
-        ID_TO_KEY.put(252, "MeeroStatsProHeader");
-        ID_TO_KEY.put(253, "MeeroStatsShare");
-        ID_TO_KEY.put(254, "MeeroStatsTitle");
-        ID_TO_KEY.put(255, "MeeroStatsToday");
-        ID_TO_KEY.put(256, "MeeroStatsTopHeader");
-        ID_TO_KEY.put(257, "MeeroStatsTotal");
-        ID_TO_KEY.put(258, "MeeroStatsWeek");
-        ID_TO_KEY.put(259, "MeeroStoryDownload");
-        ID_TO_KEY.put(260, "MeeroStoryDownloadInfo");
-        ID_TO_KEY.put(261, "MeeroStorySaved");
-        ID_TO_KEY.put(262, "MeeroSwiftMenusInfo");
-        ID_TO_KEY.put(263, "MeeroSwipeAction");
-        ID_TO_KEY.put(264, "MeeroTapMenuInfo");
-        ID_TO_KEY.put(265, "MeeroTickStyle");
-        ID_TO_KEY.put(266, "MeeroTicksSwitchInfo");
-        ID_TO_KEY.put(267, "MeeroUnifiedRadiiInfo");
-        ID_TO_KEY.put(268, "MeeroUsageGuide");
-        ID_TO_KEY.put(269, "MeeroUsageGuideGotIt");
-        ID_TO_KEY.put(270, "MeeroVaultBrandSub");
-        ID_TO_KEY.put(271, "MeeroVaultCount");
-        ID_TO_KEY.put(272, "MeeroVaultEmpty");
-        ID_TO_KEY.put(273, "MeeroVaultEmptyHint");
-        ID_TO_KEY.put(274, "MeeroVaultGateHint");
-        ID_TO_KEY.put(275, "MeeroVaultInfo");
-        ID_TO_KEY.put(276, "MeeroVaultTitle");
-        ID_TO_KEY.put(277, "MeeroVaultUnread");
-        ID_TO_KEY.put(278, "MeeroVersion");
-        ID_TO_KEY.put(279, "MeeroWatchAdd");
-        ID_TO_KEY.put(280, "MeeroWatchAddByHandle");
-        ID_TO_KEY.put(281, "MeeroWatchAddFromChats");
-        ID_TO_KEY.put(282, "MeeroWatchAdded");
-        ID_TO_KEY.put(283, "MeeroWatchAlready");
-        ID_TO_KEY.put(284, "MeeroWatchChangedBday");
-        ID_TO_KEY.put(285, "MeeroWatchChangedBio");
-        ID_TO_KEY.put(286, "MeeroWatchChangedName");
-        ID_TO_KEY.put(287, "MeeroWatchChangedPhoto");
-        ID_TO_KEY.put(288, "MeeroWatchChangedUsername");
-        ID_TO_KEY.put(289, "MeeroWatchHandleHint");
-        ID_TO_KEY.put(290, "MeeroWatchInfo");
-        ID_TO_KEY.put(291, "MeeroWatchLogClear");
-        ID_TO_KEY.put(292, "MeeroWatchLogClearConfirm");
-        ID_TO_KEY.put(293, "MeeroWatchLogEmpty");
-        ID_TO_KEY.put(294, "MeeroWatchLogInfo");
-        ID_TO_KEY.put(295, "MeeroWatchLogRow");
-        ID_TO_KEY.put(296, "MeeroWatchLogTitle");
-        ID_TO_KEY.put(297, "MeeroWatchMsgIn");
-        ID_TO_KEY.put(298, "MeeroWatchMsgMedia");
-        ID_TO_KEY.put(299, "MeeroWatchMsgNotify");
-        ID_TO_KEY.put(300, "MeeroWatchMsgReplyingTo");
-        ID_TO_KEY.put(301, "MeeroWatchMsgTheirMsg");
-        ID_TO_KEY.put(302, "MeeroWatchMsgTrack");
-        ID_TO_KEY.put(303, "MeeroWatchNoOne");
-        ID_TO_KEY.put(304, "MeeroWatchNotFound");
-        ID_TO_KEY.put(305, "MeeroWatchPhotoHint");
-        ID_TO_KEY.put(306, "MeeroWatchPhotoMissing");
-        ID_TO_KEY.put(307, "MeeroWatchPhotoSave");
-        ID_TO_KEY.put(308, "MeeroWatchPhotoViewNew");
-        ID_TO_KEY.put(309, "MeeroWatchPhotoViewOld");
-        ID_TO_KEY.put(310, "MeeroWatchRemove");
-        ID_TO_KEY.put(311, "MeeroWatchSaveFailed");
-        ID_TO_KEY.put(312, "MeeroWatchSaved");
-        ID_TO_KEY.put(313, "MeeroWatchTitle");
-        ID_TO_KEY.put(314, "MeeroWatchWatchedHeader");
-        ID_TO_KEY.put(315, "MeeroWatchWhatMsg");
-        ID_TO_KEY.put(316, "MeeroWatchWhatMsgReply");
-        ID_TO_KEY.put(317, "MeeroWatchWhatReplyTo");
-        ID_TO_KEY.put(318, "MixerAccent");
-        ID_TO_KEY.put(319, "MixerAccentBlue");
-        ID_TO_KEY.put(320, "MixerAccentGold");
-        ID_TO_KEY.put(321, "MixerAccentMint");
-        ID_TO_KEY.put(322, "MixerAccentOrange");
-        ID_TO_KEY.put(323, "MixerAccentRed");
-        ID_TO_KEY.put(324, "MixerAccentRose");
-        ID_TO_KEY.put(325, "MixerAccentSky");
-        ID_TO_KEY.put(326, "MixerAccentViolet");
-        ID_TO_KEY.put(327, "MixerApplied");
-        ID_TO_KEY.put(328, "MixerApply");
-        ID_TO_KEY.put(329, "MixerBackground");
-        ID_TO_KEY.put(330, "MixerBgAmoled");
-        ID_TO_KEY.put(331, "MixerBgGraphite");
-        ID_TO_KEY.put(332, "MixerBgMidnight");
-        ID_TO_KEY.put(333, "MixerBgPaper");
-        ID_TO_KEY.put(334, "MixerFailed");
-        ID_TO_KEY.put(335, "MixerHeader");
-        ID_TO_KEY.put(336, "MixerHubTitle");
-        ID_TO_KEY.put(337, "MixerInBubble");
-        ID_TO_KEY.put(338, "MixerInBubbleBlack");
-        ID_TO_KEY.put(339, "MixerInBubbleFollow");
-        ID_TO_KEY.put(340, "MixerInBubbleGraphite");
-        ID_TO_KEY.put(341, "MixerInBubbleTinted");
-        ID_TO_KEY.put(342, "MixerInfo");
-        ID_TO_KEY.put(343, "MixerRestore");
-        ID_TO_KEY.put(344, "MixerTitle");
-        ID_TO_KEY.put(345, "SmartFolderActiveGroups");
-        ID_TO_KEY.put(346, "SmartFolderActiveGroupsRule");
-        ID_TO_KEY.put(347, "SmartFolderBots");
-        ID_TO_KEY.put(348, "SmartFolderBotsRule");
-        ID_TO_KEY.put(349, "SmartFolderCreate");
-        ID_TO_KEY.put(350, "SmartFolderDone");
-        ID_TO_KEY.put(351, "SmartFolderExists");
-        ID_TO_KEY.put(352, "SmartFolderFamily");
-        ID_TO_KEY.put(353, "SmartFolderFamilyRule");
-        ID_TO_KEY.put(354, "SmartFolderUnreadChannels");
-        ID_TO_KEY.put(355, "SmartFolderUnreadChannelsRule");
-        ID_TO_KEY.put(356, "SmartFolderUnreadChats");
-        ID_TO_KEY.put(357, "SmartFolderUnreadChatsRule");
-        ID_TO_KEY.put(358, "SmartFoldersHeader");
-        ID_TO_KEY.put(359, "SmartFoldersHubTitle");
-        ID_TO_KEY.put(360, "SmartFoldersInfo");
-        ID_TO_KEY.put(361, "SmartFoldersTitle");
-        ID_TO_KEY.put(362, "StyleIos");
-        ID_TO_KEY.put(363, "meeroAmoledBubbles");
-        ID_TO_KEY.put(364, "meeroAmoledStroke");
-        ID_TO_KEY.put(365, "meeroAutoJanitor");
-        ID_TO_KEY.put(366, "meeroBubbleDesc0");
-        ID_TO_KEY.put(367, "meeroBubbleDesc1");
-        ID_TO_KEY.put(368, "meeroBubbleDesc2");
-        ID_TO_KEY.put(369, "meeroBubbleDesc3");
-        ID_TO_KEY.put(370, "meeroBubbleDesc4");
-        ID_TO_KEY.put(371, "meeroBubbleDesc5");
-        ID_TO_KEY.put(372, "meeroBubbleDesc6");
-        ID_TO_KEY.put(373, "meeroBubbleDesc7");
-        ID_TO_KEY.put(374, "meeroBubbleName0");
-        ID_TO_KEY.put(375, "meeroBubbleName1");
-        ID_TO_KEY.put(376, "meeroBubbleName2");
-        ID_TO_KEY.put(377, "meeroBubbleName3");
-        ID_TO_KEY.put(378, "meeroBubbleName4");
-        ID_TO_KEY.put(379, "meeroBubbleName5");
-        ID_TO_KEY.put(380, "meeroBubbleName6");
-        ID_TO_KEY.put(381, "meeroBubbleName7");
-        ID_TO_KEY.put(382, "meeroCards");
-        ID_TO_KEY.put(383, "meeroChatsMenuFog");
-        ID_TO_KEY.put(384, "meeroDialogsStyle");
-        ID_TO_KEY.put(385, "meeroFlexWidth");
-        ID_TO_KEY.put(386, "meeroGhostSwipeRead");
-        ID_TO_KEY.put(387, "meeroGlassBorders");
-        ID_TO_KEY.put(388, "meeroGlassSettings");
-        ID_TO_KEY.put(389, "meeroGlassSwitches");
-        ID_TO_KEY.put(390, "meeroIosAlerts");
-        ID_TO_KEY.put(391, "meeroIosAnim");
-        ID_TO_KEY.put(392, "meeroIosCall");
-        ID_TO_KEY.put(393, "meeroIosCode");
-        ID_TO_KEY.put(394, "meeroIosFastScroll");
-        ID_TO_KEY.put(395, "meeroIosHaptics");
-        ID_TO_KEY.put(396, "meeroIosIcons");
-        ID_TO_KEY.put(397, "meeroIosInputPill");
-        ID_TO_KEY.put(398, "meeroIosIntro");
-        ID_TO_KEY.put(399, "meeroIosLoading");
-        ID_TO_KEY.put(400, "meeroIosMainMenu");
-        ID_TO_KEY.put(401, "meeroIosMediaGrid");
-        ID_TO_KEY.put(402, "meeroIosMenuAnim");
-        ID_TO_KEY.put(403, "meeroIosMsgMenu");
-        ID_TO_KEY.put(404, "meeroIosPopupMenu");
-        ID_TO_KEY.put(405, "meeroIosRow");
-        ID_TO_KEY.put(406, "meeroIosSearch");
-        ID_TO_KEY.put(407, "meeroIosSelection");
-        ID_TO_KEY.put(408, "meeroIosShadows");
-        ID_TO_KEY.put(409, "meeroIosSounds");
-        ID_TO_KEY.put(410, "meeroIosStories");
-        ID_TO_KEY.put(411, "meeroIosWaveform");
-        ID_TO_KEY.put(412, "meeroJanitorAge");
-        ID_TO_KEY.put(413, "meeroJanitorLimit");
-        ID_TO_KEY.put(414, "meeroJanitorMode");
-        ID_TO_KEY.put(415, "meeroMenuBlur");
-        ID_TO_KEY.put(416, "meeroSepFade");
-        ID_TO_KEY.put(417, "meeroSmoothPass");
-        ID_TO_KEY.put(418, "meeroStoryDownload");
-        ID_TO_KEY.put(419, "meeroSwiftMenus");
-        ID_TO_KEY.put(420, "meeroTapMenu");
-        ID_TO_KEY.put(421, "meeroTickDesc0");
-        ID_TO_KEY.put(422, "meeroTickDesc1");
-        ID_TO_KEY.put(423, "meeroTickDesc10");
-        ID_TO_KEY.put(424, "meeroTickDesc11");
-        ID_TO_KEY.put(425, "meeroTickDesc12");
-        ID_TO_KEY.put(426, "meeroTickDesc13");
-        ID_TO_KEY.put(427, "meeroTickDesc14");
-        ID_TO_KEY.put(428, "meeroTickDesc15");
-        ID_TO_KEY.put(429, "meeroTickDesc2");
-        ID_TO_KEY.put(430, "meeroTickDesc3");
-        ID_TO_KEY.put(431, "meeroTickDesc4");
-        ID_TO_KEY.put(432, "meeroTickDesc5");
-        ID_TO_KEY.put(433, "meeroTickDesc6");
-        ID_TO_KEY.put(434, "meeroTickDesc7");
-        ID_TO_KEY.put(435, "meeroTickDesc8");
-        ID_TO_KEY.put(436, "meeroTickDesc9");
-        ID_TO_KEY.put(437, "meeroTickName0");
-        ID_TO_KEY.put(438, "meeroTickName1");
-        ID_TO_KEY.put(439, "meeroTickName10");
-        ID_TO_KEY.put(440, "meeroTickName11");
-        ID_TO_KEY.put(441, "meeroTickName12");
-        ID_TO_KEY.put(442, "meeroTickName13");
-        ID_TO_KEY.put(443, "meeroTickName14");
-        ID_TO_KEY.put(444, "meeroTickName15");
-        ID_TO_KEY.put(445, "meeroTickName2");
-        ID_TO_KEY.put(446, "meeroTickName3");
-        ID_TO_KEY.put(447, "meeroTickName4");
-        ID_TO_KEY.put(448, "meeroTickName5");
-        ID_TO_KEY.put(449, "meeroTickName6");
-        ID_TO_KEY.put(450, "meeroTickName7");
-        ID_TO_KEY.put(451, "meeroTickName8");
-        ID_TO_KEY.put(452, "meeroTickName9");
-        ID_TO_KEY.put(453, "meeroTicksSwitch");
-        ID_TO_KEY.put(454, "meeroUnifiedRadii");
-        ID_TO_KEY.put(455, "MeeroIconMBold");
-        ID_TO_KEY.put(456, "MeeroIconMMarker");
-        ID_TO_KEY.put(457, "MeeroIconMTile");
-        ID_TO_KEY.put(458, "MeeroIconMDuo");
-        ID_TO_KEY.put(459, "MeeroAuditIntegrity");
-        ID_TO_KEY.put(460, "MeeroAuditIntegrityOk");
-        ID_TO_KEY.put(461, "MeeroAuditIntegrityBad");
-        ID_TO_KEY.put(462, "MeeroAuditIntegrityNone");
-        ID_TO_KEY.put(463, "AboutMainChannel");
-        ID_TO_KEY.put(464, "MeeroChannelPromoBody");
-        ID_TO_KEY.put(465, "MeeroChannelPromoJoin");
-        ID_TO_KEY.put(466, "MeeroWatchCopied");
-        ID_TO_KEY.put(467, "MeeroChatHeaderAvatar");
-        ID_TO_KEY.put(468, "MeeroMenuWatchDiag");
-        ID_TO_KEY.put(469, "MeeroMenuWatchDiagDesc");
-        ID_TO_KEY.put(470, "MeeroIosAttachPanel");
-        ID_TO_KEY.put(471, "MeeroIosAttachPanelDesc");
-        ID_TO_KEY.put(485, "MeeroKeywordLogHeader");
-        ID_TO_KEY.put(486, "MeeroKeywordLogEmpty");
-        ID_TO_KEY.put(487, "MeeroKeywordLogClear");
-        ID_TO_KEY.put(488, "MeeroKeywordLogClearConfirm");
-        ID_TO_KEY.put(489, "MeeroKeywordLogInfo");
-        ID_TO_KEY.put(490, "MeeroKeywordLogEntryFormat");
-        ID_TO_KEY.put(491, "MeeroKeywordLogDetailFormat");
-        ID_TO_KEY.put(492, "MeeroKeywordMatchedWord");
-        ID_TO_KEY.put(493, "MeeroKeywordAlertHit");
-        ID_TO_KEY.put(494, "MeeroHdrSectionTitle");
-        ID_TO_KEY.put(495, "MeeroHdrStockTitle");
-        ID_TO_KEY.put(496, "MeeroHdrStockDesc");
-        ID_TO_KEY.put(497, "MeeroHdrCenterTitle");
-        ID_TO_KEY.put(498, "MeeroHdrCenterDesc");
-        ID_TO_KEY.put(499, "MeeroHdrAdaptiveTitle");
-        ID_TO_KEY.put(500, "MeeroHdrAdaptiveDesc");
-        ID_TO_KEY.put(501, "MeeroHdrGlareTitle");
-        ID_TO_KEY.put(502, "MeeroHdrGlareDesc");
-        ID_TO_KEY.put(503, "MeeroHdrBadgeTitle");
-        ID_TO_KEY.put(504, "MeeroHdrBadgeDesc");
-        ID_TO_KEY.put(505, "MeeroHdrCommunityTitle");
-        ID_TO_KEY.put(506, "MeeroHdrCommunityDesc");
+    /** Degraded fallback: the same table XOR-garbled with a fixed SHA-256
+     *  stream ("MeeroStrFB1" | block). Obfuscation-grade, not seed-bound -
+     *  our shipped arm64 APK always has the lib and never takes this path. */
+    private static String fallbackTsv() {
+        try {
+            StringBuilder joined = new StringBuilder();
+            for (String c : FB_ALL) joined.append(c);
+            byte[] raw = android.util.Base64.decode(joined.toString(), android.util.Base64.DEFAULT);
+            final byte[] prefix = "MeeroStrFB1".getBytes("UTF-8");
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            int off = 0, blk = 0;
+            while (off < raw.length) {
+                md.reset();
+                md.update(prefix);
+                md.update((byte) (blk >>> 24));
+                md.update((byte) (blk >>> 16));
+                md.update((byte) (blk >>> 8));
+                md.update((byte) blk);
+                byte[] ks = md.digest();
+                int take = Math.min(32, raw.length - off);
+                for (int i = 0; i < take; i++) raw[off + i] ^= ks[i];
+                off += take;
+                blk++;
+            }
+            return new String(raw, "UTF-8");
+        } catch (Throwable t) {
+            return "";
+        }
     }
 
     private static boolean isArabic() {
@@ -1035,58 +1457,67 @@ public final class MeeroStrings {
         }
     }
 
-    // ✅ تبحث في MAP أولاً، ثم في strings_meerox.xml
-    public static String s(String key) {
-        String[] v = MAP.get(key);
-        if (v != null) {
-            return isArabic() && v[1] != null ? v[1] : v[0];
+    private static String val(int id) {
+        ensure();
+        final String[][] v = vals;
+        if (v == null || id < 0 || id >= v.length || v[id] == null) {
+            final String[] k = keys;
+            return (k != null && id >= 0 && id < k.length) ? k[id] : String.valueOf(id);
         }
-        
-        try {
-            String up = org.telegram.messenger.LocaleController.nullable(
-                    org.telegram.messenger.LocaleController.getString(key));
-            if (up != null && !up.isEmpty()) {
-                return up;
-            }
-        } catch (Throwable ignored) {}
-        
-        return key;
+        return isArabic() && v[id][1] != null ? v[id][1] : (v[id][0] != null ? v[id][0] : v[id][1]);
     }
 
+    /** v186 (batch 2D): numeric call form - the source no longer passes key
+     *  literals, so the DEX string table shows no MeeroX keys at all. */
     public static String s(int id) {
-        String key = ID_TO_KEY.get(id);
-        if (key == null) {
-            return String.valueOf(id);
+        return val(id);
+    }
+
+    /** Legacy string-key form (runtime keys, e.g. config cells resolving
+     *  through title(); misses return the key itself, exactly as before). */
+    public static String s(String key) {
+        ensure();
+        final Integer id = IDX.get(key);
+        if (id == null) {
+            return key;
         }
-        return s(key);
+        return val(id);
     }
 
     public static String title(String key) {
-        String[] v = MAP.get(key);
-        if (v != null) {
-            return isArabic() && v[1] != null ? v[1] : v[0];
+        ensure();
+        final Integer id = IDX.get(key);
+        if (id != null) {
+            return val(id);
         }
-        
         try {
-            String up = org.telegram.messenger.LocaleController.nullable(
+            final String up = org.telegram.messenger.LocaleController.nullable(
                     org.telegram.messenger.LocaleController.getString(key));
-            if (up != null && !up.isEmpty()) {
+            if (up != null) {
                 return up;
             }
-        } catch (Throwable ignored) {}
-        
+        } catch (Throwable ignored) {
+        }
         return key;
     }
 
+    /** Drop-in for getString(R.string.X, ...) / LocaleController.formatString(R.string.X, ...). */
     public static String f(String key, Object... args) {
+        final String raw = s(key);
         try {
-            return String.format(s(key), args);
+            return String.format(raw, args);
         } catch (Throwable t) {
-            return s(key);
+            return raw;
         }
     }
 
+    /** v186 (batch 2D): numeric form of f() for the rewritten call sites. */
     public static String f(int id, Object... args) {
-        return f(String.valueOf(id), args);
+        final String raw = s(id);
+        try {
+            return String.format(raw, args);
+        } catch (Throwable t) {
+            return raw;
+        }
     }
 }
