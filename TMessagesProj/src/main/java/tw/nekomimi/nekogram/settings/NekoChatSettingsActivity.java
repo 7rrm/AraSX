@@ -116,19 +116,19 @@ public class NekoChatSettingsActivity extends BaseNekoXSettingsActivity implemen
 
     private final ConfigCellCustom hdrPreviewRow = new ConfigCellCustom("meeroHdrPreview", ConfigCellCustom.CUSTOM_ITEM_MeeroHeaderPreview, false);
     private final ConfigCellTextCheck hdrStockRow = new ConfigCellTextCheck(NekoConfig.meeroHeaderStock,
-            MeeroStrings.s(496), MeeroStrings.s(495));
+            org.telegram.messenger.LocaleController.getString("MeeroHdrStockDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrStockTitle"));
     private final ConfigCellTextCheck hdrCenterRow = new ConfigCellTextCheck(NekoConfig.meeroCherryTitle,
-            MeeroStrings.s(498), MeeroStrings.s(497));
+            org.telegram.messenger.LocaleController.getString("MeeroHdrCenterDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrCenterTitle"));
     private final ConfigCellTextCheck hdrAdaptiveRow = new ConfigCellTextCheck(NekoConfig.meeroCherryAdaptive,
-            MeeroStrings.s(500), MeeroStrings.s(499));
+            org.telegram.messenger.LocaleController.getString("MeeroHdrAdaptiveDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrAdaptiveTitle"));
     private final ConfigCellTextCheck hdrGlareRow = new ConfigCellTextCheck(NekoConfig.meeroGlare,
-            MeeroStrings.s(502), MeeroStrings.s(501));
+            org.telegram.messenger.LocaleController.getString("MeeroHdrGlareDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrGlareTitle"));
     private final ConfigCellTextCheck hdrBadgeRow = new ConfigCellTextCheck(NekoConfig.unreadBadgeOnBackButton,
-            MeeroStrings.s(504), MeeroStrings.s(503));
+            org.telegram.messenger.LocaleController.getString("MeeroHdrBadgeDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrBadgeTitle"));
     // MeeroX v260 (his final verdict: feature-with-a-switch, not a silent
     // weld): Telegram 12's white community disc on avatars lives here now.
     private final ConfigCellTextCheck hdrCommunityRow = new ConfigCellTextCheck(NekoConfig.meeroCommunityBadge,
-            MeeroStrings.s(506), MeeroStrings.s(505)) {
+            org.telegram.messenger.LocaleController.getString("MeeroHdrCommunityDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrCommunityTitle")) {
         // MeeroX v269: rebind the dialog list INSTANTLY so toggling is visible at once.
         @Override
         public void onClick(org.telegram.ui.Cells.TextCheckCell cell) {
@@ -162,7 +162,7 @@ public class NekoChatSettingsActivity extends BaseNekoXSettingsActivity implemen
         meeroHdrSubRows.clear();
         int idx = meeroHdrAnchor;
         // MeeroX v275 (his order): the edition tag retires with its mission complete - it proved installs reach his device (the v267 install-certainty probe), the header section keeps a clean title.
-        hdrGroupRow = new ConfigCellText(MeeroStrings.s(494), meeroHdrExpanded ? "⌄" : "‹", this::meeroToggleHdrGroup);
+        hdrGroupRow = new ConfigCellText(org.telegram.messenger.LocaleController.getString("MeeroHdrSectionTitle"), meeroHdrExpanded ? "⌄" : "‹", this::meeroToggleHdrGroup);
         hdrGroupRow.bindCellGroup(cellGroup);
         cellGroup.rows.add(idx++, hdrGroupRow);
         if (meeroHdrExpanded) {
@@ -201,18 +201,18 @@ public class NekoChatSettingsActivity extends BaseNekoXSettingsActivity implemen
     // v278; the dev-profile row keeps its @i55544 gate). Nothing is
     // duplicated back on the main page - one place, no repeats.
     // ---------------------------------------------------------------
-    private final AbstractConfigCell headerChatMoved = cellGroup.appendCell(new ConfigCellHeader(MeeroStrings.s(105)));
-    private final AbstractConfigCell menuBlurRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroMenuBlur, MeeroStrings.s(170)));
-    private final AbstractConfigCell chatsMenuFogRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroChatsMenuFog, MeeroStrings.s(65)));
-    private final AbstractConfigCell iosInputPillRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroIosInputPill, MeeroStrings.s(138)));
+    private final AbstractConfigCell headerChatMoved = cellGroup.appendCell(new ConfigCellHeader(MeeroStrings.s("MeeroGroupChat")));
+    private final AbstractConfigCell menuBlurRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroMenuBlur, MeeroStrings.s("MeeroMenuBlurInfo")));
+    private final AbstractConfigCell chatsMenuFogRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroChatsMenuFog, MeeroStrings.s("MeeroChatsMenuFogInfo")));
+    private final AbstractConfigCell iosInputPillRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroIosInputPill, MeeroStrings.s("MeeroIosInputPillInfo")));
     private final AbstractConfigCell devProfileBgRow = null; // Removed per user request
-    private final AbstractConfigCell iosWaveformRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroIosWaveform, MeeroStrings.s(152)));
-    private final AbstractConfigCell iosCodeRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroIosCode, MeeroStrings.s(134)));
-    private final AbstractConfigCell iosSelectionRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroIosSelection, MeeroStrings.s(148)));
-    private final AbstractConfigCell amoledBubblesRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroAmoledBubbles, MeeroStrings.s(8)));
-    private final AbstractConfigCell amoledStrokeRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroAmoledStroke, MeeroStrings.s(9)));
-    private final AbstractConfigCell unifiedRadiiRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroUnifiedRadii, MeeroStrings.s(267)));
-    private final AbstractConfigCell ticksSwitchRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroTicksSwitch, MeeroStrings.s(266)) {
+    private final AbstractConfigCell iosWaveformRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroIosWaveform, MeeroStrings.s("MeeroIosWaveformInfo")));
+    private final AbstractConfigCell iosCodeRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroIosCode, MeeroStrings.s("MeeroIosCodeInfo")));
+    private final AbstractConfigCell iosSelectionRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroIosSelection, MeeroStrings.s("MeeroIosSelectionInfo")));
+    private final AbstractConfigCell amoledBubblesRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroAmoledBubbles, MeeroStrings.s("MeeroAmoledBubblesInfo")));
+    private final AbstractConfigCell amoledStrokeRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroAmoledStroke, MeeroStrings.s("MeeroAmoledStrokeInfo")));
+    private final AbstractConfigCell unifiedRadiiRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroUnifiedRadii, MeeroStrings.s("MeeroUnifiedRadiiInfo")));
+    private final AbstractConfigCell ticksSwitchRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroTicksSwitch, MeeroStrings.s("MeeroTicksSwitchInfo")) {
         @Override
         public void onClick(org.telegram.ui.Cells.TextCheckCell cell) {
             super.onClick(cell);
@@ -225,7 +225,7 @@ public class NekoChatSettingsActivity extends BaseNekoXSettingsActivity implemen
             }
         }
     });
-    private final AbstractConfigCell storyDownloadRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroStoryDownload, MeeroStrings.s(260)));
+    private final AbstractConfigCell storyDownloadRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.meeroStoryDownload, MeeroStrings.s("MeeroStoryDownloadInfo")));
     // MeeroX v280 (his order «والذي في الصورة ينتقل إلى المحادثات» - the
     // «فقاعة iOS الرسمية» bubble picker): the last bubble-related row left
     // on the main page joins its family here. Same key, names served
