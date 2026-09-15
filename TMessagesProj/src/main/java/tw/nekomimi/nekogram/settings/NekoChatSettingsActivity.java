@@ -116,19 +116,19 @@ public class NekoChatSettingsActivity extends BaseNekoXSettingsActivity implemen
 
     private final ConfigCellCustom hdrPreviewRow = new ConfigCellCustom("meeroHdrPreview", ConfigCellCustom.CUSTOM_ITEM_MeeroHeaderPreview, false);
     private final ConfigCellTextCheck hdrStockRow = new ConfigCellTextCheck(NekoConfig.meeroHeaderStock,
-            org.telegram.messenger.LocaleController.getString("MeeroHdrStockDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrStockTitle"));
+            MeeroStrings.s("MeeroHdrStockDesc"), MeeroStrings.s("MeeroHdrStockTitle"));
     private final ConfigCellTextCheck hdrCenterRow = new ConfigCellTextCheck(NekoConfig.meeroCherryTitle,
-            org.telegram.messenger.LocaleController.getString("MeeroHdrCenterDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrCenterTitle"));
+            MeeroStrings.s("MeeroHdrCenterDesc"), MeeroStrings.s("MeeroHdrCenterTitle"));
     private final ConfigCellTextCheck hdrAdaptiveRow = new ConfigCellTextCheck(NekoConfig.meeroCherryAdaptive,
-            org.telegram.messenger.LocaleController.getString("MeeroHdrAdaptiveDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrAdaptiveTitle"));
+            MeeroStrings.s("MeeroHdrAdaptiveDesc"), MeeroStrings.s("MeeroHdrAdaptiveTitle"));
     private final ConfigCellTextCheck hdrGlareRow = new ConfigCellTextCheck(NekoConfig.meeroGlare,
-            org.telegram.messenger.LocaleController.getString("MeeroHdrGlareDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrGlareTitle"));
+            MeeroStrings.s("MeeroHdrGlareDesc"), MeeroStrings.s("MeeroHdrGlareTitle"));
     private final ConfigCellTextCheck hdrBadgeRow = new ConfigCellTextCheck(NekoConfig.unreadBadgeOnBackButton,
-            org.telegram.messenger.LocaleController.getString("MeeroHdrBadgeDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrBadgeTitle"));
+            MeeroStrings.s("MeeroHdrBadgeDesc"), MeeroStrings.s("MeeroHdrBadgeTitle"));
     // MeeroX v260 (his final verdict: feature-with-a-switch, not a silent
     // weld): Telegram 12's white community disc on avatars lives here now.
     private final ConfigCellTextCheck hdrCommunityRow = new ConfigCellTextCheck(NekoConfig.meeroCommunityBadge,
-            org.telegram.messenger.LocaleController.getString("MeeroHdrCommunityDesc"), org.telegram.messenger.LocaleController.getString("MeeroHdrCommunityTitle")) {
+            MeeroStrings.s("MeeroHdrCommunityDesc"), MeeroStrings.s("MeeroHdrCommunityTitle")) {
         // MeeroX v269: rebind the dialog list INSTANTLY so toggling is visible at once.
         @Override
         public void onClick(org.telegram.ui.Cells.TextCheckCell cell) {
@@ -162,7 +162,7 @@ public class NekoChatSettingsActivity extends BaseNekoXSettingsActivity implemen
         meeroHdrSubRows.clear();
         int idx = meeroHdrAnchor;
         // MeeroX v275 (his order): the edition tag retires with its mission complete - it proved installs reach his device (the v267 install-certainty probe), the header section keeps a clean title.
-        hdrGroupRow = new ConfigCellText(org.telegram.messenger.LocaleController.getString("MeeroHdrSectionTitle"), meeroHdrExpanded ? "⌄" : "‹", this::meeroToggleHdrGroup);
+        hdrGroupRow = new ConfigCellText(MeeroStrings.s("MeeroHdrSectionTitle"), meeroHdrExpanded ? "⌄" : "‹", this::meeroToggleHdrGroup);
         hdrGroupRow.bindCellGroup(cellGroup);
         cellGroup.rows.add(idx++, hdrGroupRow);
         if (meeroHdrExpanded) {
