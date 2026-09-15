@@ -1268,6 +1268,19 @@
     <!-- MeeroX v231: fast-motion switch (Motion settings) -->
     <string name="MeeroFastAnimTitle">حركات أسرع (0.75×)</string>
     <string name="AccDescrSchedule">تاريخ إنشاء الحساب</string>
-    <string name="AccountCreationDate">تاريخ إنشاء الحساب</string>
-    <string name="AccountCreationTime">الساعةة</string>
+    <string name="AccountCreationDate">تاريخ إنشاء الحساب </string>
+    <string name="AccountCreationTime">الساعةة </string>
+    <string name="MeeroHdrSectionTitle">شريط الدردشة العلوي</string>
+    <string name="MeeroHdrStockTitle">رجوع للأصلي</string>
+    <string name="MeeroHdrStockDesc">يرجع الهيدر لشكل تيليجرام الأصلي؛ يطفي التوسيط والعرض المتكيّف حتى تطفئه</string>
+    <string name="MeeroHdrCenterTitle">توسيط عنوان الدردشة</string>
+    <string name="MeeroHdrCenterDesc">كبسولة زجاجية بالوسط، تشتغل بدون إعادة تشغيل</string>
+    <string name="MeeroHdrAdaptiveTitle">عرض الكبسولة متكيّف</string>
+    <string name="MeeroHdrAdaptiveDesc">الكبسولة تتسع وتضيق بعرض الاسم والحالة بدل العرض الثابت</string>
+    <string name="MeeroHdrGlareTitle">تأثيرات البريق</string>
+    <string name="MeeroHdrGlareDesc">لمعة زجاجية متحركة تعبر كبسولة العنوان وفقاعات الرسائل</string>
+    <string name="MeeroHdrBadgeTitle">عداد غير المقروء على زر الرجوع</string>
+    <string name="MeeroHdrBadgeDesc">عداد أحمر يعد محادثاتك غير المقروءة الثانية وأنت داخل دردشة</string>
+    <string name="MeeroHdrCommunityTitle">شارة المجتمع المرتبط </string>
+    <string name="MeeroHdrCommunityDesc">قرص أبيض بسهم على صور القنوات/المجموعات المربوطة بمجتمع - بالقائمة والبحث والبروفايل </string>
 </resources>
