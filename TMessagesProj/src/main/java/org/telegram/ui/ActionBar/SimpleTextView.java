@@ -857,7 +857,20 @@ public class SimpleTextView extends View implements Drawable.Callback {
         if (leftDrawable != null && !leftDrawableOutside) {
             int x = (int) -scrollingOffset;
             if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL) {
-                x += offsetX;
+                // ArasGramX: RTL fix — for RTL text (Arabic, Hebrew, etc.) the
+                // layout's getLineLeft(0) returns the left edge of the glyphs
+                // (which is > 0 for right-aligned RTL text). This makes offsetX
+                // = (width - textWidth) / 2 - getLineLeft(0) go NEGATIVE for
+                // short RTL text in a wide view, drawing the leftDrawable
+                // offscreen (to the left of the view's bounds) where it's
+                // invisible. This is the root cause of "typing dots disappear
+                // in iOS-style centered chat header mode" with Arabic locale.
+                //
+                // Fix: clamp the drawable's x to the view's left edge. The
+                // text's centering is unaffected (it's drawn separately at
+                // offsetX + textOffsetX via canvas.translate). Only the
+                // drawable's position is clamped so it's always visible.
+                x += Math.max(0, offsetX);
             }
             int y;
             if ((gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL) {

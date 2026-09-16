@@ -1568,18 +1568,9 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
                     // than the gap between the buttons and slide underneath
                     // them. Pinning the width to the same reserve the title
                     // uses keeps it inside that gap and ellipsised instead.
-                    // ArasGramX: Cherrygram-style — always use AT_MOST for the
-                    // subtitle, even when centered. The original EXACTLY spec forced
-                    // the subtitle view to be full-width, which broke the
-                    // TypingDotsDrawable's positioning (the dots got clipped or
-                    // appeared at the wrong offset when the SimpleTextView tried to
-                    // center the text inside the full-width view).
-                    //
-                    // AT_MOST makes the subtitle view hug its content (text + left
-                    // drawable), so the centered layout in onLayout() places the
-                    // view at the bar's midpoint with the drawable correctly to the
-                    // left of the text — exactly like iOS.
-                    final int subtitleSpec = MeasureSpec.makeMeasureSpec(availableWidth, MeasureSpec.AT_MOST);
+                    final int subtitleSpec = isCentered()
+                            ? MeasureSpec.makeMeasureSpec(availableWidth, MeasureSpec.EXACTLY)
+                            : MeasureSpec.makeMeasureSpec(availableWidth, MeasureSpec.AT_MOST);
                     subtitleTextView.measure(subtitleSpec, MeasureSpec.makeMeasureSpec(dp(20), MeasureSpec.AT_MOST));
                 }
                 if (additionalSubTitleOverlayContainer != null) {
