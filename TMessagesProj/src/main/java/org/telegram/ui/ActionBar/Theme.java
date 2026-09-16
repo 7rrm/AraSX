@@ -8573,13 +8573,25 @@ public class Theme {
             chat_msgInInstantDrawable = resources.getDrawable(R.drawable.msg_instant).mutate();
             chat_msgOutInstantDrawable = resources.getDrawable(R.drawable.msg_instant).mutate();
             chat_msgErrorDrawable = resources.getDrawable(R.drawable.msg_warning);
-            chat_muteIconDrawable = resources.getDrawable(R.drawable.list_mute).mutate();
+            chat_muteIconDrawable = resources.getDrawable(
+                    tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR == 1 &&
+                    xyz.nextalone.nagram.NaConfig.INSTANCE.getIconReplacements().Int() == 1
+                        ? tw.nekomimi.nekogram.ui.icons.SolarIcons.Companion.getConversion(R.drawable.list_mute)
+                        : R.drawable.list_mute).mutate();
             chat_lockIconDrawable = resources.getDrawable(R.drawable.ic_lock_header);
-            chat_msgInCallDrawable[0] = resources.getDrawable(R.drawable.chat_calls_voice).mutate();
+            chat_msgInCallDrawable[0] = resources.getDrawable(
+                    tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR == 1 &&
+                    xyz.nextalone.nagram.NaConfig.INSTANCE.getIconReplacements().Int() == 1
+                        ? tw.nekomimi.nekogram.ui.icons.SolarIcons.Companion.getConversion(R.drawable.chat_calls_voice)
+                        : R.drawable.chat_calls_voice).mutate();
             chat_msgInCallSelectedDrawable[0] = resources.getDrawable(R.drawable.chat_calls_voice).mutate();
             chat_msgOutCallDrawable[0] = resources.getDrawable(R.drawable.chat_calls_voice).mutate();
             chat_msgOutCallSelectedDrawable[0] = resources.getDrawable(R.drawable.chat_calls_voice).mutate();
-            chat_msgInCallDrawable[1] = resources.getDrawable(R.drawable.chat_calls_video).mutate();
+            chat_msgInCallDrawable[1] = resources.getDrawable(
+                    tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR == 1 &&
+                    xyz.nextalone.nagram.NaConfig.INSTANCE.getIconReplacements().Int() == 1
+                        ? tw.nekomimi.nekogram.ui.icons.SolarIcons.Companion.getConversion(R.drawable.chat_calls_video)
+                        : R.drawable.chat_calls_video).mutate();
             chat_msgInCallSelectedDrawable[1] = resources.getDrawable(R.drawable.chat_calls_video).mutate();
             chat_msgOutCallDrawable[1] = resources.getDrawable(R.drawable.chat_calls_video).mutate();
             chat_msgOutCallSelectedDrawable[1] = resources.getDrawable(R.drawable.chat_calls_video).mutate();
