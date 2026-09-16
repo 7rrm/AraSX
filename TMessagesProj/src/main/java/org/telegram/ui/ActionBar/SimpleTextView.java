@@ -857,20 +857,18 @@ public class SimpleTextView extends View implements Drawable.Callback {
         if (leftDrawable != null && !leftDrawableOutside) {
             int x = (int) -scrollingOffset;
             if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL) {
-                // ArasGramX: RTL fix — for RTL text (Arabic, Hebrew, etc.) the
-                // layout's getLineLeft(0) returns the left edge of the glyphs
-                // (which is > 0 for right-aligned RTL text). This makes offsetX
-                // = (width - textWidth) / 2 - getLineLeft(0) go NEGATIVE for
-                // short RTL text in a wide view, drawing the leftDrawable
-                // offscreen (to the left of the view's bounds) where it's
-                // invisible. This is the root cause of "typing dots disappear
-                // in iOS-style centered chat header mode" with Arabic locale.
-                //
-                // Fix: clamp the drawable's x to the view's left edge. The
-                // text's centering is unaffected (it's drawn separately at
-                // offsetX + textOffsetX via canvas.translate). Only the
-                // drawable's position is clamped so it's always visible.
-                x += Math.max(0, offsetX);
+                // ArasGramX RTL fix v3: offsetX was computed as
+                //   (width - textWidth) / 2 - getLineLeft(0)
+                // For RTL text (Arabic), getLineLeft(0) > 0, making offsetX too
+                // negative — the drawable ends up at the view's left edge
+                // instead of next to the centered text.
+                // Adding getLineLeft(0) back gives (width - textWidth) / 2,
+                // the correct centered position for both LTR and RTL text.
+                if (layout != null) {
+                    x += offsetX + (int) layout.getLineLeft(0);
+                } else {
+                    x += offsetX;
+                }
             }
             int y;
             if ((gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL) {
@@ -890,10 +888,12 @@ public class SimpleTextView extends View implements Drawable.Callback {
         if (replacedDrawable != null && replacedText != null) {
             int x = (int) (-scrollingOffset + replacingDrawableTextOffset);
             if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL) {
-                // ArasGramX RTL fix: offsetX goes negative for RTL text in
-                // CENTER_HORIZONTAL mode (getLineLeft(0) > 0 for RTL), drawing
-                // the drawable offscreen. Clamp to 0 so it's always visible.
-                x += Math.max(0, offsetX);
+                // ArasGramX RTL fix: same as leftDrawable above.
+                if (layout != null) {
+                    x += offsetX + (int) layout.getLineLeft(0);
+                } else {
+                    x += offsetX;
+                }
             }
             int y;
             if ((gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL) {
@@ -915,7 +915,12 @@ public class SimpleTextView extends View implements Drawable.Callback {
             int x = textOffsetX + textWidth + drawablePadding + (int) -scrollingOffset;
             if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL ||
                     (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
-                x += Math.max(0, offsetX);  // ArasGramX RTL fix: clamp negative offsetX for RTL
+                // ArasGramX RTL fix: same offsetX + getLineLeft(0) correction.
+                if (layout != null) {
+                    x += offsetX + (int) layout.getLineLeft(0);
+                } else {
+                    x += offsetX;
+                }
             }
             int dw = (int) (rightDrawable.getIntrinsicWidth() * rightDrawableScale);
             int dh = (int) (rightDrawable.getIntrinsicHeight() * rightDrawableScale);
@@ -938,7 +943,12 @@ public class SimpleTextView extends View implements Drawable.Callback {
             }
             if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL ||
                     (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
-                x += Math.max(0, offsetX);  // ArasGramX RTL fix: clamp negative offsetX for RTL
+                // ArasGramX RTL fix: same offsetX + getLineLeft(0) correction.
+                if (layout != null) {
+                    x += offsetX + (int) layout.getLineLeft(0);
+                } else {
+                    x += offsetX;
+                }
             }
             int dw = (int) (rightDrawable2.getIntrinsicWidth() * rightDrawableScale);
             int dh = (int) (rightDrawable2.getIntrinsicHeight() * rightDrawableScale);
@@ -1056,7 +1066,12 @@ public class SimpleTextView extends View implements Drawable.Callback {
                 int x = textOffsetX + textWidth + drawablePadding + (int) -scrollingOffset;
                 if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL ||
                         (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
-                    x += Math.max(0, offsetX);  // ArasGramX RTL fix: clamp negative offsetX for RTL
+                    // ArasGramX RTL fix: same offsetX + getLineLeft(0) correction.
+                    if (layout != null) {
+                        x += offsetX + (int) layout.getLineLeft(0);
+                    } else {
+                        x += offsetX;
+                    }
                 }
                 int dw = (int) (rightDrawable.getIntrinsicWidth() * rightDrawableScale);
                 int dh = (int) (rightDrawable.getIntrinsicHeight() * rightDrawableScale);
@@ -1079,7 +1094,12 @@ public class SimpleTextView extends View implements Drawable.Callback {
                 }
                 if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL ||
                         (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
-                    x += Math.max(0, offsetX);  // ArasGramX RTL fix: clamp negative offsetX for RTL
+                    // ArasGramX RTL fix: same offsetX + getLineLeft(0) correction.
+                    if (layout != null) {
+                        x += offsetX + (int) layout.getLineLeft(0);
+                    } else {
+                        x += offsetX;
+                    }
                 }
                 int dw = (int) (rightDrawable2.getIntrinsicWidth() * rightDrawableScale);
                 int dh = (int) (rightDrawable2.getIntrinsicHeight() * rightDrawableScale);
