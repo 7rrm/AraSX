@@ -890,7 +890,10 @@ public class SimpleTextView extends View implements Drawable.Callback {
         if (replacedDrawable != null && replacedText != null) {
             int x = (int) (-scrollingOffset + replacingDrawableTextOffset);
             if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL) {
-                x += offsetX;
+                // ArasGramX RTL fix: offsetX goes negative for RTL text in
+                // CENTER_HORIZONTAL mode (getLineLeft(0) > 0 for RTL), drawing
+                // the drawable offscreen. Clamp to 0 so it's always visible.
+                x += Math.max(0, offsetX);
             }
             int y;
             if ((gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL) {
@@ -912,7 +915,7 @@ public class SimpleTextView extends View implements Drawable.Callback {
             int x = textOffsetX + textWidth + drawablePadding + (int) -scrollingOffset;
             if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL ||
                     (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
-                x += offsetX;
+                x += Math.max(0, offsetX);  // ArasGramX RTL fix: clamp negative offsetX for RTL
             }
             int dw = (int) (rightDrawable.getIntrinsicWidth() * rightDrawableScale);
             int dh = (int) (rightDrawable.getIntrinsicHeight() * rightDrawableScale);
@@ -935,7 +938,7 @@ public class SimpleTextView extends View implements Drawable.Callback {
             }
             if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL ||
                     (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
-                x += offsetX;
+                x += Math.max(0, offsetX);  // ArasGramX RTL fix: clamp negative offsetX for RTL
             }
             int dw = (int) (rightDrawable2.getIntrinsicWidth() * rightDrawableScale);
             int dh = (int) (rightDrawable2.getIntrinsicHeight() * rightDrawableScale);
@@ -1053,7 +1056,7 @@ public class SimpleTextView extends View implements Drawable.Callback {
                 int x = textOffsetX + textWidth + drawablePadding + (int) -scrollingOffset;
                 if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL ||
                         (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
-                    x += offsetX;
+                    x += Math.max(0, offsetX);  // ArasGramX RTL fix: clamp negative offsetX for RTL
                 }
                 int dw = (int) (rightDrawable.getIntrinsicWidth() * rightDrawableScale);
                 int dh = (int) (rightDrawable.getIntrinsicHeight() * rightDrawableScale);
@@ -1076,7 +1079,7 @@ public class SimpleTextView extends View implements Drawable.Callback {
                 }
                 if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL ||
                         (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
-                    x += offsetX;
+                    x += Math.max(0, offsetX);  // ArasGramX RTL fix: clamp negative offsetX for RTL
                 }
                 int dw = (int) (rightDrawable2.getIntrinsicWidth() * rightDrawableScale);
                 int dh = (int) (rightDrawable2.getIntrinsicHeight() * rightDrawableScale);
