@@ -1342,13 +1342,6 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
                         statusDrawables[a].stop();
                     }
                 }
-                // ArasGramX: force the subtitle view to re-layout & invalidate so
-                // the typing dots drawable actually appears when the chat header
-                // is in iOS-style centered mode. Without this, the SimpleTextView's
-                // cached layout doesn't account for the leftDrawable that was just
-                // added, and the dots end up clipped or invisible.
-                subtitleTextView.requestLayout();
-                subtitleTextView.invalidate();
             } catch (Exception e) {
                 FileLog.e(e);
             }
