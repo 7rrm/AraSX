@@ -1400,10 +1400,12 @@ public class ProfileActionsView extends View {
             if (iconsType != tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR) {
                 return resId;
             }
-            // MUTE (shown when UNMUTED, button says "كتم") → solid bell (no slash)
+            // MUTE (shown when UNMUTED, button says "كتم") → SOLID filled bell (no holes)
+            // Uses filter_unmuted_solar because it has NO evenOdd fillType —
+            // msg_notifications_solar uses evenOdd which creates a hole inside.
             if (resId == org.telegram.messenger.R.drawable.filled_profile_mute_24 ||
                 resId == org.telegram.messenger.R.drawable.outline_profile_mute_24) {
-                return org.telegram.messenger.R.drawable.msg_notifications_solar;
+                return org.telegram.messenger.R.drawable.filter_unmuted_solar;
             }
             // UNMUTE (shown when MUTED, button says "إلغاء الكتم") → bell WITH slash
             if (resId == org.telegram.messenger.R.drawable.filled_profile_unmute_24 ||
