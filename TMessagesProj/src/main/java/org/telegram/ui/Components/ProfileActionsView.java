@@ -1400,15 +1400,15 @@ public class ProfileActionsView extends View {
             if (iconsType != tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR) {
                 return resId;
             }
-            // MUTE → solid filled bell (no slash)
+            // MUTE (shown when UNMUTED, button says "كتم") → solid bell (no slash)
             if (resId == org.telegram.messenger.R.drawable.filled_profile_mute_24 ||
                 resId == org.telegram.messenger.R.drawable.outline_profile_mute_24) {
                 return org.telegram.messenger.R.drawable.msg_notifications_solar;
             }
-            // UNMUTE
+            // UNMUTE (shown when MUTED, button says "إلغاء الكتم") → bell WITH slash
             if (resId == org.telegram.messenger.R.drawable.filled_profile_unmute_24 ||
                 resId == org.telegram.messenger.R.drawable.outline_profile_unmute_24) {
-                return org.telegram.messenger.R.drawable.notifications_on_solar;
+                return org.telegram.messenger.R.drawable.msg_bell_mute_solar;
             }
             // CALL
             if (resId == org.telegram.messenger.R.drawable.filled_profile_call_24 ||
