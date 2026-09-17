@@ -433,6 +433,17 @@ public class ActionBarMenuSubItem extends FrameLayout {
     }
 
     public void setIcon(int resId) {
+        // ArasGramX: apply Solar icon conversion directly here.
+        // imageView.setImageResource() uses mContext.getDrawable() which
+        // might bypass IconsResources (e.g., if context is ApplicationContext
+        // instead of LaunchActivity). By converting the resource ID here,
+        // we guarantee the Solar replacement happens regardless of context.
+        try {
+            int iconsType = xyz.nextalone.nagram.NaConfig.INSTANCE.getIconReplacements().Int();
+            if (iconsType == tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR) {
+                resId = tw.nekomimi.nekogram.ui.icons.SolarIcons.Companion.getConversion(resId);
+            }
+        } catch (Throwable ignore) {}
         imageView.setImageResource(iconResId = resId);
     }
 

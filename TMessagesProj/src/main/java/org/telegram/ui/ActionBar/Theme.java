@@ -4528,8 +4528,7 @@ public class Theme {
     }
 
     public static Drawable createEmojiIconSelectorDrawable(Context context, int resource, int defaultColor, int pressedColor) {
-        // ArasGramX: wrap with IconsResources so Solar icon replacement applies
-            Resources resources = new tw.nekomimi.nekogram.ui.icons.IconsResources(context.getResources());
+        Resources resources = context.getResources();
         Drawable defaultDrawable = resources.getDrawable(resource).mutate();
         if (defaultColor != 0) {
             defaultDrawable.setColorFilter(new PorterDuffColorFilter(defaultColor, PorterDuff.Mode.MULTIPLY));
@@ -4556,8 +4555,7 @@ public class Theme {
     }
 
     public static Drawable createEditTextDrawable(Context context, int color, int colorActivated) {
-        // ArasGramX: wrap with IconsResources so Solar icon replacement applies
-            Resources resources = new tw.nekomimi.nekogram.ui.icons.IconsResources(context.getResources());
+        Resources resources = context.getResources();
         Drawable defaultDrawable = resources.getDrawable(R.drawable.search_dark).mutate();
         defaultDrawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
         Drawable pressedDrawable = resources.getDrawable(R.drawable.search_dark_activated).mutate();
@@ -4631,8 +4629,7 @@ public class Theme {
     }
 
     public static Drawable createSimpleSelectorDrawable(Context context, int resource, int defaultColor, int pressedColor) {
-        // ArasGramX: wrap with IconsResources so Solar icon replacement applies
-            Resources resources = new tw.nekomimi.nekogram.ui.icons.IconsResources(context.getResources());
+        Resources resources = context.getResources();
         Drawable defaultDrawable = resources.getDrawable(resource).mutate();
         if (defaultColor != 0) {
             defaultDrawable.setColorFilter(new PorterDuffColorFilter(defaultColor, PorterDuff.Mode.MULTIPLY));
@@ -7890,8 +7887,7 @@ public class Theme {
             linkSelectionPaint = new Paint();
             linkSelectionPaint.setPathEffect(LinkPath.getRoundedEffect());
 
-            // ArasGramX: wrap with IconsResources so Solar icon replacement applies
-            Resources resources = new tw.nekomimi.nekogram.ui.icons.IconsResources(context.getResources());
+            Resources resources = context.getResources();
 
             avatarDrawables[0] = resources.getDrawable(R.drawable.chats_saved);
             avatarDrawables[1] = resources.getDrawable(R.drawable.ghost);
@@ -8037,8 +8033,7 @@ public class Theme {
         createCommonResources(context);
         createCommonDialogResources(context);
         if (dialogs_namePaint == null) {
-            // ArasGramX: wrap with IconsResources so Solar icon replacement applies
-            Resources resources = new tw.nekomimi.nekogram.ui.icons.IconsResources(context.getResources());
+            Resources resources = context.getResources();
 
             dialogs_namePaint = new TextPaint[2];
             dialogs_nameEncryptedPaint = new TextPaint[2];
@@ -8475,8 +8470,7 @@ public class Theme {
 
         if (!fontsOnly && chat_msgInDrawable == null) {
 
-            // ArasGramX: wrap with IconsResources so Solar icon replacement applies
-            Resources resources = new tw.nekomimi.nekogram.ui.icons.IconsResources(context.getResources());
+            Resources resources = context.getResources();
 
             chat_msgNoSoundDrawable = resources.getDrawable(R.drawable.video_muted);
             chat_livePhoto = resources.getDrawable(R.drawable.media_live_on).mutate();
@@ -8573,25 +8567,13 @@ public class Theme {
             chat_msgInInstantDrawable = resources.getDrawable(R.drawable.msg_instant).mutate();
             chat_msgOutInstantDrawable = resources.getDrawable(R.drawable.msg_instant).mutate();
             chat_msgErrorDrawable = resources.getDrawable(R.drawable.msg_warning);
-            chat_muteIconDrawable = resources.getDrawable(
-                    tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR == 1 &&
-                    xyz.nextalone.nagram.NaConfig.INSTANCE.getIconReplacements().Int() == 1
-                        ? tw.nekomimi.nekogram.ui.icons.SolarIcons.Companion.getConversion(R.drawable.list_mute)
-                        : R.drawable.list_mute).mutate();
+            chat_muteIconDrawable = resources.getDrawable(R.drawable.list_mute).mutate();
             chat_lockIconDrawable = resources.getDrawable(R.drawable.ic_lock_header);
-            chat_msgInCallDrawable[0] = resources.getDrawable(
-                    tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR == 1 &&
-                    xyz.nextalone.nagram.NaConfig.INSTANCE.getIconReplacements().Int() == 1
-                        ? tw.nekomimi.nekogram.ui.icons.SolarIcons.Companion.getConversion(R.drawable.chat_calls_voice)
-                        : R.drawable.chat_calls_voice).mutate();
+            chat_msgInCallDrawable[0] = resources.getDrawable(R.drawable.chat_calls_voice).mutate();
             chat_msgInCallSelectedDrawable[0] = resources.getDrawable(R.drawable.chat_calls_voice).mutate();
             chat_msgOutCallDrawable[0] = resources.getDrawable(R.drawable.chat_calls_voice).mutate();
             chat_msgOutCallSelectedDrawable[0] = resources.getDrawable(R.drawable.chat_calls_voice).mutate();
-            chat_msgInCallDrawable[1] = resources.getDrawable(
-                    tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR == 1 &&
-                    xyz.nextalone.nagram.NaConfig.INSTANCE.getIconReplacements().Int() == 1
-                        ? tw.nekomimi.nekogram.ui.icons.SolarIcons.Companion.getConversion(R.drawable.chat_calls_video)
-                        : R.drawable.chat_calls_video).mutate();
+            chat_msgInCallDrawable[1] = resources.getDrawable(R.drawable.chat_calls_video).mutate();
             chat_msgInCallSelectedDrawable[1] = resources.getDrawable(R.drawable.chat_calls_video).mutate();
             chat_msgOutCallDrawable[1] = resources.getDrawable(R.drawable.chat_calls_video).mutate();
             chat_msgOutCallSelectedDrawable[1] = resources.getDrawable(R.drawable.chat_calls_video).mutate();
@@ -9250,8 +9232,7 @@ public class Theme {
         if (profile_verifiedDrawable == null) {
             profile_aboutTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
 
-            // ArasGramX: wrap with IconsResources so Solar icon replacement applies
-            Resources resources = new tw.nekomimi.nekogram.ui.icons.IconsResources(context.getResources());
+            Resources resources = context.getResources();
 
             profile_verifiedDrawable = resources.getDrawable(R.drawable.verified_area).mutate();
             profile_verifiedCheckDrawable = resources.getDrawable(R.drawable.verified_check).mutate();
