@@ -1230,6 +1230,17 @@ public class ProfileActionsView extends View {
             } else {
                 drawableAnimated = null;
             }
+            // ArasGramX: apply Solar icon conversion for ProfileActionsView.
+            // The ActionButton enum uses icons like filled_profile_mute_24,
+            // outline_profile_call_24, etc. These are NOT in the SolarIcons
+            // conversion table and have no _solar versions. We map them to
+            // existing Solar icons that serve the same purpose.
+            if (filledRes != 0) {
+                filledRes = arasToSolarIcon(filledRes);
+            }
+            if (outlineRes != 0) {
+                outlineRes = arasToSolarIcon(outlineRes);
+            }
             drawableFilled = filledRes != 0 ? getResources().getDrawable(filledRes).mutate() : null;
             drawableOutline = outlineRes != 0 ? getResources().getDrawable(outlineRes).mutate() : null;
 
@@ -1377,5 +1388,40 @@ public class ProfileActionsView extends View {
             };
         }
         return accessibilityNodeProvider;
+    }
+
+    // ArasGramX: maps ProfileActionsView icon resource IDs to Solar equivalents.
+    // The ProfileActionsView uses custom icons (filled_profile_mute_24, etc.)
+    // that don't have _solar versions. This method replaces them with existing
+    // Solar icons that serve the same visual purpose.
+    private static int arasToSolarIcon(int resId) {
+        try {
+            int iconsType = xyz.nextalone.nagram.NaConfig.INSTANCE.getIconReplacements().Int();
+            if (iconsType != tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR) {
+                return resId;
+            }
+            // Map ProfileActionsView icons to Solar equivalents
+            if (resId == org.telegram.messenger.R.drawable.filled_profile_mute_24 ||
+                resId == org.telegram.messenger.R.drawable.outline_profile_mute_24) {
+                return org.telegram.messenger.R.drawable.msg_bell_mute_solar;
+            }
+            if (resId == org.telegram.messenger.R.drawable.filled_profile_unmute_24 ||
+                resId == org.telegram.messenger.R.drawable.outline_profile_unmute_24) {
+                return org.telegram.messenger.R.drawable.msg_notifications_solar;
+            }
+            if (resId == org.telegram.messenger.R.drawable.filled_profile_call_24 ||
+                resId == org.telegram.messenger.R.drawable.outline_profile_call_24) {
+                return org.telegram.messenger.R.drawable.profile_phone_solar;
+            }
+            if (resId == org.telegram.messenger.R.drawable.filled_profile_video_24 ||
+                resId == org.telegram.messenger.R.drawable.outline_profile_video_24) {
+                return org.telegram.messenger.R.drawable.profile_video_solar;
+            }
+            if (resId == org.telegram.messenger.R.drawable.filled_profile_message_24 ||
+                resId == org.telegram.messenger.R.drawable.outline_profile_message_24) {
+                return org.telegram.messenger.R.drawable.profile_newmsg_filled_solar;
+            }
+        } catch (Throwable ignore) {}
+        return resId;
     }
 }
