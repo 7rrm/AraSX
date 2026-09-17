@@ -1241,6 +1241,13 @@ public class ProfileActionsView extends View {
             if (outlineRes != 0) {
                 outlineRes = arasToSolarIcon(outlineRes);
             }
+            // ArasGramX: apply Solar icon conversion for ProfileActionsView.
+            if (filledRes != 0) {
+                filledRes = arasToSolarIcon(filledRes);
+            }
+            if (outlineRes != 0) {
+                outlineRes = arasToSolarIcon(outlineRes);
+            }
             drawableFilled = filledRes != 0 ? getResources().getDrawable(filledRes).mutate() : null;
             drawableOutline = outlineRes != 0 ? getResources().getDrawable(outlineRes).mutate() : null;
 
@@ -1417,6 +1424,43 @@ public class ProfileActionsView extends View {
                 resId == org.telegram.messenger.R.drawable.outline_profile_video_24) {
                 return org.telegram.messenger.R.drawable.profile_video_solar;
             }
+            if (resId == org.telegram.messenger.R.drawable.filled_profile_message_24 ||
+                resId == org.telegram.messenger.R.drawable.outline_profile_message_24) {
+                return org.telegram.messenger.R.drawable.profile_newmsg_filled_solar;
+            }
+        } catch (Throwable ignore) {}
+        return resId;
+    }
+
+    // ArasGramX: maps ProfileActionsView icon resource IDs to Solar equivalents.
+    private static int arasToSolarIcon(int resId) {
+        try {
+            int iconsType = xyz.nextalone.nagram.NaConfig.INSTANCE.getIconReplacements().Int();
+            if (iconsType != tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR) {
+                return resId;
+            }
+            // MUTE: solid filled bell (no slash) — user wants msg_notifications_solar
+            // NOT msg_bell_mute_solar (which has a slash)
+            if (resId == org.telegram.messenger.R.drawable.filled_profile_mute_24 ||
+                resId == org.telegram.messenger.R.drawable.outline_profile_mute_24) {
+                return org.telegram.messenger.R.drawable.msg_notifications_solar;
+            }
+            // UNMUTE: also use solid bell
+            if (resId == org.telegram.messenger.R.drawable.filled_profile_unmute_24 ||
+                resId == org.telegram.messenger.R.drawable.outline_profile_unmute_24) {
+                return org.telegram.messenger.R.drawable.notifications_on_solar;
+            }
+            // CALL
+            if (resId == org.telegram.messenger.R.drawable.filled_profile_call_24 ||
+                resId == org.telegram.messenger.R.drawable.outline_profile_call_24) {
+                return org.telegram.messenger.R.drawable.profile_phone_solar;
+            }
+            // VIDEO
+            if (resId == org.telegram.messenger.R.drawable.filled_profile_video_24 ||
+                resId == org.telegram.messenger.R.drawable.outline_profile_video_24) {
+                return org.telegram.messenger.R.drawable.profile_video_solar;
+            }
+            // MESSAGE
             if (resId == org.telegram.messenger.R.drawable.filled_profile_message_24 ||
                 resId == org.telegram.messenger.R.drawable.outline_profile_message_24) {
                 return org.telegram.messenger.R.drawable.profile_newmsg_filled_solar;
