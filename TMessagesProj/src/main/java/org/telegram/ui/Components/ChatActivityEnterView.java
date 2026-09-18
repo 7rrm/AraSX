@@ -16296,11 +16296,11 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
             if (messageEditText != null) {
                 ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin =
-                    meeroAttachWrap != null ? dp(15) : dp(50);
+                    meeroIos ? dp(15) : dp(50);  // ArasGramX: use meeroIos so channels too
             }
             if (richDraftPreview != null) {
                 ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin =
-                    meeroAttachWrap != null ? dp(15) : dp(50);
+                    meeroIos ? dp(15) : dp(50);  // ArasGramX: use meeroIos so channels too
             }
         }
         updateBotCommandsMenuContainerTopPadding();
