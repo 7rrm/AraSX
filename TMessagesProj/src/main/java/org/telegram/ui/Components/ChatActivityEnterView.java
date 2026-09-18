@@ -6888,7 +6888,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         // applied now that the field does.
         if (meeroAttachWrap != null) {
             final FrameLayout.LayoutParams meeroTlp = (FrameLayout.LayoutParams) messageEditText.getLayoutParams();
-            meeroTlp.leftMargin = dp(10);
+            meeroTlp.leftMargin = dp(12);  // ArasGramX: match chh spacing
             messageEditText.setLayoutParams(meeroTlp);
             // v137: same physical-left anchoring the live toggle applies.
             // v200 (owner report): absolute LEFT forces Arabic to start at
@@ -16269,27 +16269,23 @@ public class ChatActivityEnterView extends FrameLayout implements
                 ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(10) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
             }
             if (messageEditText != null) {
-                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin =
-                    (meeroAttachWrap != null ? dp(17) : dp(57)) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
+                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(57) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
             }
             if (richDraftPreview != null) {
-                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin =
-                    (meeroAttachWrap != null ? dp(17) : dp(57)) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
+                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(57) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
             }
         } else if (senderSelectView != null && senderSelectView.getVisibility() == View.VISIBLE) {
             int width = senderSelectView.getLayoutParams().width, height = senderSelectView.getLayoutParams().height;
             senderSelectView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-            ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(meeroAttachWrap != null ? 5 : 7) + width;
+            ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(7) + width;
             if (deleteRichDraftButton != null) {
                 ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(7) + width;
             }
             if (messageEditText != null) {
-                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin =
-                    dp(meeroAttachWrap != null ? 14 : 54) + width;
+                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(54) + width;
             }
             if (richDraftPreview != null) {
-                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin =
-                    dp(meeroAttachWrap != null ? 14 : 54) + width;
+                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(54) + width;
             }
         } else {
             ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(3);
@@ -16297,16 +16293,12 @@ public class ChatActivityEnterView extends FrameLayout implements
                 ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(3);
             }
             if (messageEditText != null) {
-                // ArasGramX: when iOS pill mode is active (meeroAttachWrap != null),
-                // keep the text anchored to the LEFT (dp(10)) instead of pushing
-                // it to dp(50) which makes "الرسالة" appear centered/floating
-                // with a dead gap on the left. This mirrors chh's behavior.
                 ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin =
-                    meeroAttachWrap != null ? dp(10) : dp(50);
+                    meeroAttachWrap != null ? dp(12) : dp(50);
             }
             if (richDraftPreview != null) {
                 ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin =
-                    meeroAttachWrap != null ? dp(10) : dp(50);
+                    meeroAttachWrap != null ? dp(12) : dp(50);
             }
         }
         updateBotCommandsMenuContainerTopPadding();
@@ -17391,7 +17383,10 @@ public class ChatActivityEnterView extends FrameLayout implements
 
     /** iOS glyph tone: near-white at night, system grey in day. */
     private static int meeroIosGlyphColor() {
-        return Theme.getActiveTheme().isDark() ? 0xFFEBEBF2 : 0xFF77777F;
+        // ArasGramX: chh uses dark/black icons for attach + mic in iOS mode.
+        // Dark theme: near-white (chh uses light icons on dark bg).
+        // Light theme: BLACK (chh uses dark icons on white bg).
+        return Theme.getActiveTheme().isDark() ? 0xFF1C1C1E : 0xFF1C1C1E;
     }
 
     /**
@@ -17712,7 +17707,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         // whose lower-right rim sweeps under the accessory glyph. iOS keeps
         // a constant corner radius: full semicircle on one line, a rounded
         // rect once the field grows - exactly this formula.
-        final float radius = Math.min((bottom - top) / 2f, dp(24));
+        final float radius = Math.min((bottom - top) / 2f, dp(22));  // ArasGramX: match chh corner radius
         AndroidUtilities.rectTmp.set(left, top, right, bottom);
         // MeeroX v135 (user follow-up): the flat wash read as "no glass at
         // all" next to the two glass circles. When ChatActivity handed us
