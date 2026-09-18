@@ -16296,11 +16296,11 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
             if (messageEditText != null) {
                 ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin =
-                    meeroIos ? dp(15) : dp(50);  // ArasGramX: use meeroIos so channels too
+                    meeroIosComposer() ? dp(15) : dp(50);  // ArasGramX: use meeroIosComposer() so channels too
             }
             if (richDraftPreview != null) {
                 ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin =
-                    meeroIos ? dp(15) : dp(50);  // ArasGramX: use meeroIos so channels too
+                    meeroIosComposer() ? dp(15) : dp(50);  // ArasGramX: use meeroIosComposer() so channels too
             }
         }
         updateBotCommandsMenuContainerTopPadding();
