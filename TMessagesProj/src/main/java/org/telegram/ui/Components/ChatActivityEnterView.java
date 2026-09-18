@@ -3111,7 +3111,8 @@ public class ChatActivityEnterView extends FrameLayout implements
         emojiButton.setPadding(padding, padding, padding, padding);
         // MeeroX v134: iOS glyphs are neutral (white at night, system grey
         // in day) - only the stock merged bar takes the themed accent tint.
-        emojiButton.setColorFilter(new PorterDuffColorFilter(meeroIosComposer() ? meeroIosGlyphColor() : getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.SRC_IN));
+        // ArasGramX: emoji button stays gray (original), don't use meeroIosGlyphColor
+        emojiButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.SRC_IN));
         emojiButton.setBackground(Theme.createInsetRoundRectDrawable(getThemedColor(Theme.key_listSelector), dp(19), dp(1), dp(3)));
         emojiButton.setOnClickListener(v -> {
             if (adjustPanLayoutHelper != null && adjustPanLayoutHelper.animationInProgress()) {
@@ -6888,7 +6889,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         // applied now that the field does.
         if (meeroAttachWrap != null) {
             final FrameLayout.LayoutParams meeroTlp = (FrameLayout.LayoutParams) messageEditText.getLayoutParams();
-            meeroTlp.leftMargin = dp(12);  // ArasGramX: match chh spacing
+            meeroTlp.leftMargin = dp(14);  // ArasGramX: match chh spacing
             messageEditText.setLayoutParams(meeroTlp);
             // v137: same physical-left anchoring the live toggle applies.
             // v200 (owner report): absolute LEFT forces Arabic to start at
@@ -7759,7 +7760,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         }
     }
 
-    public static final int DEFAULT_HEIGHT = 44;
+    public static final int DEFAULT_HEIGHT = 42;  // ArasGramX: slightly shorter bar
 
     private boolean resizeForTopViewLastShow;
     private boolean resizeForTopViewLastMerged;
@@ -12096,7 +12097,8 @@ public class ChatActivityEnterView extends FrameLayout implements
         updateAudioVideoSendButtonColor();
         // MeeroX v134: iOS glyphs are neutral; see the same branch at the
         // constructor. Re-evaluated here so theme/day-night flips re-tint.
-        emojiButton.setColorFilter(new PorterDuffColorFilter(meeroIosComposer() ? meeroIosGlyphColor() : getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.SRC_IN));
+        // ArasGramX: emoji button stays gray (original), don't use meeroIosGlyphColor
+        emojiButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.SRC_IN));
         emojiButton.setBackground(Theme.createSelectorDrawable(getThemedColor(Theme.key_listSelector)));
         deleteRichDraftButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.SRC_IN));
         deleteRichDraftButton.setBackground(Theme.createInsetRoundRectDrawable(getThemedColor(Theme.key_listSelector), dp(19), dp(1), dp(3)));
@@ -16294,11 +16296,11 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
             if (messageEditText != null) {
                 ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin =
-                    meeroAttachWrap != null ? dp(12) : dp(50);
+                    meeroAttachWrap != null ? dp(14) : dp(50);
             }
             if (richDraftPreview != null) {
                 ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin =
-                    meeroAttachWrap != null ? dp(12) : dp(50);
+                    meeroAttachWrap != null ? dp(14) : dp(50);
             }
         }
         updateBotCommandsMenuContainerTopPadding();
@@ -17383,10 +17385,8 @@ public class ChatActivityEnterView extends FrameLayout implements
 
     /** iOS glyph tone: near-white at night, system grey in day. */
     private static int meeroIosGlyphColor() {
-        // ArasGramX: chh uses dark/black icons for attach + mic in iOS mode.
-        // Dark theme: near-white (chh uses light icons on dark bg).
-        // Light theme: BLACK (chh uses dark icons on white bg).
-        return Theme.getActiveTheme().isDark() ? 0xFF1C1C1E : 0xFF1C1C1E;
+        // ArasGramX: black in light mode, white in dark mode (matches chh)
+        return Theme.getActiveTheme().isDark() ? 0xFFFFFFFF : 0xFF000000;
     }
 
     /**
@@ -17600,7 +17600,8 @@ public class ChatActivityEnterView extends FrameLayout implements
             // toggle.
             updateAudioVideoSendButtonColor();
             if (emojiButton != null) {
-                emojiButton.setColorFilter(new PorterDuffColorFilter(meeroIosComposer() ? meeroIosGlyphColor() : getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.SRC_IN));
+                // ArasGramX: emoji button stays gray (original), don't use meeroIosGlyphColor
+        emojiButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.SRC_IN));
             }
             // MeeroX v137: refresh the resting mic state right away - the
             // setState override picks the authentic iOS asset (on) or puts
@@ -17707,7 +17708,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         // whose lower-right rim sweeps under the accessory glyph. iOS keeps
         // a constant corner radius: full semicircle on one line, a rounded
         // rect once the field grows - exactly this formula.
-        final float radius = Math.min((bottom - top) / 2f, dp(22));  // ArasGramX: match chh corner radius
+        final float radius = Math.min((bottom - top) / 2f, dp(20));  // ArasGramX: match chh
         AndroidUtilities.rectTmp.set(left, top, right, bottom);
         // MeeroX v135 (user follow-up): the flat wash read as "no glass at
         // all" next to the two glass circles. When ChatActivity handed us
