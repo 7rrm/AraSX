@@ -16269,23 +16269,27 @@ public class ChatActivityEnterView extends FrameLayout implements
                 ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(10) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
             }
             if (messageEditText != null) {
-                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(57) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
+                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin =
+                    (meeroAttachWrap != null ? dp(17) : dp(57)) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
             }
             if (richDraftPreview != null) {
-                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(57) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
+                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin =
+                    (meeroAttachWrap != null ? dp(17) : dp(57)) + (botCommandsMenuButton == null ? 0 : botCommandsMenuButton.getMeasuredWidth());
             }
         } else if (senderSelectView != null && senderSelectView.getVisibility() == View.VISIBLE) {
             int width = senderSelectView.getLayoutParams().width, height = senderSelectView.getLayoutParams().height;
             senderSelectView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-            ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(7) + width;
+            ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(meeroAttachWrap != null ? 5 : 7) + width;
             if (deleteRichDraftButton != null) {
                 ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(7) + width;
             }
             if (messageEditText != null) {
-                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(54) + width;
+                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin =
+                    dp(meeroAttachWrap != null ? 14 : 54) + width;
             }
             if (richDraftPreview != null) {
-                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(54) + width;
+                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin =
+                    dp(meeroAttachWrap != null ? 14 : 54) + width;
             }
         } else {
             ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(3);
@@ -16293,10 +16297,16 @@ public class ChatActivityEnterView extends FrameLayout implements
                 ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(3);
             }
             if (messageEditText != null) {
-                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(50);
+                // ArasGramX: when iOS pill mode is active (meeroAttachWrap != null),
+                // keep the text anchored to the LEFT (dp(10)) instead of pushing
+                // it to dp(50) which makes "الرسالة" appear centered/floating
+                // with a dead gap on the left. This mirrors chh's behavior.
+                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin =
+                    meeroAttachWrap != null ? dp(10) : dp(50);
             }
             if (richDraftPreview != null) {
-                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(50);
+                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin =
+                    meeroAttachWrap != null ? dp(10) : dp(50);
             }
         }
         updateBotCommandsMenuContainerTopPadding();
