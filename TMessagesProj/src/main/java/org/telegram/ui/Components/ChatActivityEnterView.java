@@ -17662,7 +17662,8 @@ public class ChatActivityEnterView extends FrameLayout implements
             // Full-width capsule inside the (already margined) field
             // container: the emoji button lives inside it, the attach circle
             // is outside on the left, the mic/send zone outside on the right.
-            left = dp(6);
+            // ArasGramX: start pill from container edge (like chh)
+            left = 0;
             right = Math.max(left + dp(10), container.getMeasuredWidth() - dp(6));
         } else {
             // Span the field itself, stretched a little so the text is not flush
