@@ -6874,7 +6874,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         messageEditText.setMaxLines(6);
         messageEditText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
         messageEditText.setGravity(Gravity.BOTTOM);
-        messageEditText.setPadding(0, dp(9), 0, dp(10));
+        messageEditText.setPadding(0, dp(7), 0, dp(8));  // ArasGramX: shorter pill
         messageEditText.setBackgroundDrawable(null);
         messageEditText.setTextColor(getThemedColor(Theme.key_chat_messagePanelText));
         messageEditText.setLinkTextColor(getThemedColor(Theme.key_chat_messageLinkOut));
@@ -7760,7 +7760,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         }
     }
 
-    public static final int DEFAULT_HEIGHT = 39;  // ArasGramX: shorter bar
+    public static final int DEFAULT_HEIGHT = 44;  // ArasGramX: reverted — keep icons normal  // ArasGramX: shorter bar
 
     private boolean resizeForTopViewLastShow;
     private boolean resizeForTopViewLastMerged;
