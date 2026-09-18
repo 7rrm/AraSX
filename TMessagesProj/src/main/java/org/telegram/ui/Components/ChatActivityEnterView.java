@@ -6889,7 +6889,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         // applied now that the field does.
         if (meeroAttachWrap != null) {
             final FrameLayout.LayoutParams meeroTlp = (FrameLayout.LayoutParams) messageEditText.getLayoutParams();
-            meeroTlp.leftMargin = dp(13);  // ArasGramX: match chh spacing
+            meeroTlp.leftMargin = dp(15);  // ArasGramX: match chh spacing
             messageEditText.setLayoutParams(meeroTlp);
             // v137: same physical-left anchoring the live toggle applies.
             // v200 (owner report): absolute LEFT forces Arabic to start at
@@ -16296,11 +16296,11 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
             if (messageEditText != null) {
                 ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin =
-                    meeroAttachWrap != null ? dp(13) : dp(50);
+                    meeroAttachWrap != null ? dp(15) : dp(50);
             }
             if (richDraftPreview != null) {
                 ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin =
-                    meeroAttachWrap != null ? dp(13) : dp(50);
+                    meeroAttachWrap != null ? dp(15) : dp(50);
             }
         }
         updateBotCommandsMenuContainerTopPadding();
