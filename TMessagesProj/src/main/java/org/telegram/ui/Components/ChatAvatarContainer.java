@@ -76,6 +76,7 @@ import me.vkryl.android.animator.BoolAnimator;
 import me.vkryl.android.animator.FactorAnimator;
 
 import xyz.nextalone.nagram.NaConfig;
+import tw.nekomimi.nekogram.ArasGramConstants;
 import tw.nekomimi.nekogram.helpers.MessageHelper;
 
 public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.Target, NotificationCenter.NotificationCenterDelegate {
@@ -1244,12 +1245,30 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
             rightDrawableIsScamOrVerified = false;
             rightDrawable2ContentDescription = null;
         }
-        if (premium || DialogObject.getEmojiStatusDocumentId(emojiStatus) != 0) {
+        // ArasGramX: كشف الأقران المميّزين (المالك + القناتين) لفرض علامة الكرز
+        // + النجوم المتناثرة في شريط العنوان حتى لو لم تكن لديهم حالة premium/emoji.
+        boolean arasForceCherry = false;
+        long arasCherryId = 0L;
+        if (parentFragment != null) {
+            TLRPC.User u = parentFragment.getCurrentUser();
+            TLRPC.Chat c = parentFragment.getCurrentChat();
+            if (u != null && ArasGramConstants.isOwner(u.id)) {
+                arasForceCherry = true;
+                arasCherryId = ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA;
+            } else if (c != null && ArasGramConstants.isSparkleChannel(c.id)) {
+                arasForceCherry = true;
+                arasCherryId = ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED;
+            }
+        }
+        if (premium || DialogObject.getEmojiStatusDocumentId(emojiStatus) != 0 || arasForceCherry) {
             if (titleTextView.getRightDrawable() instanceof AnimatedEmojiDrawable.WrapSizeDrawable &&
                 ((AnimatedEmojiDrawable.WrapSizeDrawable) titleTextView.getRightDrawable()).getDrawable() instanceof AnimatedEmojiDrawable) {
                 ((AnimatedEmojiDrawable) ((AnimatedEmojiDrawable.WrapSizeDrawable) titleTextView.getRightDrawable()).getDrawable()).removeView(titleTextView);
             }
-            if (DialogObject.getEmojiStatusDocumentId(emojiStatus) != 0) {
+            // ArasGramX: أَسبِق إيموجي الكرز على أي حالة إيموجي أخرى للمالك/ القنوات.
+            if (arasForceCherry) {
+                emojiStatusDrawable.set(arasCherryId, animated);
+            } else if (DialogObject.getEmojiStatusDocumentId(emojiStatus) != 0) {
                 emojiStatusDrawable.set(DialogObject.getEmojiStatusDocumentId(emojiStatus), animated);
             } else if (premium) {
                 emojiStatusDefaultDrawable = ContextCompat.getDrawable(ApplicationLoader.applicationContext, R.drawable.msg_premium_liststar).mutate();
@@ -1262,12 +1281,19 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
             titleTextView.setRightDrawable(emojiStatusDrawable);
             rightDrawableIsScamOrVerified = false;
             rightDrawableContentDescription = getString(R.string.AccDescrPremium);
+            // ArasGramX: فعّل النجوم المتناثرة (radial particles) حول علامة الكرز.
+            if (emojiStatusDrawable != null) {
+                emojiStatusDrawable.setParticles(arasForceCherry, animated);
+            }
             if (isCentered()) {
                 titleTextView.setRightDrawable2(null);
             }
         } else {
             titleTextView.setRightDrawable(null);
             rightDrawableContentDescription = null;
+            if (emojiStatusDrawable != null) {
+                emojiStatusDrawable.setParticles(false, animated);
+            }
         }
         checkActionBar(animated);
     }
@@ -1342,6 +1368,13 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
                         statusDrawables[a].stop();
                     }
                 }
+                // ArasGramX: force the subtitle view to re-layout & invalidate so
+                // the typing dots drawable actually appears when the chat header
+                // is in iOS-style centered mode. Without this, the SimpleTextView's
+                // cached layout doesn't account for the leftDrawable that was just
+                // added, and the dots end up clipped or invisible.
+                subtitleTextView.requestLayout();
+                subtitleTextView.invalidate();
             } catch (Exception e) {
                 FileLog.e(e);
             }
