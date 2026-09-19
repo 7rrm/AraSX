@@ -265,6 +265,7 @@ import me.vkryl.android.animator.FactorAnimator;
 import me.vkryl.core.BitwiseUtils;
 
 import tw.nekomimi.nekogram.NekoConfig;
+import tw.nekomimi.nekogram.ArasGramConstants;
 import tw.nekomimi.nekogram.filters.ReactionFilter;
 import tw.nekomimi.nekogram.helpers.MessageHelper;
 import tw.nekomimi.nekogram.helpers.TimeStringHelper;
@@ -6582,6 +6583,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
 
         animationOffsetX = 0;
         slidingOffsetX = 0;
+        meeroPopOffsetX = 0;
         checkBoxTranslation = 0;
         updateTranslation();
 
@@ -19294,6 +19296,20 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 } else if (currentNameStatus instanceof Drawable) {
                     currentNameStatusDrawable.set((Drawable) currentNameStatus, false);
                 }
+                // ArasGramX: فعّل النجوم المتناثرة (radial particles) حول علامة الكرز
+                // للمالك و للقنوات المميّزة. هذا الشريط يظهر تلقائياً بسبب
+                // getAuthorStatus() الذي يُرجع CHERRY_EMOJI_ID_VERIFIED[_BRA] لهؤلاء.
+                boolean arasSparkle = false;
+                if (currentUser != null && ArasGramConstants.isOwner(currentUser.id)) {
+                    arasSparkle = true;
+                } else if (currentChat != null && ArasGramConstants.isSparkleChannel(currentChat.id)) {
+                    arasSparkle = true;
+                }
+                if (arasSparkle && currentNameStatus instanceof Long) {
+                    currentNameStatusDrawable.setParticles(true, true);
+                } else if (currentNameStatusDrawable != null) {
+                    currentNameStatusDrawable.setParticles(false, false);
+                }
             }
             if (currentNameEmojiStatusDrawable == null && currentNameBotVerificationId != 0) {
                 currentNameEmojiStatusDrawable = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable(this, true, dp(18));
@@ -20044,10 +20060,25 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
 
     private Object getAuthorStatus() {
         if (!NaConfig.INSTANCE.getPremiumItemEmojiStatus().Bool()) {
+            // ArasGramX: استثناء للمالك و القنوات المميّزة — تُظهر الكرز حتى لو
+            // كان المستخدم قد عطّل عرض حالات الإيموجي العادية.
+            if (currentUser != null && ArasGramConstants.isOwner(currentUser.id)) {
+                return ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA;
+            }
+            if (currentChat != null && ArasGramConstants.isSparkleChannel(currentChat.id)) {
+                return ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED;
+            }
             return null;
         }
         if (currentUser != null) {
             Long emojiStatusId = UserObject.getEmojiStatusDocumentId(currentUser);
+
+            // ArasGramX: إجبار علامة الكرز للمالك حتى لو لم يُعيّنها في حسابه.
+            if (ArasGramConstants.isOwner(currentUser.id)
+                    && (emojiStatusId == null || emojiStatusId == 0)) {
+                emojiStatusId = ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA;
+            }
+
             if (emojiStatusId != null) {
                 if (currentUser.emoji_status instanceof TLRPC.TL_emojiStatusCollectible) {
                     nameStatusSlug = ((TLRPC.TL_emojiStatusCollectible) currentUser.emoji_status).slug;
@@ -20057,6 +20088,11 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 return ContextCompat.getDrawable(ApplicationLoader.applicationContext, R.drawable.msg_premium_liststar).mutate();
             }
         } else if (currentChat != null) {
+            // ArasGramX: إجبار علامة الكرز للقنوات المميّزة (القناة الأولى/ الثانية)
+            // عند ظهور اسم القناة كمرسِّل في رسالتها (channel posts).
+            if (ArasGramConstants.isSparkleChannel(currentChat.id)) {
+                return ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED;
+            }
             if (currentMessageObject != null && (currentMessageObject.getDialogId() != UserObject.REPLY_BOT) && currentChat.signature_profiles) {
                 long did = DialogObject.getPeerDialogId(currentMessageObject.messageOwner.from_id);
                 if (did >= 0) {
@@ -22735,12 +22771,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         float animatingAlpha = 1f;
         int forwardedNameWidthLocal = forwardedNameWidth;
         if (transitionParams.animateForwardedLayout) {
-            // ArasGramX: when the new message has drawNameLayout (group message
-            // with sender name shown inside the bubble), skip the forwarded name
-            // transition. Otherwise, the old forwarded name layout briefly appears
-            // OUTSIDE the bubble for <1 second before fading out, which looks like
-            // a glitch. The name layout handles its own transition independently.
-            if (!currentMessageObject.needDrawForwarded() && !drawNameLayout) {
+            if (!currentMessageObject.needDrawForwarded()) {
                 drawForwardedNameLocal = true;
                 forwardedNameLayoutLocal = transitionParams.animatingForwardedNameLayout;
                 animatingAlpha = 1f - transitionParams.animateChangeProgress;
@@ -27322,6 +27353,16 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
 
     private float slidingOffsetX;
     private float animationOffsetX;
+    // MeeroX: separate offset for the iOS-style "pop in" animation in
+    // ChatListItemAnimator.animateAddImpl. Unlike animationOffsetX, this
+    // value is ONLY applied to the view's translationX via updateTranslation()
+    // and never added to name/time/replies X coordinates inside onDraw.
+    // Reusing animationOffsetX for the slide caused the sender name to be
+    // shifted by 2x the slide amount (once via setTranslationX, once via
+    // `nameX += animationOffsetX`) - which is why new group messages briefly
+    // showed the name outside the bubble before snapping back when the pop
+    // animation finished.
+    private float meeroPopOffsetX;
 
     public Property<ChatMessageCell, Float> ANIMATION_OFFSET_X = new Property<ChatMessageCell, Float>(Float.class, "animationOffsetX") {
         @Override
@@ -27349,11 +27390,24 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         }
     }
 
+    // MeeroX: see comment on meeroPopOffsetX. Only affects view translation,
+    // never affects in-canvas element positions.
+    public void setMeeroPopOffsetX(float offsetX) {
+        if (meeroPopOffsetX != offsetX) {
+            meeroPopOffsetX = offsetX;
+            updateTranslation();
+        }
+    }
+
+    public float getMeeroPopOffsetX() {
+        return meeroPopOffsetX;
+    }
+
     public void updateTranslation() {
         if (currentMessageObject == null) {
             return;
         }
-        float tx = slidingOffsetX + animationOffsetX;
+        float tx = slidingOffsetX + animationOffsetX + meeroPopOffsetX;
         if (!currentMessageObject.isOutOwner() || currentMessageObject.hasWideCode) {
             tx += checkBoxTranslation;
         }
