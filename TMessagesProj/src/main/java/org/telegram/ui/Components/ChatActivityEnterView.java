@@ -5021,7 +5021,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
         });
         senderSelectView.setVisibility(GONE);
-        messageEditTextContainer.addView(senderSelectView, LayoutHelper.createFrame(36, 36, Gravity.BOTTOM | Gravity.LEFT, 4.66f, 4, 4.66f, 4));
+        messageEditTextContainer.addView(senderSelectView, LayoutHelper.createFrame(36, 36, Gravity.BOTTOM | Gravity.LEFT, meeroIosComposer() ? 15f : 4.66f, 4, 4.66f, 4));  // ArasGramX: iOS mode = dp(15) like text
     }
 
     private void createBotCommandsMenuButton() {
@@ -16279,15 +16279,16 @@ public class ChatActivityEnterView extends FrameLayout implements
         } else if (senderSelectView != null && senderSelectView.getVisibility() == View.VISIBLE) {
             int width = senderSelectView.getLayoutParams().width, height = senderSelectView.getLayoutParams().height;
             senderSelectView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-            ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(7) + width;
+            ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(meeroIosComposer() ? 5 : 7) + width;
             if (deleteRichDraftButton != null) {
                 ((MarginLayoutParams) deleteRichDraftButton.getLayoutParams()).leftMargin = dp(7) + width;
             }
             if (messageEditText != null) {
-                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(54) + width;
+                // ArasGramX: iOS mode = dp(15) + photo width (same gap as normal text)
+                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(meeroIosComposer() ? 15 : 54) + width;
             }
             if (richDraftPreview != null) {
-                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(54) + width;
+                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(meeroIosComposer() ? 15 : 54) + width;
             }
         } else {
             ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(3);
