@@ -5021,7 +5021,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
         });
         senderSelectView.setVisibility(GONE);
-        messageEditTextContainer.addView(senderSelectView, LayoutHelper.createFrame(36, 36, Gravity.BOTTOM | Gravity.LEFT, meeroIosComposer() ? 15f : 4.66f, 4, 4.66f, 4));  // ArasGramX: iOS mode = dp(15) like text
+        messageEditTextContainer.addView(senderSelectView, LayoutHelper.createFrame(36, 36, Gravity.BOTTOM | Gravity.LEFT, meeroIosComposer() ? 2f : 4.66f, 4, 4.66f, 4));  // ArasGramX: photo near left edge
     }
 
     private void createBotCommandsMenuButton() {
@@ -6889,7 +6889,7 @@ public class ChatActivityEnterView extends FrameLayout implements
         // applied now that the field does.
         if (meeroAttachWrap != null) {
             final FrameLayout.LayoutParams meeroTlp = (FrameLayout.LayoutParams) messageEditText.getLayoutParams();
-            meeroTlp.leftMargin = dp(15);  // ArasGramX: match chh spacing
+            meeroTlp.leftMargin = dp(6);  // ArasGramX: match chh spacing
             messageEditText.setLayoutParams(meeroTlp);
             // v137: same physical-left anchoring the live toggle applies.
             // v200 (owner report): absolute LEFT forces Arabic to start at
@@ -16285,10 +16285,10 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
             if (messageEditText != null) {
                 // ArasGramX: iOS mode = dp(15) + photo width (same gap as normal text)
-                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(meeroIosComposer() ? 15 : 54) + width;
+                ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = dp(meeroIosComposer() ? 6 : 54) + width;
             }
             if (richDraftPreview != null) {
-                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(meeroIosComposer() ? 15 : 54) + width;
+                ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin = dp(meeroIosComposer() ? 6 : 54) + width;
             }
         } else {
             ((MarginLayoutParams) emojiButton.getLayoutParams()).leftMargin = dp(3);
@@ -16297,11 +16297,11 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
             if (messageEditText != null) {
                 ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin =
-                    meeroIosComposer() ? dp(15) : dp(50);  // ArasGramX: use meeroIosComposer() so channels too
+                    meeroIosComposer() ? dp(6) : dp(50);  // ArasGramX: use meeroIosComposer() so channels too
             }
             if (richDraftPreview != null) {
                 ((MarginLayoutParams) richDraftPreview.getLayoutParams()).leftMargin =
-                    meeroIosComposer() ? dp(15) : dp(50);  // ArasGramX: use meeroIosComposer() so channels too
+                    meeroIosComposer() ? dp(6) : dp(50);  // ArasGramX: use meeroIosComposer() so channels too
             }
         }
         updateBotCommandsMenuContainerTopPadding();
