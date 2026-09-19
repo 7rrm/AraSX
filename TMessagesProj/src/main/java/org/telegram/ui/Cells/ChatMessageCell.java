@@ -22735,7 +22735,12 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         float animatingAlpha = 1f;
         int forwardedNameWidthLocal = forwardedNameWidth;
         if (transitionParams.animateForwardedLayout) {
-            if (!currentMessageObject.needDrawForwarded()) {
+            // ArasGramX: when the new message has drawNameLayout (group message
+            // with sender name shown inside the bubble), skip the forwarded name
+            // transition. Otherwise, the old forwarded name layout briefly appears
+            // OUTSIDE the bubble for <1 second before fading out, which looks like
+            // a glitch. The name layout handles its own transition independently.
+            if (!currentMessageObject.needDrawForwarded() && !drawNameLayout) {
                 drawForwardedNameLocal = true;
                 forwardedNameLayoutLocal = transitionParams.animatingForwardedNameLayout;
                 animatingAlpha = 1f - transitionParams.animateChangeProgress;
