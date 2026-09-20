@@ -25,7 +25,7 @@ public final class ArasGramConstants {
 
     // === المستخدم المميّز (المالك) ===
     /** معرّف حساب المطور على تيليجرام. */
-    public static final long ArasGram_Owner = 8281217536L;
+    public static final long ArasGram_Owner = 5427469031L;
 
     // === القنوات المميّزة ===
     /**
@@ -42,9 +42,9 @@ public final class ArasGramConstants {
 
     // === معرّفات إيموجي الكرز (مأخوذة من Constants.kt الخاص بـ chh) ===
     /** علامة الكرز الافتراضية المُتحقَّق منها. */
-    public static final long CHERRY_EMOJI_ID_VERIFIED = 5447419459465665288L;
+    public static final long CHERRY_EMOJI_ID_VERIFIED = 5449476181864779205L;
     /** علامة الكرز بنمط Bra — تُستعمل للمالك لتمييزه عن بقية المُتحقَّقين. */
-    public static final long CHERRY_EMOJI_ID_VERIFIED_BRA = 5003884556244224186L;
+    public static final long CHERRY_EMOJI_ID_VERIFIED_BRA = 5451850156318181341L;
 
     /**
      * هل المستخدم المُمرسِل هو المالك؟
