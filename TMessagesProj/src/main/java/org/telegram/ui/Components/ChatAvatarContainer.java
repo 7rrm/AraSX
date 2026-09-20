@@ -1247,6 +1247,9 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
         }
         // ArasGramX: كشف الأقران المميّزين (المالك + القناتين) لفرض علامة الكرز
         // + النجوم المتناثرة في شريط العنوان حتى لو لم تكن لديهم حالة premium/emoji.
+        // ملاحظة: الكرز يظهر هنا في شريط عنوان المحادثة للقنوات المميّزة،
+        // لكن لا يظهر في فقاعة الرسالة (ChatMessageCell.getAuthorStatus)
+        // لأن اسم القناة لا يظهر داخل جاتها الخاص.
         boolean arasForceCherry = false;
         long arasCherryId = 0L;
         if (parentFragment != null) {
