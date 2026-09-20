@@ -19296,15 +19296,10 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 } else if (currentNameStatus instanceof Drawable) {
                     currentNameStatusDrawable.set((Drawable) currentNameStatus, false);
                 }
-                // ArasGramX: فعّل النجوم المتناثرة (radial particles) حول علامة الكرز
-                // للمالك و للقنوات المميّزة. هذا الشريط يظهر تلقائياً بسبب
-                // getAuthorStatus() الذي يُرجع CHERRY_EMOJI_ID_VERIFIED[_BRA] لهؤلاء.
-                boolean arasSparkle = false;
-                if (currentUser != null && ArasGramConstants.isOwner(currentUser.id)) {
-                    arasSparkle = true;
-                } else if (currentChat != null && ArasGramConstants.isSparkleChannel(currentChat.id)) {
-                    arasSparkle = true;
-                }
+                // ArasGramX: فعّل النجوم المتناثرة (radial particles) حول
+                // علامة الكرز للمالك فقط. لا نُفعّلها للقنوات لأن اسم القناة
+                // لا يظهر في فقاعة الرسالة في جاتها الخاص.
+                boolean arasSparkle = currentUser != null && ArasGramConstants.isOwner(currentUser.id);
                 if (arasSparkle && currentNameStatus instanceof Long) {
                     currentNameStatusDrawable.setParticles(true, true);
                 } else if (currentNameStatusDrawable != null) {
@@ -20060,13 +20055,12 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
 
     private Object getAuthorStatus() {
         if (!NaConfig.INSTANCE.getPremiumItemEmojiStatus().Bool()) {
-            // ArasGramX: استثناء للمالك و القنوات المميّزة — تُظهر الكرز حتى لو
+            // ArasGramX: استثناء للمالك — تُظهر الكرز حتى لو
             // كان المستخدم قد عطّل عرض حالات الإيموجي العادية.
+            // ملاحظة: لا نُجبر الكرز للقنوات المميّزة في فقاعة الرسالة
+            // لأن اسم القناة لا يظهر في جاتها الخاص (channel posts).
             if (currentUser != null && ArasGramConstants.isOwner(currentUser.id)) {
                 return ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA;
-            }
-            if (currentChat != null && ArasGramConstants.isSparkleChannel(currentChat.id)) {
-                return ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED;
             }
             return null;
         }
@@ -20088,11 +20082,10 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 return ContextCompat.getDrawable(ApplicationLoader.applicationContext, R.drawable.msg_premium_liststar).mutate();
             }
         } else if (currentChat != null) {
-            // ArasGramX: إجبار علامة الكرز للقنوات المميّزة (القناة الأولى/ الثانية)
-            // عند ظهور اسم القناة كمرسِّل في رسالتها (channel posts).
-            if (ArasGramConstants.isSparkleChannel(currentChat.id)) {
-                return ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED;
-            }
+            // ArasGramX: لا نُجبر الكرز في فقاعة الرسالة للقنوات المميّزة.
+            // اسم القناة لا يظهر في جاتها الخاص، فلا حاجة لإظهار الكرز.
+            // الكرز ما زال يظهر في قائمة المحادثات (DialogCell) و في الملف
+            // الشخصي للقناة (ProfileActivity).
             if (currentMessageObject != null && (currentMessageObject.getDialogId() != UserObject.REPLY_BOT) && currentChat.signature_profiles) {
                 long did = DialogObject.getPeerDialogId(currentMessageObject.messageOwner.from_id);
                 if (did >= 0) {

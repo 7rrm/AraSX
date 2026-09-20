@@ -1553,12 +1553,12 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                             drawPremium = true;
                             nameLayoutEllipsizeByGradient = true;
                             emojiStatus.center = LocaleController.isRTL;
-                            if (ArasGramConstants.isSparkleChannel(chat.id)) {
-                                // ArasGramX: force cherry emoji + radial particles
-                                // for whitelisted channels in the dialog list.
+                            if (ArasGramConstants.isSparkleChannel(chat.id) && DialogObject.getEmojiStatusDocumentId(chat.emoji_status) == 0) {
+                                // ArasGramX: whitelisted channel with NO premium emoji → cherry
                                 emojiStatus.set(ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED, false);
                                 emojiStatus.setParticles(true, false);
                             } else {
+                                // Channel HAS a premium emoji → show it (don't override)
                                 emojiStatus.set(DialogObject.getEmojiStatusDocumentId(chat.emoji_status), false);
                                 emojiStatus.setParticles(DialogObject.isEmojiStatusCollectible(chat.emoji_status), false);
                             }
@@ -1579,10 +1579,8 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                             drawBotVerified = !forbidVerified && !UserObject.isUserSelf(user) && user.bot_verification_icon != 0;
                         }
                         drawPremium = MessagesController.getInstance(currentAccount).isPremiumUser(user) && UserConfig.getInstance(currentAccount).clientUserId != user.id && user.id != 0;
-                        // ArasGramX: for the owner (developer) account —
-                        // show the user's OWN premium emoji if they have one
-                        // set. Only fall back to the cherry if they don't
-                        // have any premium emoji status on their account.
+                        // ArasGramX: for the owner — show their own premium emoji
+                        // if set; only fall back to cherry if not.
                         boolean arasOwnerDialog = ArasGramConstants.isOwner(user.id);
                         if (arasOwnerDialog) {
                             drawPremium = true;
@@ -1591,7 +1589,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                             Long emojiStatusId = UserObject.getEmojiStatusDocumentId(user);
                             emojiStatus.center = LocaleController.isRTL;
                             if (arasOwnerDialog && (emojiStatusId == null || emojiStatusId == 0)) {
-                                // Owner has NO premium emoji → show the cherry
+                                // Owner has NO premium emoji → cherry
                                 nameLayoutEllipsizeByGradient = true;
                                 emojiStatus.set(ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA, false);
                                 emojiStatus.setParticles(true, false);
@@ -1601,6 +1599,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                                 emojiStatus.set(emojiStatusId, false);
                                 emojiStatus.setParticles(DialogObject.isEmojiStatusCollectible(user.emoji_status), false);
                             } else {
+                                // No premium emoji → show premium star (fallback)
                                 nameLayoutEllipsizeByGradient = true;
                                 emojiStatus.set(PremiumGradient.getInstance().premiumStarDrawableMini, false);
                                 emojiStatus.setParticles(false, false);
@@ -3533,10 +3532,11 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                     }
                     if (chat != null) {
                         chat = MessagesController.getInstance(currentAccount).getChat(chat.id);
-                        // ArasGramX: force cherry emoji for whitelisted channels
-                        // in the dialog list when their status updates.
+                        // ArasGramX: for whitelisted channels — show their own
+                        // premium emoji if set; only fall back to cherry if not.
                         boolean arasChannelUpdate = ArasGramConstants.isSparkleChannel(chat.id);
-                        if (arasChannelUpdate) {
+                        long arasChannelUpdateStatusId = chat != null ? DialogObject.getEmojiStatusDocumentId(chat.emoji_status) : 0;
+                        if (arasChannelUpdate && arasChannelUpdateStatusId == 0) {
                             nameLayoutEllipsizeByGradient = true;
                             emojiStatus.set(ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED, animated);
                             emojiStatus.setParticles(true, animated);
