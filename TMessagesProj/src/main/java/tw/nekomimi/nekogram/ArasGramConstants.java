@@ -25,7 +25,7 @@ public final class ArasGramConstants {
 
     // === المستخدم المميّز (المالك) ===
     /** معرّف حساب المطور على تيليجرام. */
-    public static final long ArasGram_Owner = 5427469031L;
+    public static final long ArasGram_Owner = 8281217536L;
 
     // === القنوات المميّزة ===
     /**
