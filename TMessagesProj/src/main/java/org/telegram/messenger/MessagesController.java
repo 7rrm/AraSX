@@ -6904,15 +6904,11 @@ public class MessagesController extends BaseController implements NotificationCe
         if (user == null) {
             return false;
         }
-        // MeeroX v247 (his order, preview pick 1 = official blue check):
-        // developer badge - flip the verified flag locally for the dev
-        // account (@i55544). Every stock render path (profile, dialogs
-        // list, chat titles, sender names) reads user.verified, so the
-        // blue check appears next to his name for all MeeroX installs.
-        // Client-side only - Telegram servers are never involved.
-        if (user.username != null && user.username.equalsIgnoreCase("lx5x5")) {
-            user.verified = true;
-        }
+        // ArasGramX: the MeeroX "fake verified badge" override that forced
+        // @Lx5x5 to render with a Telegram blue check has been removed at
+        // the developer's request — the cherry emoji (ArasGramConstants)
+        // is now the sole badge for the owner account, applied consistently
+        // in chat bubbles, title bar, and profile screen.
         fromCache = fromCache && user.id / 1000 != 333 && user.id != 777000;
         TLRPC.User oldUser = users.get(user.id);
         if (NaConfig.INSTANCE.getSaveLocalLastSeen().Bool() && user.id != getUserConfig().getClientUserId() && user.status instanceof TLRPC.TL_userStatusOffline) {
