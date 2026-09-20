@@ -408,6 +408,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private final Drawable[] premiumStarDrawable = new Drawable[2];
     private Long emojiStatusGiftId;
     private final AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable[] emojiStatusDrawable = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable[2];
+    // ArasGramX: separate drawable for the cherry badge that appears in
+    // setRightDrawable2 (next to the user's premium emoji, instead of
+    // replacing it). Lives independently of emojiStatusDrawable so that
+    // the premium emoji and the cherry can both be visible at once.
+    private final AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable[] arasCherryDrawable = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable[2];
     private final AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable[] botVerificationDrawable = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable[2];
     private final Drawable[] verifiedCheckDrawable = new Drawable[2];
     private final CrossfadeDrawable[] verifiedCrossfadeDrawable = new CrossfadeDrawable[2];
@@ -11605,6 +11610,18 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         return botVerificationDrawable[a];
     }
 
+    private Drawable getArasCherryStatusDrawable(int a, boolean animated) {
+        if (arasCherryDrawable[a] == null) {
+            arasCherryDrawable[a] = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable(nameTextView[a], AndroidUtilities.dp(24), a == 0 ? AnimatedEmojiDrawable.CACHE_TYPE_EMOJI_STATUS : AnimatedEmojiDrawable.CACHE_TYPE_KEYBOARD);
+            if (fragmentViewAttached) {
+                arasCherryDrawable[a].attach();
+            }
+        }
+        arasCherryDrawable[a].set(ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA, animated);
+        arasCherryDrawable[a].setParticles(true, animated);
+        return arasCherryDrawable[a];
+    }
+
     private Drawable getEmojiStatusDrawable(TLRPC.EmojiStatus emojiStatus, boolean switchable, boolean animated, int a) {
         if (emojiStatusDrawable[a] == null) {
             emojiStatusDrawable[a] = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable(nameTextView[a], AndroidUtilities.dp(24), a == 0 ? AnimatedEmojiDrawable.CACHE_TYPE_EMOJI_STATUS : AnimatedEmojiDrawable.CACHE_TYPE_KEYBOARD);
@@ -11944,6 +11961,12 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     if (user.scam || user.fake) {
                         nameTextView[a].setRightDrawable2(getScamDrawable(user.scam ? 0 : 1));
                         nameTextViewRightDrawable2ContentDescription = LocaleController.getString(R.string.ScamMessage);
+                    } else if (ArasGramConstants.isOwner(user.id)) {
+                        // ArasGramX: cherry badge in setRightDrawable2 — appears
+                        // AFTER the premium emoji (setRightDrawable), not
+                        // instead of it.
+                        nameTextView[a].setRightDrawable2(getArasCherryStatusDrawable(a, false));
+                        nameTextViewRightDrawable2ContentDescription = "ArasGram Owner";
                     } else if (user.verified) {
                         nameTextView[a].setRightDrawable2(getVerifiedCrossfadeDrawable(a));
                         nameTextViewRightDrawable2ContentDescription = LocaleController.getString(R.string.AccDescrVerified);
@@ -11954,24 +11977,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         nameTextView[a].setRightDrawable2(null);
                         nameTextViewRightDrawable2ContentDescription = null;
                     }
-                    // ArasGramX: force the cherry emoji + radial particles for the
-                    // owner (developer) account, even if they have no premium emoji
-                    // status set on their account. The cherry follows the owner
-                    // everywhere — including their own profile.
-                    boolean arasOwnerCherry = user != null && ArasGramConstants.isOwner(user.id);
-                    Long arasForcedDocId = arasOwnerCherry ? ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA : null;
                     Long selfEmojiDocId = (user != null && user.self) ? UserObject.getEmojiStatusDocumentId(user) : null;
-                    if (user != null/* && !getMessagesController().premiumFeaturesBlocked()*/ && !MessagesController.isSupportUser(user) && (arasOwnerCherry && arasForcedDocId != null && arasForcedDocId != 0 || DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId != null && selfEmojiDocId != 0))) {
+                    if (user != null/* && !getMessagesController().premiumFeaturesBlocked()*/ && !MessagesController.isSupportUser(user) && (DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId != null && selfEmojiDocId != 0))) {
                         rightIconIsStatus = true;
                         rightIconIsPremium = false;
-                        if (arasOwnerCherry && arasForcedDocId != null && arasForcedDocId != 0) {
-                            TLRPC.TL_emojiStatus status = new TLRPC.TL_emojiStatus();
-                            status.document_id = arasForcedDocId;
-                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(status, false, false, a));
-                            if (emojiStatusDrawable[a] != null) {
-                                emojiStatusDrawable[a].setParticles(true, false);
-                            }
-                        } else if (user.self && (selfEmojiDocId != null && selfEmojiDocId != 0) && DialogObject.getEmojiStatusDocumentId(user.emoji_status) == 0) {
+                        if (user.self && (selfEmojiDocId != null && selfEmojiDocId != 0) && DialogObject.getEmojiStatusDocumentId(user.emoji_status) == 0) {
                             TLRPC.TL_emojiStatus status = new TLRPC.TL_emojiStatus();
                             status.document_id = selfEmojiDocId;
                             nameTextView[a].setRightDrawable(getEmojiStatusDrawable(status, false, false, a));
@@ -11991,27 +12001,20 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 } else if (a == 1) {
                     if (user.scam || user.fake) {
                         nameTextView[a].setRightDrawable2(getScamDrawable(user.scam ? 0 : 1));
+                    } else if (ArasGramConstants.isOwner(user.id)) {
+                        // ArasGramX: cherry badge in setRightDrawable2 for
+                        // the larger title at the top of the profile.
+                        nameTextView[a].setRightDrawable2(getArasCherryStatusDrawable(a, true));
                     } else if (user.verified) {
                         nameTextView[a].setRightDrawable2(getVerifiedCrossfadeDrawable(a));
                     } else {
                         nameTextView[a].setRightDrawable2(null);
                     }
-                    // ArasGramX: same owner-cherry override for the second
-                    // nameTextView (the larger title at the top of the profile).
-                    boolean arasOwnerCherry2 = user != null && ArasGramConstants.isOwner(user.id);
-                    Long arasForcedDocId2 = arasOwnerCherry2 ? ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA : null;
                     Long selfEmojiDocId2 = (user != null && user.self) ? UserObject.getEmojiStatusDocumentId(user) : null;
-                    if (/*!getMessagesController().premiumFeaturesBlocked() && */user != null && !MessagesController.isSupportUser(user) && (arasOwnerCherry2 && arasForcedDocId2 != null && arasForcedDocId2 != 0 || DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId2 != null && selfEmojiDocId2 != 0))) {
+                    if (/*!getMessagesController().premiumFeaturesBlocked() && */user != null && !MessagesController.isSupportUser(user) && (DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId2 != null && selfEmojiDocId2 != 0))) {
                         rightIconIsStatus = true;
                         rightIconIsPremium = false;
-                        if (arasOwnerCherry2 && arasForcedDocId2 != null && arasForcedDocId2 != 0) {
-                            TLRPC.TL_emojiStatus status = new TLRPC.TL_emojiStatus();
-                            status.document_id = arasForcedDocId2;
-                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(status, true, true, a));
-                            if (emojiStatusDrawable[a] != null) {
-                                emojiStatusDrawable[a].setParticles(true, true);
-                            }
-                        } else if (user.self && (selfEmojiDocId2 != null && selfEmojiDocId2 != 0) && DialogObject.getEmojiStatusDocumentId(user.emoji_status) == 0) {
+                        if (user.self && (selfEmojiDocId2 != null && selfEmojiDocId2 != 0) && DialogObject.getEmojiStatusDocumentId(user.emoji_status) == 0) {
                             TLRPC.TL_emojiStatus status = new TLRPC.TL_emojiStatus();
                             status.document_id = selfEmojiDocId2;
                             nameTextView[a].setRightDrawable(getEmojiStatusDrawable(status, true, true, a));
@@ -12304,6 +12307,12 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     if (chat.scam || chat.fake) {
                         nameTextView[a].setRightDrawable2(getScamDrawable(chat.scam ? 0 : 1));
                         nameTextViewRightDrawableContentDescription = LocaleController.getString(R.string.ScamMessage);
+                    } else if (ArasGramConstants.isSparkleChannel(chat.id)) {
+                        // ArasGramX: cherry badge in setRightDrawable2 for
+                        // whitelisted channels — appears next to the channel's
+                        // own emoji_status, not instead of it.
+                        nameTextView[a].setRightDrawable2(getArasCherryStatusDrawable(a, false));
+                        nameTextViewRightDrawableContentDescription = "ArasGram Channel";
                     } else if (chat.verified) {
                         nameTextView[a].setRightDrawable2(getVerifiedCrossfadeDrawable(a));
                         nameTextViewRightDrawableContentDescription = LocaleController.getString(R.string.AccDescrVerified);
@@ -12311,17 +12320,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         nameTextView[a].setRightDrawable2(null);
                         nameTextViewRightDrawableContentDescription = null;
                     }
-                    if (ArasGramConstants.isSparkleChannel(chat.id) || DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
-                        if (ArasGramConstants.isSparkleChannel(chat.id)) {
-                            TLRPC.TL_emojiStatus arasCherryStatus = new TLRPC.TL_emojiStatus();
-                            arasCherryStatus.document_id = ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED;
-                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(arasCherryStatus, true, false, a));
-                            if (emojiStatusDrawable[a] != null) {
-                                emojiStatusDrawable[a].setParticles(true, false);
-                            }
-                        } else {
-                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(chat.emoji_status, true, false, a));
-                        }
+                    if (DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
+                        nameTextView[a].setRightDrawable(getEmojiStatusDrawable(chat.emoji_status, true, false, a));
                         nameTextView[a].setRightDrawableOutside(true);
                         nameTextViewRightDrawableContentDescription = null;
                         if (ChatObject.canChangeChatInfo(chat)) {
@@ -12342,6 +12342,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 } else if (!copyFromChatActivity) {
                     if (chat.scam || chat.fake) {
                         nameTextView[a].setRightDrawable2(getScamDrawable(chat.scam ? 0 : 1));
+                    } else if (ArasGramConstants.isSparkleChannel(chat.id)) {
+                        // ArasGramX: cherry badge in setRightDrawable2 for
+                        // whitelisted channels (smaller title variant).
+                        nameTextView[a].setRightDrawable2(getArasCherryStatusDrawable(a, false));
                     } else if (chat.verified) {
                         nameTextView[a].setRightDrawable2(getVerifiedCrossfadeDrawable(a));
                     } else if (getMessagesController().isDialogMuted(-chatId, topicId)) {
@@ -12349,17 +12353,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     } else {
                         nameTextView[a].setRightDrawable2(null);
                     }
-                    if (ArasGramConstants.isSparkleChannel(chat.id) || DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
-                        if (ArasGramConstants.isSparkleChannel(chat.id)) {
-                            TLRPC.TL_emojiStatus arasCherryStatus2 = new TLRPC.TL_emojiStatus();
-                            arasCherryStatus2.document_id = ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED;
-                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(arasCherryStatus2, false, false, a));
-                            if (emojiStatusDrawable[a] != null) {
-                                emojiStatusDrawable[a].setParticles(true, false);
-                            }
-                        } else {
-                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(chat.emoji_status, false, false, a));
-                        }
+                    if (DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
+                        nameTextView[a].setRightDrawable(getEmojiStatusDrawable(chat.emoji_status, false, false, a));
                         nameTextView[a].setRightDrawableOutside(true);
                     } else {
                         nameTextView[a].setRightDrawable(null);
