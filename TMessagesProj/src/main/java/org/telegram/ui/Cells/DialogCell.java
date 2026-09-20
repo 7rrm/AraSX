@@ -1579,9 +1579,10 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                             drawBotVerified = !forbidVerified && !UserObject.isUserSelf(user) && user.bot_verification_icon != 0;
                         }
                         drawPremium = MessagesController.getInstance(currentAccount).isPremiumUser(user) && UserConfig.getInstance(currentAccount).clientUserId != user.id && user.id != 0;
-                        // ArasGramX: force cherry emoji + radial particles
-                        // for the owner (developer) account in the dialog list,
-                        // even if they don't have premium.
+                        // ArasGramX: for the owner (developer) account —
+                        // show the user's OWN premium emoji if they have one
+                        // set. Only fall back to the cherry if they don't
+                        // have any premium emoji status on their account.
                         boolean arasOwnerDialog = ArasGramConstants.isOwner(user.id);
                         if (arasOwnerDialog) {
                             drawPremium = true;
@@ -1589,11 +1590,13 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                         if (drawPremium) {
                             Long emojiStatusId = UserObject.getEmojiStatusDocumentId(user);
                             emojiStatus.center = LocaleController.isRTL;
-                            if (arasOwnerDialog) {
+                            if (arasOwnerDialog && (emojiStatusId == null || emojiStatusId == 0)) {
+                                // Owner has NO premium emoji → show the cherry
                                 nameLayoutEllipsizeByGradient = true;
                                 emojiStatus.set(ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA, false);
                                 emojiStatus.setParticles(true, false);
-                            } else if (emojiStatusId != null) {
+                            } else if (emojiStatusId != null && emojiStatusId != 0) {
+                                // Owner (or any user) HAS a premium emoji → show it
                                 nameLayoutEllipsizeByGradient = true;
                                 emojiStatus.set(emojiStatusId, false);
                                 emojiStatus.setParticles(DialogObject.isEmojiStatusCollectible(user.emoji_status), false);
@@ -3508,11 +3511,11 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                     long dialogBotVerificationIcon = 0;
                     if (user != null) {
                         user = MessagesController.getInstance(currentAccount).getUser(user.id);
-                        // ArasGramX: force cherry emoji for the owner (developer)
-                        // account in the dialog list, even if they don't have a
-                        // premium emoji status set on their account.
+                        // ArasGramX: for the owner — show their own premium
+                        // emoji if set; only fall back to cherry if not.
                         boolean arasOwnerUpdate = ArasGramConstants.isOwner(user.id);
-                        if (arasOwnerUpdate) {
+                        Long arasOwnerUpdateStatusId = user != null ? UserObject.getEmojiStatusDocumentId(user) : null;
+                        if (arasOwnerUpdate && (arasOwnerUpdateStatusId == null || arasOwnerUpdateStatusId == 0)) {
                             nameLayoutEllipsizeByGradient = true;
                             emojiStatus.set(ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA, animated);
                             emojiStatus.setParticles(true, animated);
