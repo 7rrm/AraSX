@@ -359,6 +359,7 @@ import kotlin.Unit;
 import me.vkryl.android.animator.BoolAnimator;
 import me.vkryl.core.reference.ReferenceList;
 
+import tw.nekomimi.nekogram.ArasGramConstants;
 import tw.nekomimi.nekogram.BackButtonMenuRecent;
 import tw.nekomimi.nekogram.DatacenterActivity;
 import tw.nekomimi.nekogram.NekoConfig;
@@ -11953,11 +11954,24 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         nameTextView[a].setRightDrawable2(null);
                         nameTextViewRightDrawable2ContentDescription = null;
                     }
+                    // ArasGramX: force the cherry emoji + radial particles for the
+                    // owner (developer) account, even if they have no premium emoji
+                    // status set on their account. The cherry follows the owner
+                    // everywhere — including their own profile.
+                    boolean arasOwnerCherry = user != null && ArasGramConstants.isOwner(user.id);
+                    Long arasForcedDocId = arasOwnerCherry ? ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA : null;
                     Long selfEmojiDocId = (user != null && user.self) ? UserObject.getEmojiStatusDocumentId(user) : null;
-                    if (user != null/* && !getMessagesController().premiumFeaturesBlocked()*/ && !MessagesController.isSupportUser(user) && (DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId != null && selfEmojiDocId != 0))) {
+                    if (user != null/* && !getMessagesController().premiumFeaturesBlocked()*/ && !MessagesController.isSupportUser(user) && (arasOwnerCherry && arasForcedDocId != null && arasForcedDocId != 0 || DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId != null && selfEmojiDocId != 0))) {
                         rightIconIsStatus = true;
                         rightIconIsPremium = false;
-                        if (user.self && (selfEmojiDocId != null && selfEmojiDocId != 0) && DialogObject.getEmojiStatusDocumentId(user.emoji_status) == 0) {
+                        if (arasOwnerCherry && arasForcedDocId != null && arasForcedDocId != 0) {
+                            TLRPC.TL_emojiStatus status = new TLRPC.TL_emojiStatus();
+                            status.document_id = arasForcedDocId;
+                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(status, false, false, a));
+                            if (emojiStatusDrawable[a] != null) {
+                                emojiStatusDrawable[a].setParticles(true, false);
+                            }
+                        } else if (user.self && (selfEmojiDocId != null && selfEmojiDocId != 0) && DialogObject.getEmojiStatusDocumentId(user.emoji_status) == 0) {
                             TLRPC.TL_emojiStatus status = new TLRPC.TL_emojiStatus();
                             status.document_id = selfEmojiDocId;
                             nameTextView[a].setRightDrawable(getEmojiStatusDrawable(status, false, false, a));
@@ -11982,11 +11996,22 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     } else {
                         nameTextView[a].setRightDrawable2(null);
                     }
+                    // ArasGramX: same owner-cherry override for the second
+                    // nameTextView (the larger title at the top of the profile).
+                    boolean arasOwnerCherry2 = user != null && ArasGramConstants.isOwner(user.id);
+                    Long arasForcedDocId2 = arasOwnerCherry2 ? ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA : null;
                     Long selfEmojiDocId2 = (user != null && user.self) ? UserObject.getEmojiStatusDocumentId(user) : null;
-                    if (/*!getMessagesController().premiumFeaturesBlocked() && */user != null && !MessagesController.isSupportUser(user) && (DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId2 != null && selfEmojiDocId2 != 0))) {
+                    if (/*!getMessagesController().premiumFeaturesBlocked() && */user != null && !MessagesController.isSupportUser(user) && (arasOwnerCherry2 && arasForcedDocId2 != null && arasForcedDocId2 != 0 || DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0 || (user.self && selfEmojiDocId2 != null && selfEmojiDocId2 != 0))) {
                         rightIconIsStatus = true;
                         rightIconIsPremium = false;
-                        if (user.self && (selfEmojiDocId2 != null && selfEmojiDocId2 != 0) && DialogObject.getEmojiStatusDocumentId(user.emoji_status) == 0) {
+                        if (arasOwnerCherry2 && arasForcedDocId2 != null && arasForcedDocId2 != 0) {
+                            TLRPC.TL_emojiStatus status = new TLRPC.TL_emojiStatus();
+                            status.document_id = arasForcedDocId2;
+                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(status, true, true, a));
+                            if (emojiStatusDrawable[a] != null) {
+                                emojiStatusDrawable[a].setParticles(true, true);
+                            }
+                        } else if (user.self && (selfEmojiDocId2 != null && selfEmojiDocId2 != 0) && DialogObject.getEmojiStatusDocumentId(user.emoji_status) == 0) {
                             TLRPC.TL_emojiStatus status = new TLRPC.TL_emojiStatus();
                             status.document_id = selfEmojiDocId2;
                             nameTextView[a].setRightDrawable(getEmojiStatusDrawable(status, true, true, a));
@@ -12286,8 +12311,17 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         nameTextView[a].setRightDrawable2(null);
                         nameTextViewRightDrawableContentDescription = null;
                     }
-                    if (DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
-                        nameTextView[a].setRightDrawable(getEmojiStatusDrawable(chat.emoji_status, true, false, a));
+                    if (ArasGramConstants.isSparkleChannel(chat.id) || DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
+                        if (ArasGramConstants.isSparkleChannel(chat.id)) {
+                            TLRPC.TL_emojiStatus arasCherryStatus = new TLRPC.TL_emojiStatus();
+                            arasCherryStatus.document_id = ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED;
+                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(arasCherryStatus, true, false, a));
+                            if (emojiStatusDrawable[a] != null) {
+                                emojiStatusDrawable[a].setParticles(true, false);
+                            }
+                        } else {
+                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(chat.emoji_status, true, false, a));
+                        }
                         nameTextView[a].setRightDrawableOutside(true);
                         nameTextViewRightDrawableContentDescription = null;
                         if (ChatObject.canChangeChatInfo(chat)) {
@@ -12315,8 +12349,17 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     } else {
                         nameTextView[a].setRightDrawable2(null);
                     }
-                    if (DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
-                        nameTextView[a].setRightDrawable(getEmojiStatusDrawable(chat.emoji_status, false, false, a));
+                    if (ArasGramConstants.isSparkleChannel(chat.id) || DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
+                        if (ArasGramConstants.isSparkleChannel(chat.id)) {
+                            TLRPC.TL_emojiStatus arasCherryStatus2 = new TLRPC.TL_emojiStatus();
+                            arasCherryStatus2.document_id = ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED;
+                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(arasCherryStatus2, false, false, a));
+                            if (emojiStatusDrawable[a] != null) {
+                                emojiStatusDrawable[a].setParticles(true, false);
+                            }
+                        } else {
+                            nameTextView[a].setRightDrawable(getEmojiStatusDrawable(chat.emoji_status, false, false, a));
+                        }
                         nameTextView[a].setRightDrawableOutside(true);
                     } else {
                         nameTextView[a].setRightDrawable(null);
