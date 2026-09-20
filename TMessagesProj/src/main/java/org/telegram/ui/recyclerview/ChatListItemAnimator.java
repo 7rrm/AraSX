@@ -401,13 +401,7 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
             final float slide = AndroidUtilities.dp(out ? 18 : -18);
             mc.setScaleX(fromScale);
             mc.setScaleY(fromScale);
-            // MeeroX v236: use a dedicated meeroPopOffsetX field that only
-            // feeds updateTranslation() (view translationX) but is NOT added
-            // to in-canvas name/time/replies coordinates. Reusing
-            // setAnimationOffsetX for the slide double-shifted the sender
-            // name - once via setTranslationX (whole view) and again via
-            // `nameX += animationOffsetX` inside onDraw - which is why new
-            // group messages briefly showed the name outside the bubble.
+            final float baseOffsetX = mc.getAnimationOffsetX();
             final android.animation.ValueAnimator pop = android.animation.ValueAnimator.ofFloat(0f, 1f);
             // MeeroX v235: message appear keeps natural pace under the
             // global fast-motion scale (his order) - stretched back by
@@ -419,14 +413,14 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
                 final float sc = fromScale + (1f - fromScale) * t;
                 mc.setScaleX(sc);
                 mc.setScaleY(sc);
-                mc.setMeeroPopOffsetX(slide * (1f - Math.min(1f, t)));
+                mc.setAnimationOffsetX(baseOffsetX + slide * (1f - Math.min(1f, t)));
             });
             pop.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation2) {
                     mc.setScaleX(1f);
                     mc.setScaleY(1f);
-                    mc.setMeeroPopOffsetX(0f);
+                    mc.setAnimationOffsetX(baseOffsetX);
                 }
             });
             pop.start();
@@ -1287,11 +1281,6 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
         } else if (view instanceof ChatMessageCell) {
             ((ChatMessageCell) view).getTransitionParams().resetAnimation();
             ((ChatMessageCell) view).setAnimationOffsetX(0f);
-            // MeeroX v236: also clear the iOS pop-in slide offset when the
-            // cell is recycled mid-animation, otherwise the next message
-            // bound to this recycled cell would inherit a non-zero
-            // meeroPopOffsetX and render off-center.
-            ((ChatMessageCell) view).setMeeroPopOffsetX(0f);
         } else if (view instanceof ChatActionCell) {
             ((ChatActionCell) view).getTransitionParams().resetAnimation();
         } else {
