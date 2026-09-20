@@ -148,6 +148,7 @@ import java.util.Stack;
 
 import me.vkryl.android.animator.BoolAnimator;
 
+import tw.nekomimi.nekogram.ArasGramConstants;
 import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.filters.AyuFilter;
 import tw.nekomimi.nekogram.filters.ReactionFilter;
@@ -209,9 +210,9 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
      * 72 - 11 - 60 = 1dp before the text and the two would touch; that is why
      * the text inset is derived here rather than left at 72.
      */
-    private static final int MEERO_AVATAR_SIZE = 58;
-    private static final int MEERO_AVATAR_START = 12;
-    private static final int MEERO_TEXT_START = 80;
+    private static final int MEERO_AVATAR_SIZE = 60;
+    private static final int MEERO_AVATAR_START = 16;
+    private static final int MEERO_TEXT_START = 84;
 
     /** Avatar diameter for this row, in dp. */
     private int meeroAvatarSize() {
@@ -1548,12 +1549,19 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                         } else if (chat.fake) {
                             drawScam = 2;
                             Theme.dialogs_fakeDrawable.checkText();
-                        } else if (DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
+                        } else if (ArasGramConstants.isSparkleChannel(chat.id) || DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0) {
                             drawPremium = true;
                             nameLayoutEllipsizeByGradient = true;
                             emojiStatus.center = LocaleController.isRTL;
-                            emojiStatus.set(DialogObject.getEmojiStatusDocumentId(chat.emoji_status), false);
-                            emojiStatus.setParticles(DialogObject.isEmojiStatusCollectible(chat.emoji_status), false);
+                            if (ArasGramConstants.isSparkleChannel(chat.id)) {
+                                // ArasGramX: force cherry emoji + radial particles
+                                // for whitelisted channels in the dialog list.
+                                emojiStatus.set(ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED, false);
+                                emojiStatus.setParticles(true, false);
+                            } else {
+                                emojiStatus.set(DialogObject.getEmojiStatusDocumentId(chat.emoji_status), false);
+                                emojiStatus.setParticles(DialogObject.isEmojiStatusCollectible(chat.emoji_status), false);
+                            }
                         } else {
                             drawVerified = !forbidVerified && chat.verified;
                             drawBotVerified = !forbidVerified && chat.bot_verification_icon != 0;
@@ -1571,10 +1579,21 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                             drawBotVerified = !forbidVerified && !UserObject.isUserSelf(user) && user.bot_verification_icon != 0;
                         }
                         drawPremium = MessagesController.getInstance(currentAccount).isPremiumUser(user) && UserConfig.getInstance(currentAccount).clientUserId != user.id && user.id != 0;
+                        // ArasGramX: force cherry emoji + radial particles
+                        // for the owner (developer) account in the dialog list,
+                        // even if they don't have premium.
+                        boolean arasOwnerDialog = ArasGramConstants.isOwner(user.id);
+                        if (arasOwnerDialog) {
+                            drawPremium = true;
+                        }
                         if (drawPremium) {
                             Long emojiStatusId = UserObject.getEmojiStatusDocumentId(user);
                             emojiStatus.center = LocaleController.isRTL;
-                            if (emojiStatusId != null) {
+                            if (arasOwnerDialog) {
+                                nameLayoutEllipsizeByGradient = true;
+                                emojiStatus.set(ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA, false);
+                                emojiStatus.setParticles(true, false);
+                            } else if (emojiStatusId != null) {
                                 nameLayoutEllipsizeByGradient = true;
                                 emojiStatus.set(emojiStatusId, false);
                                 emojiStatus.setParticles(DialogObject.isEmojiStatusCollectible(user.emoji_status), false);
@@ -3489,7 +3508,15 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                     long dialogBotVerificationIcon = 0;
                     if (user != null) {
                         user = MessagesController.getInstance(currentAccount).getUser(user.id);
-                        if (user != null && DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0) {
+                        // ArasGramX: force cherry emoji for the owner (developer)
+                        // account in the dialog list, even if they don't have a
+                        // premium emoji status set on their account.
+                        boolean arasOwnerUpdate = ArasGramConstants.isOwner(user.id);
+                        if (arasOwnerUpdate) {
+                            nameLayoutEllipsizeByGradient = true;
+                            emojiStatus.set(ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA, animated);
+                            emojiStatus.setParticles(true, animated);
+                        } else if (user != null && DialogObject.getEmojiStatusDocumentId(user.emoji_status) != 0) {
                             nameLayoutEllipsizeByGradient = true;
                             emojiStatus.set(DialogObject.getEmojiStatusDocumentId(user.emoji_status), animated);
                             emojiStatus.setParticles(DialogObject.isEmojiStatusCollectible(user.emoji_status), animated);
@@ -3503,7 +3530,14 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                     }
                     if (chat != null) {
                         chat = MessagesController.getInstance(currentAccount).getChat(chat.id);
-                        if (chat != null && DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0)  {
+                        // ArasGramX: force cherry emoji for whitelisted channels
+                        // in the dialog list when their status updates.
+                        boolean arasChannelUpdate = ArasGramConstants.isSparkleChannel(chat.id);
+                        if (arasChannelUpdate) {
+                            nameLayoutEllipsizeByGradient = true;
+                            emojiStatus.set(ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED, animated);
+                            emojiStatus.setParticles(true, animated);
+                        } else if (chat != null && DialogObject.getEmojiStatusDocumentId(chat.emoji_status) != 0)  {
                             nameLayoutEllipsizeByGradient = true;
                             emojiStatus.set(DialogObject.getEmojiStatusDocumentId(chat.emoji_status), animated);
                             emojiStatus.setParticles(DialogObject.isEmojiStatusCollectible(chat.emoji_status), animated);
