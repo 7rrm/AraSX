@@ -3642,6 +3642,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         botVerificationDrawable[i].attach();
                     }
                 }
+                // ArasGramX: attach the cherry drawable too — without this,
+                // the cherry emoji image never loads (only the radial
+                // particles render, because they're drawn locally).
+                for (int i = 0; i < arasCherryDrawable.length; i++) {
+                    if (arasCherryDrawable[i] != null) {
+                        arasCherryDrawable[i].attach();
+                    }
+                }
             }
 
             @Override
@@ -3656,6 +3664,12 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 for (int i = 0; i < botVerificationDrawable.length; ++i) {
                     if (botVerificationDrawable[i] != null) {
                         botVerificationDrawable[i].detach();
+                    }
+                }
+                // ArasGramX: detach the cherry drawable too.
+                for (int i = 0; i < arasCherryDrawable.length; i++) {
+                    if (arasCherryDrawable[i] != null) {
+                        arasCherryDrawable[i].detach();
                     }
                 }
             }
@@ -11613,9 +11627,12 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private Drawable getArasCherryStatusDrawable(int a, boolean animated) {
         if (arasCherryDrawable[a] == null) {
             arasCherryDrawable[a] = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable(nameTextView[a], AndroidUtilities.dp(24), a == 0 ? AnimatedEmojiDrawable.CACHE_TYPE_EMOJI_STATUS : AnimatedEmojiDrawable.CACHE_TYPE_KEYBOARD);
-            if (fragmentViewAttached) {
-                arasCherryDrawable[a].attach();
-            }
+            // ArasGramX: always attach immediately when creating. The
+            // previous conditional attach (only when fragmentViewAttached)
+            // missed the case where the drawable is created AFTER the
+            // fragment view is already attached — leading to the cherry
+            // emoji image never loading (only the radial particles showed).
+            arasCherryDrawable[a].attach();
         }
         arasCherryDrawable[a].set(ArasGramConstants.CHERRY_EMOJI_ID_VERIFIED_BRA, animated);
         arasCherryDrawable[a].setParticles(true, animated);
