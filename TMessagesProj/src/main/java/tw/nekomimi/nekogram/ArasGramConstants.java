@@ -42,9 +42,9 @@ public final class ArasGramConstants {
 
     // === معرّفات إيموجي الكرز (مأخوذة من Constants.kt الخاص بـ chh) ===
     /** علامة الكرز الافتراضية المُتحقَّق منها. */
-    public static final long CHERRY_EMOJI_ID_VERIFIED = 5449476181864779205L;
+    public static final long CHERRY_EMOJI_ID_VERIFIED = 5474519762505585866L;
     /** علامة الكرز بنمط Bra — تُستعمل للمالك لتمييزه عن بقية المُتحقَّقين. */
-    public static final long CHERRY_EMOJI_ID_VERIFIED_BRA = 5451850156318181341L;
+    public static final long CHERRY_EMOJI_ID_VERIFIED_BRA = 5474519762505585866L;
 
     /**
      * هل المستخدم المُمرسِل هو المالك؟
