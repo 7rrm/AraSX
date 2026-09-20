@@ -6583,7 +6583,6 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
 
         animationOffsetX = 0;
         slidingOffsetX = 0;
-        meeroPopOffsetX = 0;
         checkBoxTranslation = 0;
         updateTranslation();
 
@@ -27353,16 +27352,6 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
 
     private float slidingOffsetX;
     private float animationOffsetX;
-    // MeeroX: separate offset for the iOS-style "pop in" animation in
-    // ChatListItemAnimator.animateAddImpl. Unlike animationOffsetX, this
-    // value is ONLY applied to the view's translationX via updateTranslation()
-    // and never added to name/time/replies X coordinates inside onDraw.
-    // Reusing animationOffsetX for the slide caused the sender name to be
-    // shifted by 2x the slide amount (once via setTranslationX, once via
-    // `nameX += animationOffsetX`) - which is why new group messages briefly
-    // showed the name outside the bubble before snapping back when the pop
-    // animation finished.
-    private float meeroPopOffsetX;
 
     public Property<ChatMessageCell, Float> ANIMATION_OFFSET_X = new Property<ChatMessageCell, Float>(Float.class, "animationOffsetX") {
         @Override
@@ -27390,24 +27379,11 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         }
     }
 
-    // MeeroX: see comment on meeroPopOffsetX. Only affects view translation,
-    // never affects in-canvas element positions.
-    public void setMeeroPopOffsetX(float offsetX) {
-        if (meeroPopOffsetX != offsetX) {
-            meeroPopOffsetX = offsetX;
-            updateTranslation();
-        }
-    }
-
-    public float getMeeroPopOffsetX() {
-        return meeroPopOffsetX;
-    }
-
     public void updateTranslation() {
         if (currentMessageObject == null) {
             return;
         }
-        float tx = slidingOffsetX + animationOffsetX + meeroPopOffsetX;
+        float tx = slidingOffsetX + animationOffsetX;
         if (!currentMessageObject.isOutOwner() || currentMessageObject.hasWideCode) {
             tx += checkBoxTranslation;
         }
