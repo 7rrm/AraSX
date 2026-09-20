@@ -699,29 +699,18 @@ public class ProfileActionsView extends View {
     }
 
     private void updateNotification(Action notificationAction, boolean animated) {
-        // ArasGramX: when Solar icons are enabled, skip the Lottie animation
-        // (R.raw.profile_muting / R.raw.profile_unmuting) because its frames
-        // contain the DEFAULT Telegram icon, not Solar. Passing 0 for the
-        // animation resource makes updateDrawable() set drawableAnimated=null,
-        // so only the Solar-converted filled/outline drawables are shown.
-        boolean useSolar = false;
-        try {
-            useSolar = xyz.nextalone.nagram.NaConfig.INSTANCE.getIconReplacements().Int()
-                == tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR;
-        } catch (Throwable ignore) {}
-
         if (animated) {
             if (isNotificationsEnabled) {
                 notificationAction.setText(getString(ActionButton.NOTIFICATION_MUTE.title));
                 notificationAction.updateDrawable(
-                    useSolar ? 0 : R.raw.profile_unmuting,
+                    R.raw.profile_unmuting,
                     ActionButton.NOTIFICATION_MUTE.filledIcon,
                     ActionButton.NOTIFICATION_MUTE.outlineIcon
                 );
             } else {
                 notificationAction.setText(getString(ActionButton.NOTIFICATION_UNMUTE.title));
                 notificationAction.updateDrawable(
-                    useSolar ? 0 : R.raw.profile_muting,
+                    R.raw.profile_muting,
                     ActionButton.NOTIFICATION_UNMUTE.filledIcon,
                     ActionButton.NOTIFICATION_UNMUTE.outlineIcon
                 );
@@ -1241,9 +1230,6 @@ public class ProfileActionsView extends View {
             } else {
                 drawableAnimated = null;
             }
-            // ArasGramX: apply Solar icon conversion
-            if (filledRes != 0) filledRes = arasToSolarIcon(filledRes);
-            if (outlineRes != 0) outlineRes = arasToSolarIcon(outlineRes);
             drawableFilled = filledRes != 0 ? getResources().getDrawable(filledRes).mutate() : null;
             drawableOutline = outlineRes != 0 ? getResources().getDrawable(outlineRes).mutate() : null;
 
@@ -1391,43 +1377,5 @@ public class ProfileActionsView extends View {
             };
         }
         return accessibilityNodeProvider;
-    }
-
-    // ArasGramX: maps ProfileActionsView icons to Solar equivalents.
-    private static int arasToSolarIcon(int resId) {
-        try {
-            int iconsType = xyz.nextalone.nagram.NaConfig.INSTANCE.getIconReplacements().Int();
-            if (iconsType != tw.nekomimi.nekogram.ui.icons.IconsResources.ICON_REPLACE_SOLAR) {
-                return resId;
-            }
-            // MUTE (shown when UNMUTED, button says "كتم") → SOLID filled bell (no holes)
-            // Uses filter_unmuted_solar because it has NO evenOdd fillType —
-            // msg_notifications_solar uses evenOdd which creates a hole inside.
-            if (resId == org.telegram.messenger.R.drawable.filled_profile_mute_24 ||
-                resId == org.telegram.messenger.R.drawable.outline_profile_mute_24) {
-                return org.telegram.messenger.R.drawable.filter_unmuted_solar;
-            }
-            // UNMUTE (shown when MUTED, button says "إلغاء الكتم") → bell WITH slash
-            if (resId == org.telegram.messenger.R.drawable.filled_profile_unmute_24 ||
-                resId == org.telegram.messenger.R.drawable.outline_profile_unmute_24) {
-                return org.telegram.messenger.R.drawable.msg_bell_mute_solar;
-            }
-            // CALL
-            if (resId == org.telegram.messenger.R.drawable.filled_profile_call_24 ||
-                resId == org.telegram.messenger.R.drawable.outline_profile_call_24) {
-                return org.telegram.messenger.R.drawable.profile_phone_solar;
-            }
-            // VIDEO
-            if (resId == org.telegram.messenger.R.drawable.filled_profile_video_24 ||
-                resId == org.telegram.messenger.R.drawable.outline_profile_video_24) {
-                return org.telegram.messenger.R.drawable.profile_video_solar;
-            }
-            // MESSAGE
-            if (resId == org.telegram.messenger.R.drawable.filled_profile_message_24 ||
-                resId == org.telegram.messenger.R.drawable.outline_profile_message_24) {
-                return org.telegram.messenger.R.drawable.profile_newmsg_filled_solar;
-            }
-        } catch (Throwable ignore) {}
-        return resId;
     }
 }
