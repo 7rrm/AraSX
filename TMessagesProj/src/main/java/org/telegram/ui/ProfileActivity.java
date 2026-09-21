@@ -12078,7 +12078,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                             if (cherryIcon == null) {
                                 cherryIcon = getArasCherryStatusDrawable(arasCherryIndex, false);
                             }
-                            BulletinFactory.of(arasCherryView, resourcesProvider)
+                            // ArasGramX: BulletinFactory.of(BaseFragment) is the
+                            // overload used elsewhere in ProfileActivity — passing
+                            // a SimpleTextView here would fail to compile because
+                            // the only non-fragment overload requires a FrameLayout.
+                            BulletinFactory.of(ProfileActivity.this)
                                 .createSimpleBulletin(
                                     cherryIcon,
                                     "✕ supported ArasGramX development!")
