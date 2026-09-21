@@ -3265,6 +3265,15 @@ public class ChatActivityEnterView extends FrameLayout implements
             attachButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_glass_defaultIcon), PorterDuff.Mode.MULTIPLY));
             attachButton.setImageResource(R.drawable.msg_input_attach2);
             attachButton.setBackground(Theme.createSelectorDrawable(getThemedColor(Theme.key_listSelector)));
+            // ArasGramX: initialize the attach button tag to 2 (attach mode)
+            // so the first call to checkAttachButton() early-returns when
+            // the button is already in attach mode. Without this, the tag is
+            // null on the first message, causing checkAttachButton(false, ...)
+            // to run a redundant 150ms cross-fade animation that briefly
+            // flashes the 3-dots menu icon before settling back to the
+            // attach icon. The flash only appears on the first message
+            // per chat because subsequent calls have the tag set.
+            attachButton.setTag(2);
             messageEditTextContainer.addView(attachButton, LayoutHelper.createFrame(DEFAULT_HEIGHT, DEFAULT_HEIGHT, Gravity.BOTTOM | Gravity.RIGHT));
             attachButton.setOnClickListener(v -> {
                 if (adjustPanLayoutHelper != null && adjustPanLayoutHelper.animationInProgress() || attachLayoutPaddingAlpha == 0f) {
