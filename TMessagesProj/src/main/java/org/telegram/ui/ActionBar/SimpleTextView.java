@@ -98,6 +98,11 @@ public class SimpleTextView extends View implements Drawable.Callback {
     private int textHeight;
     public int rightDrawableX;
     public int rightDrawableY;
+    // ArasGramX: stored coordinates of rightDrawable2 (the secondary right
+    // drawable, used for the cherry badge). Needed to hit-test taps on it
+    // in onTouchEvent so we can show a Bulletin when the cherry is tapped.
+    public int rightDrawable2X;
+    public int rightDrawable2Y;
     private boolean wasLayout;
 
     private boolean leftDrawableOutside, rightDrawableOutside;
@@ -128,6 +133,8 @@ public class SimpleTextView extends View implements Drawable.Callback {
     private boolean canHideRightDrawable;
     private boolean rightDrawableHidden;
     private OnClickListener rightDrawableOnClickListener;
+    // ArasGramX: click listener for the secondary right drawable (cherry badge).
+    private OnClickListener rightDrawable2OnClickListener;
     private boolean maybeClick;
     private float touchDownX, touchDownY;
 
@@ -959,10 +966,9 @@ public class SimpleTextView extends View implements Drawable.Callback {
                 y = getPaddingTop() + (textHeight - dh) / 2 + rightDrawableTopPadding;
             }
             rightDrawable2.setBounds(x, y, x + dw, y + dh);
-            rightDrawable2.draw(canvas);
-            totalWidth += drawablePadding + dw;
-        }
-        int nextScrollX = totalWidth + dp(DIST_BETWEEN_SCROLLING_TEXT);
+            // ArasGramX: store center for tap hit-testing.
+            rightDrawable2X = x + (dw >> 1);
+            rightDrawable2Y = y + (dh >> 1);
 
         if (scrollingOffset != 0) {
             if (leftDrawable != null && !leftDrawableOutside) {
@@ -1005,6 +1011,9 @@ public class SimpleTextView extends View implements Drawable.Callback {
                     y = getPaddingTop() + (textHeight - dh) / 2 + rightDrawableTopPadding;
                 }
                 rightDrawable2.setBounds(x, y, x + dw, y + dh);
+                // ArasGramX: store center for tap hit-testing.
+                rightDrawable2X = x + (dw >> 1);
+                rightDrawable2Y = y + (dh >> 1);
                 rightDrawable2.draw(canvas);
             }
         }
@@ -1110,6 +1119,9 @@ public class SimpleTextView extends View implements Drawable.Callback {
                     y = getPaddingTop() + (textHeight - dh) / 2 + rightDrawableTopPadding;
                 }
                 rightDrawable2.setBounds(x, y, x + dw, y + dh);
+                // ArasGramX: store center for tap hit-testing.
+                rightDrawable2X = x + (dw >> 1);
+                rightDrawable2Y = y + (dh >> 1);
                 rightDrawable2.draw(canvas);
                 totalWidth += drawablePadding + dw;
             }
@@ -1188,6 +1200,9 @@ public class SimpleTextView extends View implements Drawable.Callback {
                 y = getPaddingTop() + (textHeight - dh) / 2 + rightDrawableTopPadding;
             }
             rightDrawable2.setBounds(x, y, x + dw, y + dh);
+            // ArasGramX: store center for tap hit-testing.
+            rightDrawable2X = x + (dw >> 1);
+            rightDrawable2Y = y + (dh >> 1);
             rightDrawable2.draw(canvas);
         }
     }
@@ -1367,6 +1382,12 @@ public class SimpleTextView extends View implements Drawable.Callback {
         rightDrawableOnClickListener = onClickListener;
     }
 
+    // ArasGramX: setter for the secondary right drawable click listener
+    // (used to handle taps on the cherry badge in ProfileActivity).
+    public void setRightDrawable2OnClick(OnClickListener onClickListener) {
+        rightDrawable2OnClickListener = onClickListener;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (rightDrawableOnClickListener != null && rightDrawable != null) {
@@ -1393,6 +1414,29 @@ public class SimpleTextView extends View implements Drawable.Callback {
                     if (rightDrawable instanceof PressableDrawable) {
                         ((PressableDrawable) rightDrawable).setPressed(false);
                     }
+                }
+                maybeClick = false;
+                getParent().requestDisallowInterceptTouchEvent(false);
+            }
+        }
+        // ArasGramX: same hit-test logic for the secondary right drawable
+        // (the cherry badge). Only fires when rightDrawable2OnClickListener
+        // is set AND rightDrawable2 is non-null.
+        if (rightDrawable2OnClickListener != null && rightDrawable2 != null) {
+            AndroidUtilities.rectTmp.set(rightDrawable2X - dp(16), rightDrawable2Y - dp(16), rightDrawable2X + dp(16), rightDrawable2Y + dp(16));
+            if (event.getAction() == MotionEvent.ACTION_DOWN && AndroidUtilities.rectTmp.contains((int) event.getX(), (int) event.getY())) {
+                maybeClick = true;
+                touchDownX = event.getX();
+                touchDownY = event.getY();
+                getParent().requestDisallowInterceptTouchEvent(true);
+            } else if (event.getAction() == MotionEvent.ACTION_MOVE && maybeClick) {
+                if (Math.abs(event.getX() - touchDownX) >= AndroidUtilities.touchSlop || Math.abs(event.getY() - touchDownY) >= AndroidUtilities.touchSlop) {
+                    maybeClick = false;
+                    getParent().requestDisallowInterceptTouchEvent(false);
+                }
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                if (maybeClick && event.getAction() == MotionEvent.ACTION_UP) {
+                    rightDrawable2OnClickListener.onClick(this);
                 }
                 maybeClick = false;
                 getParent().requestDisallowInterceptTouchEvent(false);
