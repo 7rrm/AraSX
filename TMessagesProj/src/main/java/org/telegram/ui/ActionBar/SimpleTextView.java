@@ -969,6 +969,10 @@ public class SimpleTextView extends View implements Drawable.Callback {
             // ArasGramX: store center for tap hit-testing.
             rightDrawable2X = x + (dw >> 1);
             rightDrawable2Y = y + (dh >> 1);
+            rightDrawable2.draw(canvas);
+            totalWidth += drawablePadding + dw;
+        }
+        int nextScrollX = totalWidth + dp(DIST_BETWEEN_SCROLLING_TEXT);
 
         if (scrollingOffset != 0) {
             if (leftDrawable != null && !leftDrawableOutside) {
