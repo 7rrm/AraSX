@@ -12064,6 +12064,29 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         showStatusSelect();
                     });
                 }
+                // ArasGramX: when the cherry badge (in setRightDrawable2) is
+                // tapped on the developer's profile, show a Bulletin thanking
+                // the developer for their support. Only fires for the owner
+                // account — channels and other users are unaffected.
+                if (ArasGramConstants.isOwner(user.id)) {
+                    final SimpleTextView arasCherryView = nameTextView[a];
+                    final int arasCherryIndex = a;
+                    arasCherryView.setRightDrawable2OnClick(v -> {
+                        try {
+                            // Use the cherry drawable itself as the bulletin icon.
+                            Drawable cherryIcon = arasCherryDrawable[arasCherryIndex];
+                            if (cherryIcon == null) {
+                                cherryIcon = getArasCherryStatusDrawable(arasCherryIndex, false);
+                            }
+                            BulletinFactory.of(arasCherryView, resourcesProvider)
+                                .createSimpleBulletin(
+                                    cherryIcon,
+                                    "✕ supported ArasGramX development!")
+                                .show();
+                        } catch (Throwable ignore) {
+                        }
+                    });
+                }
                 if (!user.self && getMessagesController().isPremiumUser(user)) {
                     final SimpleTextView textView = nameTextView[a];
                     nameTextView[a].setRightDrawableOnClick(v -> {
