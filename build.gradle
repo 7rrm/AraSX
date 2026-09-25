@@ -23,7 +23,8 @@ subprojects {
                     def manifestFile = file("${project.projectDir}/src/main/AndroidManifest.xml")
 
                     if (manifestFile.exists()) {
-                        def manifest = new XmlSlurper().parse(manifestFile)
+                        // Groovy 4 (Gradle 9) no longer auto-imports XmlSlurper.
+                        def manifest = new groovy.xml.XmlSlurper().parse(manifestFile)
                         def manifestPackage = manifest.@package.text()
 
                         if (manifestPackage) {
