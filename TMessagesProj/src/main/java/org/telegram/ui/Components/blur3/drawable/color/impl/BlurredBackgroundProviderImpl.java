@@ -314,8 +314,8 @@ public class BlurredBackgroundProviderImpl {
                 Theme.multAlpha(Theme.getColor(Theme.key_dialogBackground, r), 0.78f))
             .setStrokeColorTop(0xFFFFFFFF, 0x20FFFFFF)
             .setStrokeColorBottom(0, 0x20FFFFFF)
-            .setShadowColor(0x30000000, 0x04FFFFFF)
-            .setShadowLayer(dpf2(12 / 3f), 0, dpf2(1 / 3f))
+            .setShadowColor(0x48000000, 0x04FFFFFF)
+            .setShadowLayer(dpf2(2 / 3f), 0, 0)
             .setStrokeWidth(dpf2(0.67f), dpf2(0.67f))
             .build();
     }

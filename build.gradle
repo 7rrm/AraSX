@@ -7,6 +7,35 @@ plugins {
 }
 
 subprojects {
+    // ------------------------------------------------------------------
+    // media3 (Nagram 12.10.2+): the submodule at TMessagesProj_Modules/media
+    // brings ~39 library projects of its own, each configured by its own
+    // common_library_config.gradle / constants.gradle (compileSdk 35, Java 8,
+    // per-module namespace). MeeroX's global android{} below would override
+    // that (compileSdk 37 / Java 21 / core-library desugaring without a
+    // desugaring dependency), so media3 modules are excluded from it and only
+    // get Nagram's namespace fallback.
+    // ------------------------------------------------------------------
+    if (project.projectDir.absolutePath.contains('/TMessagesProj_Modules/media/')) {
+        project.plugins.withId('com.android.library') {
+            project.android {
+                if (namespace == null) {
+                    def manifestFile = file("${project.projectDir}/src/main/AndroidManifest.xml")
+
+                    if (manifestFile.exists()) {
+                        def manifest = new XmlSlurper().parse(manifestFile)
+                        def manifestPackage = manifest.@package.text()
+
+                        if (manifestPackage) {
+                            namespace manifestPackage
+                        }
+                    }
+                }
+            }
+        }
+        return
+    }
+
     afterEvaluate {
         if (plugins.hasPlugin("com.android.library") || plugins.hasPlugin("com.android.application")) {
             android {

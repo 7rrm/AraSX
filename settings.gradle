@@ -25,3 +25,12 @@ dependencyResolutionManagement {
 
 rootProject.name = "NagramX"
 include ':TMessagesProj'
+
+// --- media3 (Nagram 12.10.2+) -------------------------------------------
+// The bundled ExoPlayer 2 tree (TMessagesProj/src/main/java/com/google/android/
+// exoplayer2) was removed upstream and replaced by the androidx.media3 fork kept
+// in the `media` submodule at TMessagesProj_Modules/media. Same wiring as Nagram:
+// set the module prefix, then let the submodule's own core_settings.gradle
+// include the individual media-* library projects.
+gradle.ext.androidxMediaModulePrefix = 'TMessagesProj_Modules:media3:media-'
+apply from: file("TMessagesProj_Modules/media/core_settings.gradle")
