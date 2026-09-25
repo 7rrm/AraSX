@@ -29,8 +29,56 @@ include ':TMessagesProj'
 // --- media3 (Nagram 12.10.2+) -------------------------------------------
 // The bundled ExoPlayer 2 tree (TMessagesProj/src/main/java/com/google/android/
 // exoplayer2) was removed upstream and replaced by the androidx.media3 fork kept
-// in the `media` submodule at TMessagesProj_Modules/media. Same wiring as Nagram:
-// set the module prefix, then let the submodule's own core_settings.gradle
-// include the individual media-* library projects.
+// in the `media` submodule at TMessagesProj_Modules/media (same repo and commit as
+// Nagram). The module prefix is Nagram's, so every media library keeps its exact
+// upstream project path (':TMessagesProj_Modules:media3:media-lib-...').
+//
+// Nagram wires this by applying the submodule's own core_settings.gradle, which
+// includes all 34 libraries. That does not work here:
+//   * Nagram's prefix makes ':TMessagesProj_Modules:media3' a parent project, and
+//     Gradle 9 aborts when a configured project has no existing directory
+//     ('.../TMessagesProj_Modules/media3' does not exist - Gradle 8 only warned).
+//     Naming the modules one level shorter is not an option: both the app's
+//     dependencies and the submodule's own inter-project references use this path.
+//   * the submodule's list pulls in lib-common-ktx, which applies the standalone
+//     'kotlin-android' plugin - the Kotlin Gradle plugin is not on our build's
+//     classpath (AGP 9 compiles Kotlin itself).
+// So the includes are done here: only the modules :TMessagesProj consumes, plus
+// everything their build scripts reference while being configured (the library
+// build files themselves pull in test-data / test-utils / test-utils-robolectric).
 gradle.ext.androidxMediaModulePrefix = 'TMessagesProj_Modules:media3:media-'
-apply from: file("TMessagesProj_Modules/media/core_settings.gradle")
+// Where the media libraries look for their shared config (common_library_config.gradle,
+// which in turn applies constants.gradle - that is where modulePrefix comes from).
+gradle.ext.androidxMediaSettingsDir = new File(rootDir, 'TMessagesProj_Modules/media').absolutePath
+
+def media3Root = new File(rootDir, 'TMessagesProj_Modules/media')
+include ':TMessagesProj_Modules:media3'
+// This parent project must not use the submodule root as its directory: the root
+// holds the standalone androidx/media build script (its own buildscript classpath
+// and an allprojects repositories block, which our settings reject). 'libraries/'
+// has no build script of its own, so the project stays empty.
+project(':TMessagesProj_Modules:media3').projectDir = new File(media3Root, 'libraries')
+
+[
+        'lib-common'             : 'common',
+        'lib-container'          : 'container',
+        'lib-database'           : 'database',
+        'lib-datasource'         : 'datasource',
+        'lib-decoder'            : 'decoder',
+        'lib-decoder-ffmpeg'     : 'decoder_ffmpeg',
+        'lib-effect'             : 'effect',
+        'lib-exoplayer'          : 'exoplayer',
+        'lib-exoplayer-dash'     : 'exoplayer_dash',
+        'lib-exoplayer-hls'      : 'exoplayer_hls',
+        'lib-extractor'          : 'extractor',
+        'lib-muxer'              : 'muxer',
+        'lib-session'            : 'session',
+        'lib-transformer'        : 'transformer',
+        'test-data'              : 'test_data',
+        'test-utils'             : 'test_utils',
+        'test-utils-robolectric' : 'test_utils_robolectric',
+].each { name, dir ->
+    def media3Path = ':' + gradle.ext.androidxMediaModulePrefix + name
+    include media3Path
+    project(media3Path).projectDir = new File(gradle.ext.androidxMediaSettingsDir, 'libraries/' + dir)
+}
