@@ -172,6 +172,7 @@ public class Emoji {
                         bitmap = emojiPack.getEmoji(page, page2);
                     } catch (Exception e) {
                         FileLog.e(e);
+                    }
                 }
                 if (bitmap != null) {
                     emojiBmp[page][page2] = bitmap;
